@@ -26,6 +26,8 @@ final class DictationController {
     @ObservationIgnored private var backgroundGeneration: UUID?
     private var generation = UUID()
     private var activeMode = WritingMode.transcript
+    private var activeTransformationMode = WritingMode.transcript
+    private var activeWritingStyle: WritingStyle?
     private var activeLocale = "en-US"
     private var activeInstructions = ""
     private var activeVocabulary: [String] = []
@@ -86,9 +88,9 @@ final class DictationController {
         }
     }
 
-    func start(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, destination: Destination = .app) {
+    func start(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, destination: Destination = .app, writingStyle: WritingStyle? = nil) {
         guard phase == .idle else { return }
-        configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory)
+        configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: writingStyle)
         self.destination = destination
         isImporting = false
         phase = .preparing
@@ -174,9 +176,9 @@ final class DictationController {
         }
     }
 
-    func importAudio(_ url: URL, mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool) {
+    func importAudio(_ url: URL, mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle? = nil) {
         guard phase == .idle else { return }
-        configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory)
+        configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: writingStyle)
         isImporting = true
         phase = .preparing
         notice = nil
@@ -197,9 +199,9 @@ final class DictationController {
         }
     }
 
-    func rework(mode: WritingMode, instructions: String, vocabulary: String) {
+    func rework(mode: WritingMode, instructions: String, vocabulary: String, writingStyle: WritingStyle? = nil) {
         guard phase == .idle, let original = current else { return }
-        activeMode = mode; activeInstructions = instructions
+        configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
         activeVocabulary = vocabulary.split(separator: "\n").map(String.init)
         phase = .refining
         notice = nil
@@ -213,12 +215,12 @@ final class DictationController {
 
     /// Reuse the latest saved version, even if new recordings are currently private.
     /// A stale History screen must not resurrect an entry that has been deleted.
-    func reworkSaved(_ id: UUID, mode: WritingMode, instructions: String, vocabulary: String) {
+    func reworkSaved(_ id: UUID, mode: WritingMode, instructions: String, vocabulary: String, writingStyle: WritingStyle? = nil) {
         guard phase == .idle, let saved = store.entries.first(where: { $0.id == id }) else { return }
         current = saved
         currentKeepsHistory = true
         copied = false
-        rework(mode: mode, instructions: instructions, vocabulary: vocabulary)
+        rework(mode: mode, instructions: instructions, vocabulary: vocabulary, writingStyle: writingStyle)
     }
 
     func updateText(_ text: String) {
@@ -285,12 +287,13 @@ final class DictationController {
         finishedDuration ?? max(0, Date().timeIntervalSince(startedAt ?? Date()))
     }
 
-    private func configure(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool) {
+    private func configure(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle?) {
         // Reset synchronously before the task can yield to an app-background
         // callback. A previous transcript must never become this import's checkpoint.
         speech.resetTranscript()
         destination = .app
-        activeMode = mode; activeLocale = locale; activeInstructions = instructions
+        configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
+        activeLocale = locale
         activeVocabulary = vocabulary.split(separator: "\n").map(String.init)
         activeKeepsHistory = saveHistory
         finishedDuration = nil
@@ -298,6 +301,15 @@ final class DictationController {
         isCancelling = false
         activeDictationID = UUID()
         activeCreatedAt = Date()
+    }
+
+    private func configureWriting(mode: WritingMode, instructions: String, writingStyle: WritingStyle?) {
+        // Copy the complete style before recording, importing, or rewriting can yield.
+        // Changes to the mode library apply only to the next operation.
+        activeWritingStyle = writingStyle
+        activeMode = writingStyle?.mode ?? mode
+        activeTransformationMode = writingStyle?.transformationMode ?? mode
+        activeInstructions = writingStyle?.prompt ?? instructions
     }
 
     private func completeOperation(token: UUID) {
@@ -375,7 +387,12 @@ final class DictationController {
     }
 
     private func refine(_ entry: Dictation, token: UUID) async {
+        guard generation == token, !Task.isCancelled else { return }
         let mode = activeMode
+        let transformationMode = activeTransformationMode
+        let writingStyle = activeWritingStyle
+        let instructions = activeInstructions
+        let vocabulary = activeVocabulary
         do {
             // Rewriting should honor corrections made in Home or History. The
             // original remains archival; selecting Original explicitly restores it.
@@ -383,11 +400,12 @@ final class DictationController {
             if mode == .transcript {
                 text = entry.original
             } else {
-                text = try await transformation(entry.text, mode, activeInstructions, activeVocabulary)
+                text = try await transformation(entry.text, transformationMode, instructions, vocabulary)
             }
             guard generation == token, !Task.isCancelled else { return }
             var refined = entry
             refined.text = text; refined.mode = mode
+            refined.writingStyle = mode == .transcript ? nil : writingStyle
             current = refined
             resetCopyFeedback()
             if currentKeepsHistory { store.save(refined) }
