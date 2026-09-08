@@ -9,6 +9,10 @@ struct Dictation: Codable, Identifiable, Equatable, Sendable {
     var mode: WritingMode
     var duration: TimeInterval
     var localeIdentifier: String
+    /// Preserve the name and prompt used for this result, independently of later mode edits.
+    var writingStyle: WritingStyle? = nil
+    var modeTitle: String { writingStyle?.title ?? mode.title }
+    var modeSymbol: String { writingStyle?.mode.symbol ?? mode.symbol }
     var title: String { String(text.split(separator: "\n", omittingEmptySubsequences: true).first ?? "Untitled") }
     var wordCount: Int { text.split(whereSeparator: \.isWhitespace).count }
 }

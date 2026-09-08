@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     let intelligence: IntelligenceService
     let store: DictationStore
+    let styles: WritingStyleStore
     @Bindable var speechModels: ParakeetModelStore
     var isDictationBusy = false
     @Environment(\.dismiss) private var dismiss
@@ -97,6 +98,13 @@ struct SettingsView: View {
                     } label: { LabeledContent("Vocabulary", value: "\(vocabulary.split(separator: "\n").count) words") }
                     Toggle("Haptic feedback", isOn: $haptics)
                 } header: { Text("Dictation") }
+                Section {
+                    NavigationLink { WritingModesSettingsView(styles: styles) } label: {
+                        Label("Writing modes", systemImage: "slider.horizontal.3")
+                    }.accessibilityIdentifier("writingModesSettingsButton")
+                } header: { Text("Rewriting") } footer: {
+                    Text("Customize rewrite prompts and save your own modes.")
+                }
                 Section {
                     Toggle("Save history", isOn: $saveHistory).accessibilityIdentifier("saveHistoryToggle")
                     if !store.entries.isEmpty {

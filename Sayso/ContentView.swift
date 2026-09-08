@@ -3,6 +3,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Bindable var model: DictationController
+    let styles: WritingStyleStore
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -10,7 +11,6 @@ struct ContentView: View {
     @AppStorage("writingMode") private var modeRaw = WritingMode.transcript.rawValue
     @AppStorage("speechLocale") private var locale = SpeechLanguage.defaultIdentifier
     @AppStorage(SpeechProvider.preferenceKey) private var providerRaw = SpeechProvider.defaultProvider.rawValue
-    @AppStorage("customInstructions") private var instructions = ""
     @AppStorage("vocabulary") private var vocabulary = ""
     @AppStorage("saveHistory") private var saveHistory = true
     @ScaledMetric(relativeTo: .largeTitle) private var idleTitleSize = 38.0
@@ -21,7 +21,7 @@ struct ContentView: View {
     @State private var editText = ""
     @State private var discardRecording = false
     @State private var followingLiveTranscript = true
-    private var mode: WritingMode { WritingMode(rawValue: modeRaw) ?? .transcript }
+    private var mode: WritingStyle { styles.style(for: modeRaw) }
     private var provider: SpeechProvider { SpeechProvider(rawValue: providerRaw) ?? .defaultProvider }
     private var recording: Bool { model.phase == .recording }
     private var compactHeight: Bool { verticalSizeClass == .compact }
@@ -96,15 +96,15 @@ struct ContentView: View {
         .sheet(item: $sheet) { active in
             switch active {
             case .history:
-                HistoryView(store: model.store) { id, selected in
+                HistoryView(store: model.store, styles: styles) { id, selected in
                     showOriginal = false
                     sheet = nil
-                    model.reworkSaved(id, mode: selected, instructions: instructions, vocabulary: vocabulary)
+                    model.reworkSaved(id, mode: selected.mode, instructions: selected.prompt, vocabulary: vocabulary, writingStyle: selected)
                 }
-            case .settings: SettingsView(intelligence: model.intelligence, store: model.store,
+            case .settings: SettingsView(intelligence: model.intelligence, store: model.store, styles: styles,
                                          speechModels: model.speechModels, isDictationBusy: model.isBusy)
             case .modes:
-                ModePickerView(selected: $modeRaw, instructions: $instructions, intelligence: model.intelligence)
+                ModePickerView(selected: $modeRaw, styles: styles, intelligence: model.intelligence)
                     .presentationDetents([.large])
             case .edit:
                 DictationTextEditor(text: $editText, onCancel: { sheet = nil }) { editedText in
@@ -116,7 +116,7 @@ struct ContentView: View {
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio], allowsMultipleSelection: false) { result in
             switch result {
             case .success(let urls):
-                if let url = urls.first { model.importAudio(url, mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory) }
+                if let url = urls.first { model.importAudio(url, mode: mode.mode, locale: locale, instructions: mode.prompt, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: mode) }
             case .failure(let error): model.notice = error.localizedDescription
             }
         }
@@ -307,12 +307,17 @@ struct ContentView: View {
                 }
                 Spacer()
                 Menu {
-                    ForEach(WritingMode.allCases) { option in
-                        Button { showOriginal = false; model.rework(mode: option, instructions: instructions, vocabulary: vocabulary) } label: {
+                    ForEach(styles.styles) { option in
+                        Button { showOriginal = false; model.rework(mode: option.mode, instructions: option.prompt, vocabulary: vocabulary, writingStyle: option) } label: {
                             Label(option.title, systemImage: option.symbol)
                         }
+                        .disabled(option.mode != .transcript && option.prompt.isEmpty)
+                        .accessibilityIdentifier("rewrite-\(option.id)")
                     }
+                    Divider()
+                    Button("Edit prompts & modes", systemImage: "slider.horizontal.3") { sheet = .modes }
                 } label: { Label("Rewrite", systemImage: "sparkles") }
+                    .accessibilityIdentifier("rewriteButton")
             }.font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary).disabled(model.isBusy)
             Button { importing = true } label: {
                 Label("Import audio", systemImage: "arrow.down.doc")
@@ -494,7 +499,7 @@ struct ContentView: View {
     }
     private func startRecording(destination: DictationController.Destination = .app) {
         showOriginal = false
-        model.start(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, destination: destination)
+        model.start(mode: mode.mode, locale: locale, instructions: mode.prompt, vocabulary: vocabulary, saveHistory: saveHistory, destination: destination, writingStyle: mode)
     }
     private func consumeRoute() {
         guard scenePhase == .active, let request = AppRoute.shared.recordRequest else { return }
@@ -534,5 +539,5 @@ private struct DictationTextEditor: View {
 }
 
 #Preview {
-    ContentView(model: DictationController(store: DictationStore(fileURL: URL.temporaryDirectory.appending(path: "sayso-preview.json"))))
+    ContentView(model: DictationController(store: DictationStore(fileURL: URL.temporaryDirectory.appending(path: "sayso-preview.json"))), styles: WritingStyleStore(defaults: UserDefaults(suiteName: "Sayso.Preview")!))
 }
