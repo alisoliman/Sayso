@@ -1,0 +1,31 @@
+{
+  "sdk": "27.0 / 24A5422a",
+  "runtime": "27.0 / 24A5423a",
+  "device": "iPhone 17 Pro",
+  "resultBundle": ".build/Sayso-iOS27-UI-Polish-Light.xcresult",
+  "note": "These three snapshots belong to passing Home and scripted recording methods in a run with one unrelated failing Custom editor test. Recording/refinement use DEBUG synthetic speech, not microphone or model-quality evidence. No image editing.",
+  "images": [
+    {
+      "path": "docs/screenshots/ios27/home-light.png",
+      "source": ".build/ios27-ui-polish-light-attachments/F8B51B49-57DD-456C-89E1-3B2E7FD7A057.png",
+      "sha256": "9bd362051939fba50b086c67eb034c49afc6bb6bb27675025e70eccaec4d3932"
+    },
+    {
+      "path": "docs/screenshots/ios27/recording-light.png",
+      "source": ".build/ios27-ui-polish-light-attachments/65E4C1A2-3AED-4C12-A7C8-A6A8C232AB71.png",
+      "sha256": "ab309d9df8e2ce1b48347989e25049fa785a85c50dc4b8f50d68ebf93b4a1e69"
+    },
+    {
+      "path": "docs/screenshots/ios27/refinement-light.png",
+      "source": ".build/ios27-ui-polish-light-attachments/A9DAB24B-7AA5-41DA-9A98-623C6C1A8061.png",
+      "sha256": "985818787f60abca30b78181dda9e8a2adcbb85bf04cab54fdaebe5d59f5f3f4"
+    },
+    {
+      "path": "docs/screenshots/ios27/home-dark.png",
+      "source": ".build/ios27-ui-polish-dark-attachments/E87EE2A3-AF53-49F3-BADD-3D877556AAD2.png",
+      "sha256": "34c38e7f356e486b37b890d5fdbd505e45ff473f188b7537dc6d6fbe5b73384c",
+      "resultBundle": ".build/Sayso-iOS27-UI-Polish-Dark.xcresult",
+      "note": "Single dark Home test passed after CustomStyleEditor binding production fix. Actual simulator dark appearance; restored light afterward."
+    }
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "corpusID": "notes-bulleted-owners-independent-2026-09-07-v1",
+  "corpusSHA256": "ca2def967c184f3ca65a903cc7d87c995fbf58963309fcc7dd26120d93065591",
+  "anonymousReviewSHA256": "ad6311e72c25adcccfd5d7aac601d93ea6ff766e8b80fea510761393fddb0e93",
+  "reviewMethod": "Manually judged all 24 anonymous observations against the previously frozen source and usefulEditCriteria. Did not read the identity key, named reports, candidate D or new trial code during this scoring. Candidate C was reviewed in a separate prior task before this anonymous review was requested; no candidate identity is known for an observation. No model, build, or UI execution. Ratings were decided from the source/output/error pairs; this script only records those decisions and verifies their frozen criteria match.",
+  "ratingDefinitions": {
+    "faithfulness": "Pass requires preservation of source facts and relationships; retaining unambiguous explicit correction wording can pass source-relative faithfulness while failing useful editing. Empty filler substitution alone is not a semantic failure. Errors with no accepted output are not_assessable.",
+    "usefulNotes": "Pass requires every frozen usefulEditCriterion, with unchanged already-good controls allowed only as control-preserved. Filler-only cleanup without required independent-task separation, unresolved correction wording, and fallback all fail useful Notes.",
+    "safe fallback": "An error is returned with Original reported available; no accepted generated output is present. This is not a transformation or control success."
+  },
+  "summary": {
+    "observations": 24,
+    "controls": {
+      "observations": 8,
+      "controlPreserved": 4,
+      "safeFallback": 4,
+      "acceptedSemanticFailure": 0
+    },
+    "requiredTransformations": {
+      "observations": 16,
+      "usefulTransformations": 0,
+      "faithfulButNotUseful": 10,
+      "acceptedSemanticFailure": 6,
+      "safeFallback": 0
+    },
+    "faithfulness": {
+      "pass": 14,
+      "fail": 6,
+      "not_assessable": 4
+    },
+    "usefulNotes": {
+      "pass": 4,
+      "fail": 20
+    },
+    "classification": {
+      "control-preserved": 4,
+      "useful transformation": 0,
+      "faithful-but-not-useful": 10,
+      "accepted-semantic-failure": 6,
+      "safe fallback": 4
+    }
+  },
+  "observations": [
+    {
+      "anonymousLabel": "observation-01",
+      "id": "bulleted-independent-nl-fillers-distinct-owners",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "The two owners, Wednesday/Friday assignments, proof and large-box office location survive, and fillers are removed. The two independently owned tasks remain merged in one bullet: only two bullets are produced instead of the required three. The second bullet also remains lowercase and sentence punctuation is not restored."
+    },
+    {
+      "anonymousLabel": "observation-02",
+      "id": "bulleted-independent-nl-fillers-distinct-owners",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "All factual assignments and the box size/location survive and fillers are removed. Merel’s printer call and Tibor’s proof collection remain in one bullet, so the required separation into three complete task/status bullets is not achieved."
+    },
+    {
+      "anonymousLabel": "observation-03",
+      "id": "bulleted-independent-en-owner-date-correction",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "fail",
+      "usefulNotes": "fail",
+      "classification": "accepted-semantic-failure",
+      "exactIssue": "The active Friday delivery is assigned to Calista rather than Felix, and Felix is deleted. This overrides the explicit owner correction and contradicts the retained instruction not to ask Calista to transport the stand."
+    },
+    {
+      "anonymousLabel": "observation-04",
+      "id": "bulleted-independent-en-fillers-distinct-owners",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "The owners, days, projector, folding chairs, spare cables and storeroom remain correctly associated; empty fillers are removed. The two differently owned tasks are not separated: there are only two bullets instead of three. The second bullet remains lowercase and sentence punctuation is not restored."
+    },
+    {
+      "anonymousLabel": "observation-05",
+      "id": "bulleted-independent-nl-owner-date-correction",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "The output is exactly the source. Faithfulness passes because the explicit Dutch correction “Nee, dinsdag; Boudewijn regelt het vervoer” remains next to the superseded statement, and Renske’s restricted board-packing task is retained; no new competing assignment is introduced. Useful editing fails because the corrected owner/day are not resolved into a concise current transport note; unchanged correction dictation is expressly excluded by the frozen criterion."
+    },
+    {
+      "anonymousLabel": "observation-06",
+      "id": "bulleted-independent-en-fillers-distinct-owners",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "Three task bullets preserve the correct owners, days, objects and cable location, with readable separation. Empty spoken fillers remain as “Um” before both names and “Er” before the cable instruction (including changing source “uh” to “Um”). These filler changes do not alter the task facts, but fail the required filler cleanup."
+    },
+    {
+      "anonymousLabel": "observation-07",
+      "id": "bulleted-independent-en-fillers-distinct-owners",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "Facts and assignments are preserved and fillers removed. Zinnia’s projector check and Lennox’s chair collection remain merged, yielding only two bullets instead of the required three independently readable actions."
+    },
+    {
+      "anonymousLabel": "observation-08",
+      "id": "bulleted-independent-en-owner-control",
+      "repetition": 2,
+      "caseKind": "control",
+      "faithfulness": "pass",
+      "usefulNotes": "pass",
+      "classification": "control-preserved",
+      "exactIssue": "The already-good control is unchanged: all three bullets preserve Keziah’s vial-labeling deadline/team, Oren’s before-departure seal check, and the unresolved battery approval. This is preservation, not a transformation win."
+    },
+    {
+      "anonymousLabel": "observation-09",
+      "id": "bulleted-independent-nl-owner-date-correction",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "fail",
+      "usefulNotes": "fail",
+      "classification": "accepted-semantic-failure",
+      "exactIssue": "The entire source note that Renske only packs the loose boards is omitted, losing both her assignment and its restriction/object distinction. The superseded transport statement and its correction are split into separate bullets instead of resolving the current owner/day."
+    },
+    {
+      "anonymousLabel": "observation-10",
+      "id": "bulleted-independent-nl-owner-date-correction",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "fail",
+      "usefulNotes": "fail",
+      "classification": "accepted-semantic-failure",
+      "exactIssue": "The entire source note that Renske only packs the loose boards is omitted, losing both her assignment and its restriction/object distinction. The superseded transport statement and its correction are split into separate bullets instead of resolving the current owner/day."
+    },
+    {
+      "anonymousLabel": "observation-11",
+      "id": "bulleted-independent-nl-scope-control",
+      "repetition": 1,
+      "caseKind": "control",
+      "faithfulness": "not_assessable",
+      "usefulNotes": "fail",
+      "classification": "safe fallback",
+      "exactIssue": "The observation contains an error and no accepted output, so generated-output faithfulness is not assessable. The reported error states that Original remains available. This is a safe fallback, not successful preservation of the control by a returned Notes result."
+    },
+    {
+      "anonymousLabel": "observation-12",
+      "id": "bulleted-independent-en-owner-date-correction",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "fail",
+      "usefulNotes": "fail",
+      "classification": "accepted-semantic-failure",
+      "exactIssue": "The superseded Calista/Thursday delivery is presented as the active assignment. The correction to Felix/Friday is entirely deleted, while the contradictory instruction not to ask Calista to transport the stand remains."
+    },
+    {
+      "anonymousLabel": "observation-13",
+      "id": "bulleted-independent-nl-fillers-distinct-owners",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "The two owners and days, proof, and large-box office location remain correctly associated and fillers are removed. The independent call and collection remain combined in one bullet, giving only two rather than three bullets; the second bullet also remains lowercase and sentence punctuation is not restored."
+    },
+    {
+      "anonymousLabel": "observation-14",
+      "id": "bulleted-independent-nl-scope-control",
+      "repetition": 1,
+      "caseKind": "control",
+      "faithfulness": "not_assessable",
+      "usefulNotes": "fail",
+      "classification": "safe fallback",
+      "exactIssue": "There is an error and no accepted output. Generated-output faithfulness cannot be scored; the message reports Original retained. No successful returned control preservation or useful Notes result is demonstrated."
+    },
+    {
+      "anonymousLabel": "observation-15",
+      "id": "bulleted-independent-en-owner-control",
+      "repetition": 1,
+      "caseKind": "control",
+      "faithfulness": "pass",
+      "usefulNotes": "pass",
+      "classification": "control-preserved",
+      "exactIssue": "The control is unchanged and all three readable bullets preserve the two owners and their distinct task/time conditions, team context and unapproved battery status. Count this only as a control preservation."
+    },
+    {
+      "anonymousLabel": "observation-16",
+      "id": "bulleted-independent-en-owner-date-correction",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "fail",
+      "usefulNotes": "fail",
+      "classification": "accepted-semantic-failure",
+      "exactIssue": "The output assigns Friday’s display-stand delivery to Calista and omits Felix. It applies the date correction while discarding the owner correction, contradicting the retained restriction against Calista transporting the stand."
+    },
+    {
+      "anonymousLabel": "observation-17",
+      "id": "bulleted-independent-en-owner-control",
+      "repetition": 1,
+      "caseKind": "control",
+      "faithfulness": "pass",
+      "usefulNotes": "pass",
+      "classification": "control-preserved",
+      "exactIssue": "The unchanged three-bullet control preserves both task owners, each timing condition, field-survey context, and unresolved battery approval. The reported second generation attempt does not change the preservation-only classification."
+    },
+    {
+      "anonymousLabel": "observation-18",
+      "id": "bulleted-independent-nl-scope-control",
+      "repetition": 2,
+      "caseKind": "control",
+      "faithfulness": "not_assessable",
+      "usefulNotes": "fail",
+      "classification": "safe fallback",
+      "exactIssue": "No accepted output is present; the observation records an error stating that Original remains available. Generated-output faithfulness is not assessable and the control has not succeeded as a returned Notes result."
+    },
+    {
+      "anonymousLabel": "observation-19",
+      "id": "bulleted-independent-nl-fillers-distinct-owners",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "The owners, Wednesday/Friday assignments and large-box office location remain intact. Spoken “uh” and “um” remain, the independent tasks are not separated into three bullets, and the second bullet remains lowercase without restored sentence punctuation."
+    },
+    {
+      "anonymousLabel": "observation-20",
+      "id": "bulleted-independent-nl-owner-date-correction",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "This is exact source preservation. The explicit adjacent “Nee, dinsdag; Boudewijn regelt het vervoer” still indicates the corrected day and transport organizer, and Renske’s restricted packing task remains; therefore no source-relative meaning loss is introduced. It nevertheless fails the useful-edit requirement to resolve the correction into two concise current notes rather than return unchanged correction wording."
+    },
+    {
+      "anonymousLabel": "observation-21",
+      "id": "bulleted-independent-nl-scope-control",
+      "repetition": 2,
+      "caseKind": "control",
+      "faithfulness": "not_assessable",
+      "usefulNotes": "fail",
+      "classification": "safe fallback",
+      "exactIssue": "The observation provides only an error reporting that Original remains available. No returned output exists to assess for faithfulness, and fallback is not a successful Notes control-preservation result."
+    },
+    {
+      "anonymousLabel": "observation-22",
+      "id": "bulleted-independent-en-fillers-distinct-owners",
+      "repetition": 2,
+      "caseKind": "required-transformation",
+      "faithfulness": "pass",
+      "usefulNotes": "fail",
+      "classification": "faithful-but-not-useful",
+      "exactIssue": "Task separation into three bullets and the factual owner/day/object/location relationships are correct. Empty “Um” and “Er” fillers remain, and source “uh” is rendered “Um”; these do not change task semantics but fail the explicitly required filler cleanup."
+    },
+    {
+      "anonymousLabel": "observation-23",
+      "id": "bulleted-independent-en-owner-date-correction",
+      "repetition": 1,
+      "caseKind": "required-transformation",
+      "faithfulness": "fail",
+      "usefulNotes": "fail",
+      "classification": "accepted-semantic-failure",
+      "exactIssue": "The output retains the superseded Calista/Thursday delivery as an active fact and entirely deletes the Felix/Friday correction. The unchanged second bullet still prohibits asking Calista to transport the stand, creating a conflicting result."
+    },
+    {
+      "anonymousLabel": "observation-24",
+      "id": "bulleted-independent-en-owner-control",
+      "repetition": 2,
+      "caseKind": "control",
+      "faithfulness": "pass",
+      "usefulNotes": "pass",
+      "classification": "control-preserved",
+      "exactIssue": "The already-good control is exactly preserved in three readable bullets, including both owners, their separate deadlines/conditions, the team context, and unresolved approval status. This is not a transformation win."
+    }
+  ]
+}

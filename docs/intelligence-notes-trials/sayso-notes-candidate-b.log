@@ -1,0 +1,25 @@
+Model available: true. Writing runs privately on this iPhone.
+PASS guard replay invented-time: rejected
+PASS guard replay lost-uncertainty: rejected
+PASS guard replay lost-negation: rejected
+PASS guard replay dictated-command-answer: rejected
+PASS guard replay faithful-message: accepted
+PASS guard replay faithful-notes: accepted
+FAIL notes-punctuated run 1 (2.5s; 1 generation attempts)
+- For the launch we still need to finish the onboarding screens, test recording on a real device and check the accessibility labels.
+- Maya is taking care of the screenshots.
+- We have not decided on a launch date.
+  • Expected at least 5 bullets, received 3
+FAIL notes-unpunctuated run 1 (5.5s; 2 generation attempts)
+The rewrite may have changed your meaning, so it wasn't applied. Your original is safe. Try another mode or keep your original words.
+PASS holdout-en-notes-owner-undecided run 1 (1.6s; 1 generation attempts)
+- Nora will inspect the canoe straps on Tuesday
+- Eli needs to photograph the cracked paddle
+- we still haven't decided whether to replace the blue life jackets
+FAIL holdout-nl-notes-owner-undecided run 1 (45.6s; 2 generation attempts)
+This recording and its writing instructions exceed the on-device model's capacity. Your original is safe. Try a shorter recording or fewer instructions.
+FAIL polish-notes-en-explicit-purpose run 1 (3.4s; 2 generation attempts)
+Apple Intelligence couldn't produce the requested format. Your original is safe. Try simpler writing instructions.
+FAIL polish-notes-nl-explicit-topic run 1 (53.8s; 2 generation attempts)
+This recording and its writing instructions exceed the on-device model's capacity. Your original is safe. Try a shorter recording or fewer instructions.
+/tmp/sayso-run-notes-trial.sh: line 13: 80152 Terminated: 15          "$trial_build/evaluate" --fixtures /tmp/sayso-notes-development.json --repeat "$trial_repeats" --output "$trial_output"

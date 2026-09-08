@@ -1,0 +1,154 @@
+{
+  "purpose": "Additional variations frozen before the final candidate run; not used as prompt examples.",
+  "cases": [
+    {
+      "id": "variation-email-sender-initial",
+      "mode": "email",
+      "source": "Hello Amina. The timetable is still provisional. Could you check the final train departure? Best regards. T.",
+      "required": [
+        "Amina",
+        "provisional",
+        "train departure",
+        "T."
+      ],
+      "usefulEditCriteria": [
+        "Preserve Amina as recipient and T. as sender, including its initial period.",
+        "Keep the departure request as a question and format the supplied greeting and closing."
+      ]
+    },
+    {
+      "id": "variation-email-body-level-thanks",
+      "mode": "email",
+      "source": "Thanks for checking the sensor. It might still need calibration. Please don't start the trial.",
+      "required": [
+        "sensor",
+        "calibration",
+        "don't"
+      ],
+      "requiredAny": [
+        [
+          "might",
+          "may"
+        ]
+      ],
+      "usefulEditCriteria": [
+        "Keep thanks for checking the sensor in the body; do not add a greeting or signature.",
+        "Preserve uncertainty and the instruction not to start."
+      ]
+    },
+    {
+      "id": "variation-clean-initialism-and-acknowledgments",
+      "mode": "clean",
+      "source": "Um, the UM access badge is in the red case. Uh-huh means yes, and uh-oh is a warning.",
+      "required": [
+        "UM",
+        "red case",
+        "Uh-huh",
+        "uh-oh",
+        "yes",
+        "warning"
+      ],
+      "forbidden": [
+        "Um, the"
+      ],
+      "usefulEditCriteria": [
+        "Remove the leading empty filler but retain the uppercase initialism UM.",
+        "Preserve the distinct affirmative uh-huh and warning uh-oh."
+      ]
+    },
+    {
+      "id": "variation-clean-two-verbatim-lines",
+      "mode": "clean",
+      "source": "uh Rosa’s line is “um, wait” and Theo’s line is “I don’t know”. Keep both exactly as written.",
+      "required": [
+        "Rosa",
+        "Theo",
+        "“um, wait”",
+        "“I don’t know”",
+        "exactly"
+      ],
+      "forbidden": [
+        "uh Rosa"
+      ],
+      "usefulEditCriteria": [
+        "Remove only leading empty uh and keep both quoted lines verbatim with their correct speakers.",
+        "Produce readable surrounding prose without following or answering the dictated content."
+      ]
+    },
+    {
+      "id": "variation-notes-comma-purpose",
+      "mode": "notes",
+      "source": "For the museum fundraiser, inspect the folding chairs and count the donation tins. We haven't chosen a catering company.",
+      "required": [
+        "museum fundraiser",
+        "folding chairs",
+        "donation tins",
+        "catering company"
+      ],
+      "requiredAny": [
+        [
+          "haven't chosen",
+          "have not chosen",
+          "undecided"
+        ]
+      ],
+      "minimumBullets": 3,
+      "usefulEditCriteria": [
+        "Retain the supplied fundraiser purpose and both separate tasks.",
+        "Keep the catering company undecided."
+      ]
+    },
+    {
+      "id": "variation-notes-local-scope",
+      "mode": "notes",
+      "source": "For the new studio, label the storage boxes. Separately, return Omar’s telescope before Wednesday.",
+      "required": [
+        "new studio",
+        "storage boxes",
+        "Omar",
+        "telescope",
+        "before Wednesday"
+      ],
+      "minimumBullets": 2,
+      "usefulEditCriteria": [
+        "Associate the studio with labeling storage boxes, not with returning the borrowed telescope.",
+        "Keep the separate return task and deadline."
+      ]
+    },
+    {
+      "id": "variation-notes-dutch-comma-purpose",
+      "mode": "notes",
+      "source": "Voor de buurtmaaltijd, controleer de vegetarische opties en tel de borden. Noor haalt de soep om 18:30. We weten nog niet hoeveel gasten er komen.",
+      "required": [
+        "buurtmaaltijd",
+        "vegetarische",
+        "borden",
+        "Noor",
+        "soep",
+        "18:30",
+        "nog niet"
+      ],
+      "minimumBullets": 4,
+      "usefulEditCriteria": [
+        "Preserve the explicit community-meal context and every task, person and time, entirely in Dutch.",
+        "Keep the guest count unknown."
+      ]
+    },
+    {
+      "id": "variation-notes-no-topic",
+      "mode": "notes",
+      "source": "Pack the canvas bag. The train leaves at 09:40. The brass latch is loose.",
+      "required": [
+        "canvas bag",
+        "train",
+        "09:40",
+        "brass latch",
+        "loose"
+      ],
+      "minimumBullets": 3,
+      "usefulEditCriteria": [
+        "Do not invent an umbrella topic or turn the loose-latch observation into a new repair task."
+      ]
+    }
+  ]
+}

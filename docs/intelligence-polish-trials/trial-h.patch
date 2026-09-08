@@ -1,0 +1,128 @@
+--- Sayso/Services/IntelligenceService.swift
++++ Sayso/Services/IntelligenceService.swift
+@@ -393,11 +393,6 @@
+     }
+ 
+     static func polishedCleanText(_ output: String, source: String) throws -> String {
+-        let recognizer = NLLanguageRecognizer()
+-        recognizer.processString(source)
+-        let language = recognizer.dominantLanguage
+-        let confidence = language.flatMap { recognizer.languageHypotheses(withMaximum: 1)[$0] } ?? 0
+-        let mayRemoveFillers = (language == .english || language == .dutch) && confidence >= 0.8
+         let quotes = try NSRegularExpression(pattern: #"\"[^\"]*\"|“[^”]*”|«[^»]*»"#)
+         func ranges(in text: String) -> [Range<String.Index>] {
+             quotes.matches(in: text, range: NSRange(text.startIndex..., in: text)).compactMap { Range($0.range, in: text) }
+@@ -407,37 +402,22 @@
+         if !originalQuotes.isEmpty {
+             let resultQuotes = ranges(in: result)
+             guard resultQuotes.count == originalQuotes.count else { throw IntelligenceError.changedMeaning }
+-            let generatedQuotes = resultQuotes.map { String(result[$0]) }
+-            if generatedQuotes != originalQuotes {
+-                func quotationWords(_ quote: String) -> [String] {
+-                    var content = String(quote.dropFirst().dropLast())
+-                    if mayRemoveFillers {
+-                        content = content.replacingOccurrences(of: #"(?i)^(?:um|uh|erm|ehm|uhm)\s*[,;:]\s*"#, with: "", options: .regularExpression)
+-                    }
+-                    return content.lowercased().components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
+-                }
+-                let originals = originalQuotes.map(quotationWords)
+-                // Shared words do not identify a quotation: “send it” and “don't send it” must
+-                // never be swapped. Require the complete ordered word sequences, retaining
+-                // negation, and refuse ambiguous collisions after removing a punctuated pause.
+-                guard originals == generatedQuotes.map(quotationWords), Set(originals).count == originals.count else {
++            // Clean mode edits surrounding prose. Direct quotations are preserved verbatim, so
++            // hesitant dialogue and capitalization cannot be mistaken for removable vocal filler.
++            for (range, original) in zip(resultQuotes, originalQuotes).reversed() {
++                let originalWords = contentWords(original)
++                let generatedWords = contentWords(String(result[range]))
++                guard originalWords.isEmpty || !originalWords.isDisjoint(with: generatedWords) else {
+                     throw IntelligenceError.changedMeaning
+                 }
+-                for (range, original) in zip(resultQuotes, originalQuotes).reversed() {
+-                    result.replaceSubrange(range, with: original)
+-                }
+-            }
+-        }
+-        // Um is also a Portuguese article and a German preposition. Unknown or mixed-language
+-        // fragments retain their words; quote validation above remains language-independent.
+-        guard mayRemoveFillers else { return result }
++                result.replaceSubrange(range, with: original)
++            }
++        }
+         let leadingFiller = try NSRegularExpression(pattern: #"^(?:um|uh|erm|ehm|uhm)(?:[\s,.]+)(?=\S)"#, options: .caseInsensitive)
+         while let match = leadingFiller.firstMatch(in: result, range: NSRange(result.startIndex..., in: result)),
+               let range = Range(match.range, in: result) {
+             let token = String(result[range]).trimmingCharacters(in: .whitespacesAndNewlines).trimmingCharacters(in: .punctuationCharacters)
+             guard token != token.uppercased() else { break } // Keep uppercase initialisms.
+-            let hasPausePunctuation = result[range].contains(",") || result[range].contains(".")
+-            guard hasPausePunctuation else { break } // A bare word can be a name or quoted term.
+             result.removeSubrange(range)
+         }
+         let sentenceWords: Set<String> = ["a", "an", "the", "i", "we", "you", "they", "he", "she", "it", "this", "that", "there", "here", "please", "for", "ik", "wij", "we", "je", "de", "het", "een", "dit", "dat"]
+@@ -470,14 +450,11 @@
+         let contextWords = Set(context.lowercased().components(separatedBy: CharacterSet.alphanumerics.inverted))
+         let clauseMarkers: Set<String> = ["i", "we", "you", "they", "he", "she", "need", "needs", "will", "should", "must", "can", "could", "is", "are", "was", "were", "ik", "wij", "je", "jij", "u", "zij", "moet", "moeten", "kan", "kunnen", "zal", "zullen", "hebben", "heeft"]
+         guard contextWords.isDisjoint(with: clauseMarkers), contextWords.count <= 12 else { return items }
+-        if items.contains(where: { $0.range(of: context, options: .caseInsensitive) != nil }) { return items }
+-        guard items[0].range(of: #"(?i)^\s*(?:for|regarding|concerning|about|voor|over|betreffende)\b"#, options: .regularExpression) == nil else { return items }
++        if items[0].range(of: context, options: .caseInsensitive) != nil { return items }
+         let remainder = String(source[range.upperBound...])
+         let firstSentence = String(remainder.prefix { !".!?\n".contains($0) })
+-        let laterSentences = String(remainder.dropFirst(firstSentence.count))
+         let firstItemWords = contentWords(items[0])
+-        guard firstItemWords.intersection(contentWords(firstSentence)).count >= 2,
+-              firstItemWords.intersection(contentWords(laterSentences)).count < 2 else { return items }
++        guard firstItemWords.intersection(contentWords(firstSentence)).count >= 2 else { return items }
+         var result = items
+         result[0] = context + ": " + result[0]
+         return result
+@@ -775,18 +752,9 @@
+                 accepted += 1
+                 remainderEnd = range.upperBound
+                 end = source.index(marker.upperBound, offsetBy: remainder.distance(from: remainder.startIndex, to: range.upperBound))
+-                previousTitle = titles.contains(normalized) || (word.hasSuffix(".") && normalized.count == 1 && nextUpper)
++                previousTitle = titles.contains(normalized)
+                 if word.hasSuffix(".") && !previousTitle { break }
+             }
+-            // A run of capitalized words is not, by itself, a person's name. Multiword names
+-            // need an explicit short salutation boundary or title/initial/name-particle evidence.
+-            let afterName = source[end...].trimmingCharacters(in: .whitespaces)
+-            let explicitDelimiter = afterName.hasPrefix(",") || afterName.hasPrefix("\n")
+-            let nameStructure = words.prefix(accepted).contains { word, _ in
+-                let normalized = lowerWord(word)
+-                return titles.contains(normalized) || particles.contains(normalized) || (normalized.count == 1 && word.hasSuffix("."))
+-            }
+-            if accepted > 1 && ((!nameStructure && !(accepted <= 2 && explicitDelimiter)) || end == source.endIndex) { ambiguous = true }
+             if !ambiguous {
+                 result.greeting = String(source[..<end]).trimmingCharacters(in: .whitespacesAndNewlines)
+                 result.body = String(source[end...].drop(while: { $0.isWhitespace || ",.:;!?".contains($0) })).trimmingCharacters(in: .whitespacesAndNewlines)
+@@ -796,28 +764,17 @@
+         let courtesyPattern = #"(?i)(?:^|[\s.,!?])((?:met vriendelijke groet|vriendelijke groeten|many thanks|kind regards|best regards|warm regards|hartelijk dank|thank you|thanks again|regards|thanks|sincerely|cheers|groeten|bedankt|best))\b"#
+         let courtesyExpression = try! NSRegularExpression(pattern: courtesyPattern)
+         let body = result.body
+-        let quotedRanges = (try! NSRegularExpression(pattern: #"\"[^\"]*\"|“[^”]*”|«[^»]*»"#))
+-            .matches(in: body, range: NSRange(body.startIndex..., in: body)).compactMap { Range($0.range, in: body) }
+         let matches = courtesyExpression.matches(in: body, range: NSRange(body.startIndex..., in: body))
+         for match in matches.reversed() {
+             guard let phrase = Range(match.range(at: 1), in: body) else { continue }
+-            guard !quotedRanges.contains(where: { $0.contains(phrase.lowerBound) }) else { continue }
+             let rawSuffix = String(body[phrase.upperBound...].drop(while: { $0.isWhitespace || ",.:;!?".contains($0) })).trimmingCharacters(in: .whitespacesAndNewlines)
+-            let suffix = rawSuffix // Contact details and non-name suffixes must never disappear.
+-            guard suffix.range(of: #"['’\"”»]\s*[.!?]*$"#, options: .regularExpression) == nil else { continue }
++            let suffix = rawSuffix.contains(where: { $0.isLetter }) ? rawSuffix : ""
+             let nameWords = tokens(suffix)
+             let invalidNames = starters.union(["for", "voor", "because", "omdat", "again", "nogmaals", "very", "much", "veel", "well", "maar", "but", "and", "en", "to", "aan", "bij", "in", "on", "at"])
+             guard suffix.isEmpty || (nameWords.count >= 1 && nameWords.count <= 4 && !nameWords.contains { invalidNames.contains(lowerWord($0.0)) }) else { continue }
+-            guard nameWords.allSatisfy({ word, _ in (word.first?.isUppercase ?? false) || particles.contains(lowerWord(word)) }) else { continue }
+             let remainder = suffix.replacingOccurrences(of: #"[\p{L}\p{M}\s.'’\-]+"#, with: "", options: .regularExpression)
+             guard remainder.isEmpty else { continue }
+             let prefix = String(body[..<phrase.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+-            let rawPrefix = body[..<phrase.lowerBound]
+-            let strongBoundary = rawPrefix.hasSuffix("\n") || [".", "!", "?"].contains(prefix.suffix(1))
+-            let courtesy = String(body[phrase]).lowercased()
+-            if courtesy == "best" && !strongBoundary { continue }
+-            if ["thanks", "thank you", "bedankt"].contains(courtesy), !strongBoundary, result.greeting.isEmpty { continue }
+-            if prefix.isEmpty && result.greeting.isEmpty && !body[phrase.upperBound...].contains("\n") { continue }
+             guard prefix.isEmpty || tokens(prefix).count >= 3 || [".", "!", "?"].contains(prefix.suffix(1)) || !result.greeting.isEmpty else { continue }
+             result.body = prefix
+             result.signoff = String(body[phrase])

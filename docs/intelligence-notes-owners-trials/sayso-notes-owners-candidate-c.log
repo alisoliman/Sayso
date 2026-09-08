@@ -1,0 +1,45 @@
+Model available: true. Writing runs privately on this iPhone.
+PASS guard replay invented-time: rejected
+PASS guard replay lost-uncertainty: rejected
+PASS guard replay lost-negation: rejected
+PASS guard replay dictated-command-answer: rejected
+PASS guard replay faithful-message: accepted
+PASS guard replay faithful-notes: accepted
+PASS notes-challenge-en-already-good run 1 (3.4s; 1 generation attempts)
+- Cora: Reserve the rehearsal room by Tuesday.
+- Keep the east door locked until the caretaker arrives.
+- The rehearsal may run late; no extra session is confirmed.
+PASS notes-challenge-nl-already-good run 1 (1.0s; 1 generation attempts)
+- Ravi haalt donderdag het rekwisiet op.
+- Gebruik de hoge kruk alleen tijdens de fotosessie.
+- We weten nog niet of er een reservekruk nodig is.
+PASS owners-en-colon-ready run 1 (1.1s; 1 generation attempts)
+- Vera: collect the ceramic samples by Thursday.
+- Ivo: photograph the cracked frame on Friday.
+- The replacement glass may arrive late; do not promise a delivery date.
+PASS owners-nl-colon-ready run 1 (1.2s; 1 generation attempts)
+- Sana: Controleer de reserveband voor dinsdag.
+- Pieter: Haal donderdag het statief op.
+- We weten nog niet of de lens gerepareerd kan worden.
+PASS owners-bullets-filler run 1 (0.8s; 1 generation attempts)
+- Keiko should check the window latch before Monday.
+- Keep the storage door locked until the caretaker comes back.
+PASS owners-bullets-number-correction run 1 (0.8s; 1 generation attempts)
+- Malik sends 9 sample packets.
+- Do not send the spare labels yet.
+PASS owners-bullets-owner-correction run 1 (0.7s; 1 generation attempts)
+- Theo will calibrate the sensor. Actually, Bea will calibrate it.
+- Theo should record the meter reading tomorrow.
+FAIL owners-bullets-merged-actions run 1 (1.6s; 2 generation attempts)
+- Zora checks the windows. Emre locks the side entrance.
+- We have not selected a closing time.
+  • Expected at least 3 bullets, received 2
+PASS owners-bullets-context-label run 1 (1.1s; 1 generation attempts)
+- For the radio room: Petra orders the shielded cable.
+- For the archive: Milo labels the boxes before Wednesday.
+FAIL owners-unformatted-general run 1 (1.1s; 1 generation attempts)
+- Noura checks the stage lights.
+- Tomas brings the spare microphone.
+- We have not decided when to open the doors.
+  • Missing required phrase: rehearsal
+8 passed, 2 failed. Report: /tmp/sayso-notes-owners-candidate-c.json

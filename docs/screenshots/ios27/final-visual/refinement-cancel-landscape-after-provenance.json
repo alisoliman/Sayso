@@ -1,0 +1,115 @@
+{
+  "reviewedAtUTC": "2026-09-08T08:21:06.168049+00:00",
+  "review": ".build/ios27-compact-boundary-visual-review.json",
+  "reviewSHA256": "4a1bff9d6986e9f23e6e14609730676885bdc98f2c7ef802a3da9d8036b23b4b",
+  "resultBundle": ".build/Sayso-iOS27-Compact-And-Native-Boundaries.xcresult",
+  "sourceBinding": ".build/ios27-compact-and-native-boundaries-source.json",
+  "sourceBindingSHA256": "1ddea19bd08ef744c7ed4509a89e033557bfe681b6b14b1dc232fee451b2d211",
+  "sourceSHA256": {
+    "Sayso/ContentView.swift": "f22fe23153773894b58f07bfb133187d61d055d7c767b3a1ee7eb70497035cf3",
+    "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+    "SaysoKeyboard/KeyboardViewController.swift": "554cad9a2deec50d9d98b64dbdfd3815de5e21b4775c3873c02d7bb221df65a3",
+    "SaysoUITests/SaysoUITests.swift": "4b2d607bd126867a61036c33c2de5deae1fff0f92d40b6b5ab81b9aa162f4677",
+    "SaysoUITests/KeyboardInsertionUITests.swift": "de6715c25a951f35be3bfaea7b42e7274e8d17a42b27760efb40c2427dc96069",
+    "scripts/verify.sh": "ebf8375deea5a6a8573e2ef6670796933cdbfdf6e0514d97a6cddff83e7eb6ac"
+  },
+  "device": {
+    "architecture": "arm64",
+    "deviceId": "358BDEE9-19AE-49BA-BC91-975523C2B8E7",
+    "deviceName": "Sayso · iPhone 17 Pro · iOS 27",
+    "modelName": "iPhone 17 Pro",
+    "osBuildNumber": "24A5423a",
+    "osVersion": "27.0",
+    "platform": "iOS Simulator"
+  },
+  "testIdentifier": "SaysoUITests/testCompactRefinementCancelPreservesOriginalAndAllowsNextRecording()",
+  "methodPassed": true,
+  "durationSeconds": 50.862,
+  "bundleResult": {
+    "result": "Failed",
+    "passedMethods": 2,
+    "failedMethods": 1,
+    "skippedMethods": 0,
+    "totalMethods": 3,
+    "note": "The overall bundle failed. Do not describe its six requested screenshots as six passing tests."
+  },
+  "scope": "Both rotations with app AX XXXL override. Cancel ends a pending 30-second DEBUG transform before natural completion, preserves the exact source, and allows a fresh scripted recording. This does not measure Foundation Models quality.",
+  "contentSize": "Light, app AX XXXL override only; system Large.",
+  "copyMethod": "Byte-identical filesystem copies of original full-screen captures. No cropping, rotation, resizing, recompression or metadata changes.",
+  "limits": [
+    "Safari AX and Dark recording controls are not tested by this run. Main AX is an app launch override, not a simulator-wide AX setting.",
+    "Scripted source and slow transform exercise lifecycle/control paths without actual microphone capture, recognition, model generation, or proof of continuous background audio execution.",
+    "Static captures establish the stated visible geometry, not uninterrupted animation or a physical-device result.",
+    "The separately recorded iOS27 native runtime verify error -67054 remains unresolved. No security bypass was used."
+  ],
+  "images": [
+    {
+      "orientation": "Left",
+      "state": "Refinement Cancel",
+      "sourceCapture": ".build/ios27-compact-and-native-boundaries-attachments/08FB9A74-1273-46A6-ADC3-5B738AF1B623.png",
+      "sourceHierarchy": null,
+      "captureLabel": "Landscape-AX-XXXL-Left-Refinement-Cancel_0_1EA5A402-A349-4645-BF4A-A56A0EFACDC3.png",
+      "timestamp": 1788855114.804,
+      "sha256": "6537dbc2edbf6f2462442184f35dc52c5852acd4e4d3fbcfff7e16f346a9cdfe",
+      "rawPixelSize": [
+        1206,
+        2622
+      ],
+      "exifOrientation": 8,
+      "presentationPixelSize": [
+        2622,
+        1206
+      ],
+      "screenPoints": [
+        874,
+        402
+      ],
+      "pixelsPerPoint": 3,
+      "fullyNearBlackRows": 0,
+      "fullyNearBlackColumns": 0,
+      "imageValidity": "Unmodified full-screen landscape capture; PNG orientation metadata retained. No invalid black padding bands.",
+      "host": "Sayso DEBUG scripted slow refinement",
+      "contentSize": "App launch UICTContentSizeCategoryAccessibilityXXXL override; simulator-wide size remains Large",
+      "appearance": "Light",
+      "controlFinding": "The full purple Cancel label and separate disabled microphone fit in the bottom glass control bar. Clean mode and A little polish… progress label are readable; no actionable control clipping or overlap. Source text clips at the ordinary scroll viewport boundaries, leaving a full readable central line.",
+      "actionableIssue": null,
+      "promoted": true,
+      "promotedPath": "docs/screenshots/ios27/final-visual/refinement-cancel-landscape-after-ax-xxxl-left.png",
+      "promotedSHA256": "6537dbc2edbf6f2462442184f35dc52c5852acd4e4d3fbcfff7e16f346a9cdfe"
+    },
+    {
+      "orientation": "Right",
+      "state": "Refinement Cancel",
+      "sourceCapture": ".build/ios27-compact-and-native-boundaries-attachments/B5D560CE-5C97-492A-A05D-97DF265609A2.png",
+      "sourceHierarchy": null,
+      "captureLabel": "Landscape-AX-XXXL-Right-Refinement-Cancel_0_8344A199-E420-40D2-9082-377AD9A26127.png",
+      "timestamp": 1788855139.912,
+      "sha256": "0098a98ff48d033c77b5297cd768b7f3e85dc877b3445fc301c693ffa2b95e92",
+      "rawPixelSize": [
+        1206,
+        2622
+      ],
+      "exifOrientation": 6,
+      "presentationPixelSize": [
+        2622,
+        1206
+      ],
+      "screenPoints": [
+        874,
+        402
+      ],
+      "pixelsPerPoint": 3,
+      "fullyNearBlackRows": 0,
+      "fullyNearBlackColumns": 0,
+      "imageValidity": "Unmodified full-screen landscape capture; PNG orientation metadata retained. No invalid black padding bands.",
+      "host": "Sayso DEBUG scripted slow refinement",
+      "contentSize": "App launch UICTContentSizeCategoryAccessibilityXXXL override; simulator-wide size remains Large",
+      "appearance": "Light",
+      "controlFinding": "The full purple Cancel label and separate disabled microphone fit in the bottom glass control bar. Clean mode and A little polish… progress label are readable; no actionable control clipping or overlap. Source text clips at the ordinary scroll viewport boundaries, leaving a full readable central line.",
+      "actionableIssue": null,
+      "promoted": true,
+      "promotedPath": "docs/screenshots/ios27/final-visual/refinement-cancel-landscape-after-ax-xxxl-right.png",
+      "promotedSHA256": "0098a98ff48d033c77b5297cd768b7f3e85dc877b3445fc301c693ffa2b95e92"
+    }
+  ]
+}

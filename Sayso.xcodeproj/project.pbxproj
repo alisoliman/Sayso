@@ -1,0 +1,946 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7E9F7B46C19D814C158F0710 /* SaysoRecordingActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D4C24E5E0ACA10B7712689B3 /* SaysoRecordingActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9B6B7DAF04FC7763D77D777E /* SaysoKeyboard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 807423672769F803D4ED8D8F /* SaysoKeyboard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1552A96B12E8CF24B74F9EC4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41CCEFE1304F0FC900DEF060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 61C06E4D87D792FFBDAF39F0;
+			remoteInfo = SaysoRecordingActivity;
+		};
+		52426A5E7D1B6A4287816532 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41CCEFE1304F0FC900DEF060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B00629BF47F32112D0E7720;
+			remoteInfo = SaysoKeyboard;
+		};
+		5CB3DF1A71AB6118E478B817 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41CCEFE1304F0FC900DEF060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41CCEFE8304F0FC900DEF060;
+			remoteInfo = Sayso;
+		};
+		FC51CFE9D6A79CBA62A25921 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 41CCEFE1304F0FC900DEF060 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41CCEFE8304F0FC900DEF060;
+			remoteInfo = Sayso;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3B857775CA36DA5EA5EC110F /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				9B6B7DAF04FC7763D77D777E /* SaysoKeyboard.appex in Embed App Extensions */,
+				7E9F7B46C19D814C158F0710 /* SaysoRecordingActivity.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		095DAE3F5E853CAF4ABEA4BB /* SaysoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SaysoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41CCEFE9304F0FC900DEF060 /* Sayso.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sayso.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		807423672769F803D4ED8D8F /* SaysoKeyboard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SaysoKeyboard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4C24E5E0ACA10B7712689B3 /* SaysoRecordingActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SaysoRecordingActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8E05BAF80A2738683CC1C5D /* SaysoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SaysoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		3811470E9D2933A82F009EB7 /* SaysoKeyboard */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SaysoKeyboard;
+			sourceTree = "<group>";
+		};
+		3E36E786C0E7BEBAEE1D5B62 /* RecordingActivityShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RecordingActivityShared;
+			sourceTree = "<group>";
+		};
+		41CCEFEB304F0FC900DEF060 /* Sayso */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Sayso;
+			sourceTree = "<group>";
+		};
+		528A7EC4FA98F3C40C5CE75C /* SaysoTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SaysoTests;
+			sourceTree = "<group>";
+		};
+		7A7094320834CBB42A0E24A7 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		91632B5629B783072B2F021A /* SaysoRecordingActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SaysoRecordingActivity;
+			sourceTree = "<group>";
+		};
+		C6DF58F3344FB6ED5FEC7746 /* SaysoUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SaysoUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0BEFC81C6E022B93A38F6B7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41CCEFE6304F0FC900DEF060 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ACCF0DE95720C5CDC26173D2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B1883E2936DE2DD42AFC2A12 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E33B98714226C4C920AFB95B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		41CCEFE0304F0FC900DEF060 = {
+			isa = PBXGroup;
+			children = (
+				41CCEFEB304F0FC900DEF060 /* Sayso */,
+				41CCEFEA304F0FC900DEF060 /* Products */,
+				528A7EC4FA98F3C40C5CE75C /* SaysoTests */,
+				C6DF58F3344FB6ED5FEC7746 /* SaysoUITests */,
+				3811470E9D2933A82F009EB7 /* SaysoKeyboard */,
+				7A7094320834CBB42A0E24A7 /* Shared */,
+				91632B5629B783072B2F021A /* SaysoRecordingActivity */,
+				3E36E786C0E7BEBAEE1D5B62 /* RecordingActivityShared */,
+			);
+			sourceTree = "<group>";
+		};
+		41CCEFEA304F0FC900DEF060 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				41CCEFE9304F0FC900DEF060 /* Sayso.app */,
+				F8E05BAF80A2738683CC1C5D /* SaysoTests.xctest */,
+				095DAE3F5E853CAF4ABEA4BB /* SaysoUITests.xctest */,
+				807423672769F803D4ED8D8F /* SaysoKeyboard.appex */,
+				D4C24E5E0ACA10B7712689B3 /* SaysoRecordingActivity.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		41CCEFE8304F0FC900DEF060 /* Sayso */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41CCEFF6304F0FCC00DEF060 /* Build configuration list for PBXNativeTarget "Sayso" */;
+			buildPhases = (
+				41CCEFE5304F0FC900DEF060 /* Sources */,
+				41CCEFE6304F0FC900DEF060 /* Frameworks */,
+				41CCEFE7304F0FC900DEF060 /* Resources */,
+				3B857775CA36DA5EA5EC110F /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F88865B0D8C418FA81243D4A /* PBXTargetDependency */,
+				51FBA3F59EABB3CC4C041689 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3E36E786C0E7BEBAEE1D5B62 /* RecordingActivityShared */,
+				41CCEFEB304F0FC900DEF060 /* Sayso */,
+				7A7094320834CBB42A0E24A7 /* Shared */,
+			);
+			name = Sayso;
+			packageProductDependencies = (
+			);
+			productName = Sayso;
+			productReference = 41CCEFE9304F0FC900DEF060 /* Sayso.app */;
+			productType = "com.apple.product-type.application";
+		};
+		61C06E4D87D792FFBDAF39F0 /* SaysoRecordingActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92D0686AD0B55B54B506F0AF /* Build configuration list for PBXNativeTarget "SaysoRecordingActivity" */;
+			buildPhases = (
+				D3FE291F875E403B016F6B4C /* Sources */,
+				0BEFC81C6E022B93A38F6B7E /* Frameworks */,
+				19616FE93564C69632150056 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3E36E786C0E7BEBAEE1D5B62 /* RecordingActivityShared */,
+				7A7094320834CBB42A0E24A7 /* Shared */,
+				91632B5629B783072B2F021A /* SaysoRecordingActivity */,
+			);
+			name = SaysoRecordingActivity;
+			packageProductDependencies = (
+			);
+			productName = SaysoRecordingActivity;
+			productReference = D4C24E5E0ACA10B7712689B3 /* SaysoRecordingActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		6297AF7AE3D1E97B861DA542 /* SaysoUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 675C1BF02B54CA543ED8A40C /* Build configuration list for PBXNativeTarget "SaysoUITests" */;
+			buildPhases = (
+				4616416EE2910F3579110B1C /* Sources */,
+				B1883E2936DE2DD42AFC2A12 /* Frameworks */,
+				72B55D5A8C1ECB3F038A2883 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9DCE4783B88C040649A6149F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C6DF58F3344FB6ED5FEC7746 /* SaysoUITests */,
+			);
+			name = SaysoUITests;
+			packageProductDependencies = (
+			);
+			productName = SaysoUITests;
+			productReference = 095DAE3F5E853CAF4ABEA4BB /* SaysoUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		7B00629BF47F32112D0E7720 /* SaysoKeyboard */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 638B530E4F60BE5D55317714 /* Build configuration list for PBXNativeTarget "SaysoKeyboard" */;
+			buildPhases = (
+				B23E68A47445A8EBD6A6DCCF /* Sources */,
+				ACCF0DE95720C5CDC26173D2 /* Frameworks */,
+				1E3C470BB016EDFB5C519815 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3811470E9D2933A82F009EB7 /* SaysoKeyboard */,
+				7A7094320834CBB42A0E24A7 /* Shared */,
+			);
+			name = SaysoKeyboard;
+			packageProductDependencies = (
+			);
+			productName = SaysoKeyboard;
+			productReference = 807423672769F803D4ED8D8F /* SaysoKeyboard.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B606394B52A30D7F5D43CA0B /* SaysoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC15F9F9B270F7E4A5F842BD /* Build configuration list for PBXNativeTarget "SaysoTests" */;
+			buildPhases = (
+				C4BD2889A8B7E9A292BEEE7D /* Sources */,
+				E33B98714226C4C920AFB95B /* Frameworks */,
+				29AFB7A437AA220FEB1C0286 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				65945B8253608DCCA3CB0F8D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				528A7EC4FA98F3C40C5CE75C /* SaysoTests */,
+			);
+			name = SaysoTests;
+			packageProductDependencies = (
+			);
+			productName = SaysoTests;
+			productReference = F8E05BAF80A2738683CC1C5D /* SaysoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		41CCEFE1304F0FC900DEF060 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					41CCEFE8304F0FC900DEF060 = {
+						CreatedOnToolsVersion = 26.6;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					61C06E4D87D792FFBDAF39F0 = {
+						CreatedOnToolsVersion = 26.6;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					6297AF7AE3D1E97B861DA542 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 41CCEFE8304F0FC900DEF060;
+					};
+					7B00629BF47F32112D0E7720 = {
+						CreatedOnToolsVersion = 26.6;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					B606394B52A30D7F5D43CA0B = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 41CCEFE8304F0FC900DEF060;
+					};
+				};
+			};
+			buildConfigurationList = 41CCEFE4304F0FC900DEF060 /* Build configuration list for PBXProject "Sayso" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 41CCEFE0304F0FC900DEF060;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 41CCEFEA304F0FC900DEF060 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				41CCEFE8304F0FC900DEF060 /* Sayso */,
+				B606394B52A30D7F5D43CA0B /* SaysoTests */,
+				6297AF7AE3D1E97B861DA542 /* SaysoUITests */,
+				7B00629BF47F32112D0E7720 /* SaysoKeyboard */,
+				61C06E4D87D792FFBDAF39F0 /* SaysoRecordingActivity */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		19616FE93564C69632150056 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1E3C470BB016EDFB5C519815 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		29AFB7A437AA220FEB1C0286 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41CCEFE7304F0FC900DEF060 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		72B55D5A8C1ECB3F038A2883 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		41CCEFE5304F0FC900DEF060 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4616416EE2910F3579110B1C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B23E68A47445A8EBD6A6DCCF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C4BD2889A8B7E9A292BEEE7D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3FE291F875E403B016F6B4C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		51FBA3F59EABB3CC4C041689 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 61C06E4D87D792FFBDAF39F0 /* SaysoRecordingActivity */;
+			targetProxy = 1552A96B12E8CF24B74F9EC4 /* PBXContainerItemProxy */;
+		};
+		65945B8253608DCCA3CB0F8D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41CCEFE8304F0FC900DEF060 /* Sayso */;
+			targetProxy = FC51CFE9D6A79CBA62A25921 /* PBXContainerItemProxy */;
+		};
+		9DCE4783B88C040649A6149F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41CCEFE8304F0FC900DEF060 /* Sayso */;
+			targetProxy = 5CB3DF1A71AB6118E478B817 /* PBXContainerItemProxy */;
+		};
+		F88865B0D8C418FA81243D4A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7B00629BF47F32112D0E7720 /* SaysoKeyboard */;
+			targetProxy = 52426A5E7D1B6A4287816532 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0890EB35E4B63CE03C43DB2A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sayso.xcodeproj/Sayso.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sayso.xcodeproj/Keyboard-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Sayso;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.Sayso.Keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		41CCEFF4304F0FCC00DEF060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		41CCEFF5304F0FCC00DEF060 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		41CCEFF7304F0FCC00DEF060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sayso.xcodeproj/Sayso.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sayso.xcodeproj/Sayso-Info.plist";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Sayso uses your microphone to turn your voice into text on this iPhone.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.Sayso;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		41CCEFF8304F0FCC00DEF060 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sayso.xcodeproj/Sayso.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sayso.xcodeproj/Sayso-Info.plist";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Sayso uses your microphone to turn your voice into text on this iPhone.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.Sayso;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		6905CF7F4C81A101257A70A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sayso.xcodeproj/Sayso.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sayso.xcodeproj/Keyboard-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Sayso;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.Sayso.Keyboard;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		DAEB47FBD77E0CDEAAD86D0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.SaysoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Sayso;
+			};
+			name = Debug;
+		};
+		E40B98C2A69F8F27FA9F3279 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.SaysoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sayso.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Sayso";
+			};
+			name = Debug;
+		};
+		EC7889FAF39D137B732C3FE7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.SaysoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sayso.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Sayso";
+			};
+			name = Release;
+		};
+		F202C78F54382719330431B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sayso.xcodeproj/Sayso.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sayso.xcodeproj/RecordingActivity-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Sayso recording";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.Sayso.RecordingActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		F4EBA0AF5C310C023821DD3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.SaysoUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = Sayso;
+			};
+			name = Release;
+		};
+		F9B51780EE1A37023669E21B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sayso.xcodeproj/Sayso.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = Y5UE64R7TQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sayso.xcodeproj/RecordingActivity-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Sayso recording";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = solimanali.Sayso.RecordingActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		41CCEFE4304F0FC900DEF060 /* Build configuration list for PBXProject "Sayso" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41CCEFF4304F0FCC00DEF060 /* Debug */,
+				41CCEFF5304F0FCC00DEF060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41CCEFF6304F0FCC00DEF060 /* Build configuration list for PBXNativeTarget "Sayso" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41CCEFF7304F0FCC00DEF060 /* Debug */,
+				41CCEFF8304F0FCC00DEF060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		638B530E4F60BE5D55317714 /* Build configuration list for PBXNativeTarget "SaysoKeyboard" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6905CF7F4C81A101257A70A6 /* Debug */,
+				0890EB35E4B63CE03C43DB2A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		675C1BF02B54CA543ED8A40C /* Build configuration list for PBXNativeTarget "SaysoUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DAEB47FBD77E0CDEAAD86D0F /* Debug */,
+				F4EBA0AF5C310C023821DD3A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92D0686AD0B55B54B506F0AF /* Build configuration list for PBXNativeTarget "SaysoRecordingActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9B51780EE1A37023669E21B /* Debug */,
+				F202C78F54382719330431B0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC15F9F9B270F7E4A5F842BD /* Build configuration list for PBXNativeTarget "SaysoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E40B98C2A69F8F27FA9F3279 /* Debug */,
+				EC7889FAF39D137B732C3FE7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 41CCEFE1304F0FC900DEF060 /* Project object */;
+}

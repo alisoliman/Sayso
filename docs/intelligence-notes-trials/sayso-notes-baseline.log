@@ -1,0 +1,65 @@
+Model available: true. Writing runs privately on this iPhone.
+PASS guard replay invented-time: rejected
+PASS guard replay lost-uncertainty: rejected
+PASS guard replay lost-negation: rejected
+PASS guard replay dictated-command-answer: rejected
+PASS guard replay faithful-message: accepted
+PASS guard replay faithful-notes: accepted
+PASS notes-punctuated run 1 (4.8s; 1 generation attempts)
+- Finish the onboarding screens.
+- Test recording on a real device.
+- Check the accessibility labels.
+- Maya is taking care of the screenshots.
+- We have not decided on a launch date.
+FAIL notes-unpunctuated run 1 (1.1s; 1 generation attempts)
+- Finish the onboarding screens test recording on a real device.
+- Check the accessibility labels.
+- Maya is taking care of the screenshots.
+- We have not decided on a launch date.
+  • Expected at least 5 bullets, received 4
+PASS holdout-en-notes-owner-undecided run 1 (1.0s; 1 generation attempts)
+- Nora will inspect the canoe straps on Tuesday.
+- Eli needs to photograph the cracked paddle.
+- We still haven't decided whether to replace the blue life jackets.
+FAIL holdout-nl-notes-owner-undecided run 1 (1.1s; 1 generation attempts)
+- Mila belt donderdag de drukker Bas moet de proefdruk op ontbrekende pagina's controleren over een rode of gele omslag hebben we nog geen beslissing genomen
+  • Expected at least 3 bullets, received 1
+FAIL polish-notes-en-explicit-purpose run 1 (1.0s; 1 generation attempts)
+- Label the pear trees on Saturday.
+- Collect the spare watering cans.
+- We haven't chosen a ribbon colour yet.
+  • Missing required phrase: community orchard
+  • Missing required phrase: opening
+  • Missing required phrase: Lena
+  • Missing required phrase: Yusuf
+FAIL polish-notes-nl-explicit-topic run 1 (1.1s; 1 generation attempts)
+- Farah test morgen de vernis op een klein stukje.
+- Bram vraagt de beheerder om de sleutel.
+- De nieuwe datum ligt nog niet vast.
+  • Missing required phrase: herstel
+  • Missing required phrase: muurschildering
+FAIL polish-notes-en-two-topic-scopes run 1 (1.0s; 1 generation attempts)
+- Book a captioning screen separately for the planetarium evening.
+- Return the borrowed atlas before Monday.
+  • Missing required phrase: library
+PASS polish-notes-en-no-clear-topic run 1 (1.0s; 1 generation attempts)
+- Put the copper key back in the drawer.
+- The shuttle leaves at 16:20.
+- The jar by the window is empty.
+PASS variation-notes-comma-purpose run 1 (0.9s; 1 generation attempts)
+- For the museum fundraiser: Inspect the folding chairs.
+- Count the donation tins.
+- We haven't chosen a catering company.
+PASS variation-notes-local-scope run 1 (0.9s; 1 generation attempts)
+- For the new studio: Label the storage boxes.
+- Return Omar’s telescope before Wednesday.
+PASS variation-notes-dutch-comma-purpose run 1 (1.2s; 1 generation attempts)
+- Voor de buurtmaaltijd: Controleer de vegetarische opties.
+- Tel de borden.
+- Noor haalt de soep om 18:30.
+- We weten nog niet hoeveel gasten er komen.
+PASS variation-notes-no-topic run 1 (0.9s; 1 generation attempts)
+- Pack the canvas bag.
+- The train leaves at 09:40.
+- The brass latch is loose.
+7 passed, 5 failed. Report: /tmp/sayso-notes-baseline.json

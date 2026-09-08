@@ -1,0 +1,43 @@
+{
+  "fill": {
+    "solid": "extended-srgb:0.96500,0.95500,0.94000,1.00000"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "fill-specializations": [
+            {
+              "appearance": "dark",
+              "value": {
+                "solid": "extended-srgb:0.81000,0.72000,0.95000,1.00000"
+              }
+            },
+            {
+              "appearance": "tinted",
+              "value": {
+                "solid": "extended-srgb:1.00000,1.00000,1.00000,1.00000"
+              }
+            }
+          ],
+          "image-name": "Sayso-Wave.svg",
+          "name": "Sayso-Wave"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.16
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.12
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

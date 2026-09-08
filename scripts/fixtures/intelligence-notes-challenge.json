@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "corpusID": "notes-challenge-2026-09-07-v1",
+  "purpose": "Independent Notes challenge frozen before this reviewer sees any baseline or candidate model output. Synthetic English and Dutch dictation only.",
+  "interpretation": "Automated phrase and bullet checks are diagnostics. Every output also requires the per-case usefulEditCriteria and the companion manual rubric. Source copying is not a useful Notes transformation except for the two already-good controls.",
+  "manualRubric": "intelligence-notes-challenge-criteria.md",
+  "cases": [
+    {
+      "id": "notes-challenge-en-unpunctuated-shift",
+      "mode": "notes",
+      "source": "for the volunteer radio shift Salma checks the spare batteries before 07:15 Joris calls the station manager on Thursday Nabil still needs to confirm whether the roof antenna is safe",
+      "vocabulary": ["Salma", "Joris", "Nabil"],
+      "required": ["Salma", "Joris", "Nabil", "07:15", "Thursday"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three concise action bullets, with the volunteer radio shift as a heading or clearly preserved shared context. No prose introduction or run-on source copy.",
+        "Salma owns checking the spare batteries, with a deadline before 07:15; Joris owns calling the station manager on Thursday. Do not swap or share these owners or times.",
+        "Nabil owns confirming whether the roof antenna is safe. Safety remains unconfirmed; do not turn this into an assertion that the antenna is safe or an instruction to install it.",
+        "Each bullet must express a complete owner-action relationship. Three bullets containing arbitrary source fragments do not pass."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-unpunctuated-exchange",
+      "mode": "notes",
+      "source": "voor de zadenruil Lotte print de etiketten voor vrijdag Daan haalt zaterdag de papieren zakjes op over het ruilen van zeldzame soorten hebben we nog niets afgesproken",
+      "vocabulary": ["Lotte", "Daan"],
+      "required": ["Lotte", "Daan", "vrijdag", "zaterdag"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three readable Dutch bullets under, or explicitly retaining, the shared zadenruil context. Two actions and one unresolved decision must be separately scannable.",
+        "Lotte prints the labels before Friday; Daan collects the paper bags on Saturday. Preserve the paper material and keep each deadline attached to its own action.",
+        "Exchanging rare species is not yet agreed. Do not present it as an approved exchange, a prohibition, or a task assigned to either named person.",
+        "Do not copy the unpunctuated source into a single bullet or manufacture three bullets by breaking an owner away from their action."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-joint-comparison",
+      "mode": "notes",
+      "source": "Compare the paper register and the signed digital copy before approving the certificate. Then archive the unsigned draft.",
+      "vocabulary": [],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "Format: two concise bullets, one comparison-and-approval dependency and one subsequent archiving action.",
+        "The paper register and signed digital copy are the two objects of a single comparison. Do not split them into independent checks or omit either object.",
+        "The comparison precedes certificate approval. Approval must not become an unconditional standalone instruction divorced from that prerequisite.",
+        "Archive the unsigned draft afterward. Do not archive the signed copy, treat the draft as signed, or reverse the sequence."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-joint-label-check",
+      "mode": "notes",
+      "source": "controleer of de naam en het adres op hetzelfde verzendlabel staan stuur daarna het pakket naar Ivo",
+      "vocabulary": ["Ivo"],
+      "required": ["Ivo"],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "Format: two short Dutch action bullets: a label check, then shipment. Restore sentence boundaries and readable punctuation.",
+        "Name and address must be checked together on the same shipping label. Separate name and address bullets that lose the same-label relationship fail.",
+        "Send the package to Ivo after the check. Do not assign Ivo the checking task or add an unstated shipping deadline.",
+        "Two bullets are insufficient if one merely says to check a name and the other merges the address fragment into the shipping action."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-global-test-conditions",
+      "mode": "notes",
+      "source": "For the overnight instrument test, keep the sample tray covered. Record the room temperature every hour. If the humidity rises, pause the test rather than opening the tray.",
+      "vocabulary": [],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three concise notes with overnight instrument test preserved as the shared context, in a heading or the bullet wording.",
+        "Keep the sample tray covered and record room temperature hourly. Do not replace room temperature with sample temperature or lose the recording frequency.",
+        "Pausing is conditional on rising humidity; do not instruct an immediate pause or make humidity measurement the hourly task.",
+        "Opening the tray is the rejected alternative. It must never become an action bullet or the response to rising humidity."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-local-context-exception",
+      "mode": "notes",
+      "source": "voor de poëzieavond reserveert Elif de kleine zaal Sander maakt de toegangskaartjes los daarvan brengt Elif haar fiets vrijdag naar de reparateur",
+      "vocabulary": ["Elif", "Sander"],
+      "required": ["Elif", "Sander", "vrijdag"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three Dutch action bullets. The two poëzieavond actions can share a heading; the unrelated bike errand must be visibly outside that scope.",
+        "Elif reserves the small room and Sander makes the entry tickets. Do not swap owners or lose the room's small size.",
+        "Elif takes her bike to the repairer on Friday. Friday applies only to this errand, not to the poetry event or both event tasks.",
+        "A single poëzieavond heading over all three bullets without an explicit separation fails even if every noun and name appears."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-two-jobs-reference",
+      "mode": "notes",
+      "source": "There are two unrelated jobs. At the aquarium, replace the sign beside the shark tank, and have Priya check that replacement on Friday. At home, ask Marc whether the kettle can be repaired; he has not agreed to repair it.",
+      "vocabulary": ["Priya", "Marc"],
+      "required": ["Priya", "Marc", "Friday"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three action bullets in two clearly separated contexts, aquarium and home. Section headings are allowed and need not match source wording.",
+        "Replace the sign beside the shark tank. Priya checks that sign replacement on Friday; she is not being assigned to replace the tank or inspect the shark.",
+        "The sign replacement and Priya's later check are distinct actions despite being connected by and in the source. Keep the dependency and deadline attached to the check.",
+        "At home, ask Marc whether the kettle can be repaired. Preserve that he has not agreed to do the repair; do not convert an inquiry into Marc's committed repair task.",
+        "Do not attach Friday or the aquarium context to the kettle inquiry."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-nested-local-restrictions",
+      "mode": "notes",
+      "source": "voor de fietswerkplaats Joost bestelt remkabels alleen voor de kinderfietsen Esther telt alle fietshelmen bij het ophalen van een reparatie geeft Joost de oude onderdelen mee alleen als de klant erom vraagt",
+      "vocabulary": ["Joost", "Esther"],
+      "required": ["Joost", "Esther"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three complete Dutch task bullets with the shared fietswerkplaats context retained. Do not make isolated condition fragments into extra bullets.",
+        "Joost orders brake cables only for children's bikes. That restriction must not expand to all bikes or migrate onto helmet counting.",
+        "Esther counts all bicycle helmets, not just children's helmets. Do not give Joost her counting task.",
+        "Joost hands over old parts when a repair is collected, only if the customer requests them. Preserve both the collection context and the explicit customer-request condition.",
+        "Do not reinterpret the customer-request condition as a prerequisite for ordering brake cables."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-uncertain-freezer",
+      "mode": "notes",
+      "source": "The community freezer might be too warm. Do not move the food until Ava checks the thermometer. We have not decided whether to replace the freezer.",
+      "vocabulary": ["Ava"],
+      "required": ["Ava"],
+      "minimumBullets": 2,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: two or three readable bullets separating the conditional instruction from the unresolved replacement decision. The temperature concern may be combined with the instruction if it stays clear.",
+        "The community freezer may be too warm; this is uncertain, not a measured fact, a certainty of failure, or a claim that the thermometer is broken.",
+        "Food must not be moved before Ava checks the thermometer. Checking it is a prerequisite, not a guarantee that moving food afterward has been approved.",
+        "Replacing the freezer remains undecided. Do not create a replacement task or invent a deadline, owner, or purchase decision."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-uncertain-rehearsal-owner",
+      "mode": "notes",
+      "source": "misschien kan Boris de repetitie leiden maar hij heeft nog niet toegezegd bel hem morgen om dat te vragen reserveer nog geen extra lokaal",
+      "vocabulary": ["Boris"],
+      "required": ["Boris", "morgen"],
+      "minimumBullets": 2,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: two or three concise Dutch bullets. Boris's tentative availability can accompany the call task or be a separate status note; the room instruction must be clear.",
+        "Boris may be able to lead rehearsal but has not committed. Do not label him as the confirmed rehearsal leader or assume that he is unavailable.",
+        "Call Boris tomorrow to ask about this. Tomorrow belongs to the call, not a confirmed rehearsal date, and Boris is the recipient rather than the caller.",
+        "Do not reserve an extra room yet. Do not remove the temporary prohibition or turn it into a room-booking task."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-corrected-owner",
+      "mode": "notes",
+      "source": "Tessa will return the projector no Adrian will return it Tessa needs to collect the microphone on Monday",
+      "vocabulary": ["Tessa", "Adrian"],
+      "required": ["Tessa", "Adrian", "Monday"],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "Format: two actionable bullets that resolve the spoken correction, not a transcript of competing assignments.",
+        "Adrian returns the projector. Tessa must not remain a current or joint owner of that return.",
+        "Tessa collects the microphone on Monday. Do not make Adrian collect it or attach Monday to the projector return.",
+        "A brief clearly superseded correction note is acceptable, but the two current instructions must be unambiguous. Correct bullet count and presence of both names alone do not pass."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-corrected-date-and-object",
+      "mode": "notes",
+      "source": "Mees schildert maandag het linkerpaneel nee dinsdag het rechterpaneel het linkerpaneel moet ongeschilderd blijven",
+      "vocabulary": ["Mees"],
+      "required": ["Mees", "dinsdag"],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "Format: two short Dutch notes with one corrected painting instruction and one constraint. Resolve the correction rather than emitting two painting tasks.",
+        "Mees paints the right panel on Tuesday. Both the initial Monday timing and the initial left-panel object have been superseded.",
+        "The left panel must remain unpainted. Do not merge it into the painting task as another object or make the prohibition apply to the right panel.",
+        "If a superseded date or object is mentioned parenthetically, its superseded status must be explicit. Merely retaining every noun and both dates fails when the active instruction is wrong."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-recipient-swap",
+      "mode": "notes",
+      "source": "Send the receipt to Leila and the warranty to Hugo no swap the recipients Hugo gets the receipt and Leila gets the warranty send both by Wednesday",
+      "vocabulary": ["Leila", "Hugo"],
+      "required": ["Leila", "Hugo", "Wednesday"],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "Format: two distinct delivery bullets after resolving the correction. A shared deadline heading is acceptable if it clearly covers both.",
+        "The receipt goes to Hugo and the warranty goes to Leila. The initial opposite recipient mapping must not remain actionable.",
+        "Both deliveries are due by Wednesday; do not place the deadline only on the second item or change by Wednesday to after Wednesday.",
+        "Two bullets containing both document names, both recipients, and Wednesday can still be wrong. Judge the final recipient-document pairs and shared deadline, not word overlap or bullet count."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-conjunctive-preconditions",
+      "mode": "notes",
+      "source": "bel Rami alleen als de druk weer normaal is en het rode lampje uit is noteer tot die tijd elk alarm stuur geen update naar de leverancier",
+      "vocabulary": ["Rami"],
+      "required": ["Rami"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: three complete Dutch instruction bullets: a conditional call, interim alarm logging, and a prohibition on supplier updates.",
+        "Call Rami only when BOTH pressure is back to normal AND the red indicator is off. Neither condition alone is sufficient; do not split the lamp clause into an unrelated task.",
+        "Until those conditions are met, log every alarm. Preserve the interim duration and all-alarm coverage.",
+        "Do not send an update to the supplier. Do not treat Rami as the supplier, apply the prohibition to calling Rami, or create an affirmative supplier-update task."
+      ]
+    },
+    {
+      "id": "notes-challenge-en-already-good",
+      "mode": "notes",
+      "source": "• Cora: reserve the rehearsal room by Tuesday.\n• Keep the east door locked until the caretaker arrives.\n• The rehearsal may run late; no extra session is confirmed.",
+      "vocabulary": ["Cora"],
+      "required": ["Cora", "Tuesday"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: retain three already-good bullets. Unchanged output is acceptable in this control; equivalent bullet markers, light punctuation changes, and concise faithful paraphrases are also acceptable.",
+        "Cora reserves the rehearsal room by Tuesday. Cora and that deadline do not implicitly apply to the other two notes.",
+        "The east door stays locked until the caretaker arrives. Do not change east to another entrance, omit locked, or imply it must be unlocked before arrival.",
+        "The rehearsal may run late, and an extra session is not confirmed. Preserve both uncertainty and the lack of confirmation without creating a scheduled extra session.",
+        "Do not add a title that changes scope, introduce an explanatory preface, duplicate any note, or rewrite clear bullets into less readable prose."
+      ]
+    },
+    {
+      "id": "notes-challenge-nl-already-good",
+      "mode": "notes",
+      "source": "- Ravi haalt donderdag het rekwisiet op.\n- Gebruik de hoge kruk alleen tijdens de fotosessie.\n- We weten nog niet of er een reservekruk nodig is.",
+      "vocabulary": ["Ravi"],
+      "required": ["Ravi", "donderdag"],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "Format: retain three already-good Dutch bullets. Unchanged output is acceptable in this control; exact wording and bullet marker style are not required.",
+        "Ravi collects the prop on Thursday. Do not make Thursday a confirmed photoshoot date or assign all notes to Ravi.",
+        "The tall stool is for use only during the photoshoot. Preserve both the tall-stool distinction and the restriction, without attaching that photoshoot scope to every note.",
+        "The need for a spare stool is unknown. Do not convert it into a decision to obtain one or a statement that none is needed.",
+        "Preserve the concise existing structure without inventing a heading, owners, deadlines, extra tasks, or explanatory commentary."
+      ]
+    }
+  ]
+}

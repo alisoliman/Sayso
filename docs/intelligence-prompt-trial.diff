@@ -1,0 +1,33 @@
+--- Sayso/Services/IntelligenceService.swift
++++ Sayso/Services/IntelligenceService.swift
+@@ -378,7 +378,7 @@
+ 
+     static func listSchema(for plan: WritingOutputPlan) throws -> GenerationSchema {
+         let root = DynamicGenerationSchema(name: "EditedList", properties: [
+-            .init(name: "items", description: "Actual source information, one distinct complete idea per string. Include all tasks, people, conditions and undecided states. Each item must contain concrete source information. Never use placeholders, duplicate ideas or facts from examples.",
++            .init(name: "items", description: "Actual source information, one distinct complete idea per string. Include all tasks, people, conditions and undecided states. Each item must contain concrete source information. Never use placeholders, duplicate ideas or facts from examples. Separate consecutive independent actions even when punctuation or conjunctions are missing. Start a new item when the person responsible changes.",
+                   schema: .init(arrayOf: .init(type: String.self), minimumElements: plan.itemCount ?? 1, maximumElements: plan.itemCount))
+         ])
+         return try GenerationSchema(root: root, dependencies: [])
+@@ -393,9 +393,19 @@
+             if let count = plan.itemCount { task += " Return exactly \(count) items." }
+         }
+         var example = ""
+-        if mode == .notes {
++        if mode == .clean {
+             example = """
+-            FORMAT EXAMPLE — unrelated content, do not reuse its facts:
++            COPYEDIT EXAMPLE — unrelated content, do not reuse its facts:
++            Source: "uh bring 4 canvas bags actually 6 and please don't forget the receipt"
++            Result: {"editedText":"Bring 6 canvas bags, and please don't forget the receipt."}
++            Perform the cleanup: add sentence punctuation and capitalization, remove fillers, and resolve explicit self-corrections. Preserve the language. An unpunctuated copy with the same fillers is not a completed edit.
++
++            """
++        } else if mode == .notes {
++            example = """
++            FORMAT EXAMPLES — unrelated content, do not reuse their facts or item counts:
++            Source: "Lea collects the tent Pablo checks the pegs"
++            Result: {"items":["Lea collects the tent.","Pablo checks the pegs."]}
+             Source: "we need to wash the berries bake the pastry Ravi is bringing cream we aren't sure about the serving time"
+             Result: {"items":["Wash the berries.","Bake the pastry.","Ravi is bringing cream.","We aren't sure about the serving time."]}
+ 

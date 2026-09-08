@@ -1,0 +1,322 @@
+{
+  "cases": [
+    {
+      "id": "notes-punctuated",
+      "mode": "notes",
+      "source": "For the launch we still need to finish the onboarding screens, test recording on a real device and check the accessibility labels. Maya is taking care of the screenshots. We have not decided on a launch date.",
+      "customInstructions": "",
+      "vocabulary": [
+        "Zo\u00eb",
+        "Maya"
+      ],
+      "required": [
+        "onboarding",
+        "real device",
+        "accessibility",
+        "Maya",
+        "screenshots",
+        "not decided"
+      ],
+      "requiredAny": [],
+      "forbidden": [],
+      "usefulEditCriteria": [],
+      "minimumBullets": 5
+    },
+    {
+      "id": "notes-unpunctuated",
+      "mode": "notes",
+      "source": "For the launch we still need to finish the onboarding screens test recording on a real device and check the accessibility labels Maya is taking care of the screenshots we have not decided on a launch date",
+      "customInstructions": "",
+      "vocabulary": [
+        "Zo\u00eb",
+        "Maya"
+      ],
+      "required": [
+        "onboarding",
+        "real device",
+        "accessibility",
+        "Maya",
+        "screenshots",
+        "not decided"
+      ],
+      "requiredAny": [],
+      "forbidden": [],
+      "usefulEditCriteria": [],
+      "minimumBullets": 5
+    },
+    {
+      "id": "holdout-en-notes-owner-undecided",
+      "mode": "notes",
+      "source": "Nora will inspect the canoe straps on Tuesday Eli needs to photograph the cracked paddle we still haven't decided whether to replace the blue life jackets",
+      "customInstructions": "",
+      "vocabulary": [
+        "Zo\u00eb",
+        "Maya"
+      ],
+      "required": [
+        "Nora",
+        "canoe straps",
+        "Tuesday",
+        "Eli",
+        "cracked paddle",
+        "blue life jackets"
+      ],
+      "requiredAny": [
+        [
+          "haven't decided",
+          "have not decided",
+          "undecided"
+        ]
+      ],
+      "forbidden": [],
+      "usefulEditCriteria": [],
+      "minimumBullets": 3
+    },
+    {
+      "id": "holdout-nl-notes-owner-undecided",
+      "mode": "notes",
+      "source": "Mila belt donderdag de drukker Bas moet de proefdruk op ontbrekende pagina's controleren over een rode of gele omslag hebben we nog geen beslissing genomen",
+      "customInstructions": "",
+      "vocabulary": [
+        "Zo\u00eb",
+        "Maya"
+      ],
+      "required": [
+        "Mila",
+        "donderdag",
+        "drukker",
+        "Bas",
+        "proefdruk",
+        "ontbrekende",
+        "rode",
+        "gele",
+        "geen beslissing"
+      ],
+      "requiredAny": [],
+      "forbidden": [],
+      "usefulEditCriteria": [],
+      "minimumBullets": 3
+    },
+    {
+      "id": "polish-notes-en-explicit-purpose",
+      "mode": "notes",
+      "source": "for the community orchard opening Lena will label the pear trees on Saturday Yusuf needs to collect the spare watering cans we haven't chosen a ribbon colour yet",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "community orchard",
+        "opening",
+        "Lena",
+        "pear trees",
+        "Saturday",
+        "Yusuf",
+        "watering cans",
+        "ribbon"
+      ],
+      "requiredAny": [
+        [
+          "haven't chosen",
+          "have not chosen",
+          "not yet chosen",
+          "undecided"
+        ]
+      ],
+      "forbidden": [],
+      "usefulEditCriteria": [
+        "Preserve the explicit opening purpose in a heading, context line, or clearly scoped note.",
+        "Separate the two assigned tasks and the undecided detail into distinct items.",
+        "Keep Saturday attached only to Lena's task."
+      ],
+      "minimumBullets": 3
+    },
+    {
+      "id": "polish-notes-nl-explicit-topic",
+      "mode": "notes",
+      "source": "over het herstel van de muurschildering Farah test morgen de vernis op een klein stukje Bram vraagt de beheerder om de sleutel de nieuwe datum ligt nog niet vast",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "herstel",
+        "muurschildering",
+        "Farah",
+        "morgen",
+        "vernis",
+        "Bram",
+        "beheerder",
+        "sleutel",
+        "datum"
+      ],
+      "requiredAny": [
+        [
+          "klein stukje",
+          "klein gedeelte",
+          "klein deel"
+        ],
+        [
+          "niet vast",
+          "onbeslist",
+          "nog niet bepaald",
+          "nog niet vastgesteld"
+        ]
+      ],
+      "forbidden": [],
+      "usefulEditCriteria": [
+        "Keep the notes entirely in Dutch.",
+        "Preserve the explicit mural-restoration topic without making up a larger project title.",
+        "Separate Farah's task, Bram's task, and the unresolved date into distinct items."
+      ],
+      "minimumBullets": 3
+    },
+    {
+      "id": "polish-notes-en-two-topic-scopes",
+      "mode": "notes",
+      "source": "for the planetarium evening book a captioning screen separately for the library return the borrowed atlas before Monday",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "planetarium",
+        "library",
+        "captioning screen",
+        "atlas",
+        "Monday"
+      ],
+      "requiredAny": [
+        [
+          "before Monday",
+          "prior to Monday"
+        ]
+      ],
+      "forbidden": [
+        "on Monday"
+      ],
+      "usefulEditCriteria": [
+        "Keep at least two distinct actionable items.",
+        "Preserve both explicit topics with their correct local scope.",
+        "A single invented umbrella heading must not replace the two source topics."
+      ],
+      "minimumBullets": 2
+    },
+    {
+      "id": "polish-notes-en-no-clear-topic",
+      "mode": "notes",
+      "source": "put the copper key back in the drawer the shuttle leaves at 16:20 the jar by the window is empty",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "copper key",
+        "drawer",
+        "shuttle",
+        "16:20",
+        "jar",
+        "window"
+      ],
+      "requiredAny": [
+        [
+          "empty"
+        ]
+      ],
+      "forbidden": [
+        "16:30",
+        "Fill the jar",
+        "Travel preparation",
+        "Trip preparation"
+      ],
+      "usefulEditCriteria": [
+        "Separate the directive and the two observations into distinct readable items.",
+        "Leave any optional topic field empty; a neutral generic label such as Notes is acceptable but unnecessary.",
+        "Preserve the different speech acts rather than converting every item into a command."
+      ],
+      "minimumBullets": 3
+    },
+    {
+      "id": "variation-notes-comma-purpose",
+      "mode": "notes",
+      "source": "For the museum fundraiser, inspect the folding chairs and count the donation tins. We haven't chosen a catering company.",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "museum fundraiser",
+        "folding chairs",
+        "donation tins",
+        "catering company"
+      ],
+      "requiredAny": [
+        [
+          "haven't chosen",
+          "have not chosen",
+          "undecided"
+        ]
+      ],
+      "forbidden": [],
+      "usefulEditCriteria": [
+        "Retain the supplied fundraiser purpose and both separate tasks.",
+        "Keep the catering company undecided."
+      ],
+      "minimumBullets": 3
+    },
+    {
+      "id": "variation-notes-local-scope",
+      "mode": "notes",
+      "source": "For the new studio, label the storage boxes. Separately, return Omar\u2019s telescope before Wednesday.",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "new studio",
+        "storage boxes",
+        "Omar",
+        "telescope",
+        "before Wednesday"
+      ],
+      "requiredAny": [],
+      "forbidden": [],
+      "usefulEditCriteria": [
+        "Associate the studio with labeling storage boxes, not with returning the borrowed telescope.",
+        "Keep the separate return task and deadline."
+      ],
+      "minimumBullets": 2
+    },
+    {
+      "id": "variation-notes-dutch-comma-purpose",
+      "mode": "notes",
+      "source": "Voor de buurtmaaltijd, controleer de vegetarische opties en tel de borden. Noor haalt de soep om 18:30. We weten nog niet hoeveel gasten er komen.",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "buurtmaaltijd",
+        "vegetarische",
+        "borden",
+        "Noor",
+        "soep",
+        "18:30",
+        "nog niet"
+      ],
+      "requiredAny": [],
+      "forbidden": [],
+      "usefulEditCriteria": [
+        "Preserve the explicit community-meal context and every task, person and time, entirely in Dutch.",
+        "Keep the guest count unknown."
+      ],
+      "minimumBullets": 4
+    },
+    {
+      "id": "variation-notes-no-topic",
+      "mode": "notes",
+      "source": "Pack the canvas bag. The train leaves at 09:40. The brass latch is loose.",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": [
+        "canvas bag",
+        "train",
+        "09:40",
+        "brass latch",
+        "loose"
+      ],
+      "requiredAny": [],
+      "forbidden": [],
+      "usefulEditCriteria": [
+        "Do not invent an umbrella topic or turn the loose-latch observation into a new repair task."
+      ],
+      "minimumBullets": 3
+    }
+  ]
+}

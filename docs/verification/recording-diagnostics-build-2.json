@@ -1,0 +1,109 @@
+{
+  "recordedAtUTC": "2026-09-08T12:19:44.745791+00:00",
+  "build": 2,
+  "scope": "Recording diagnostics follow-up. This is not a full-suite run or a verified repair of the reported physical recognition failure.",
+  "toolchain": {
+    "xcode": "27 beta 6",
+    "xcodeBuild": "27A5252f",
+    "sdk": "27.0",
+    "sdkBuild": "24A5422a"
+  },
+  "simulatorTests": {
+    "result": "passed",
+    "exitCode": 0,
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "classes": {
+      "DictationControllerTests": 19,
+      "SpeechDiagnosticsTests": 7,
+      "SpeechPipelineTests": 10
+    },
+    "device": "iPhone 17 Pro simulator",
+    "os": "27.0",
+    "osBuild": "24A5423a",
+    "nativeSummarySHA256": "9f58ef86617e6c89b572fc1404ad3f9fea890957c919bc93167bbe0fb3e1251b",
+    "sourceBoundary": "The selected tests include the final production counter-order change. The subsequently amended, unselected physical-probe cancellation helper was compiled by the final signed iPhone test build."
+  },
+  "signedDeviceTestBuild": {
+    "result": "passed",
+    "exitCode": 0,
+    "deviceInstalledOrLaunched": false
+  },
+  "unsignedDeviceRelease": {
+    "result": "passed",
+    "exitCode": 0,
+    "bundles": [
+      {
+        "bundleIdentifier": "solimanali.Sayso",
+        "version": "1.0",
+        "build": "2",
+        "minimumOS": "27.0",
+        "sdkBuild": "24A5422a",
+        "architectures": "arm64",
+        "debugMarkersFound": [],
+        "executableSHA256": "8f93779eca4ce62283034e714cd626adea833b593138f1f00ec4ed794fcd881c"
+      },
+      {
+        "bundleIdentifier": "solimanali.Sayso.Keyboard",
+        "version": "1.0",
+        "build": "2",
+        "minimumOS": "27.0",
+        "sdkBuild": "24A5422a",
+        "architectures": "arm64",
+        "debugMarkersFound": [],
+        "executableSHA256": "29e11e5db92f06306d638cb95ec58a8263303ba5ebd6d32788b04510c0e4662b"
+      },
+      {
+        "bundleIdentifier": "solimanali.Sayso.RecordingActivity",
+        "version": "1.0",
+        "build": "2",
+        "minimumOS": "27.0",
+        "sdkBuild": "24A5422a",
+        "architectures": "arm64",
+        "debugMarkersFound": [],
+        "executableSHA256": "ee0f9c4267e6136a0e4766dda0b75af1f33aa8d944ca3abd1d4674dc5a3c4b24"
+      }
+    ]
+  },
+  "physicalSyntheticRecognitionProbe": {
+    "result": "not run",
+    "optIn": "SAYSO_RUN_DEVICE_SPEECH_PROBE=1",
+    "microphoneOpened": false
+  },
+  "remainingAcceptance": [
+    "Real microphone recognition and audio routes",
+    "Reproduction of the reported empty transcript; screen sharing is an unconfirmed suspected cause",
+    "iOS 27 model writing quality",
+    "Current-source motion and physical-device performance",
+    "Previously documented simulator runtime integrity diagnostics"
+  ],
+  "logs": {
+    "simulatorTests": {
+      "localArtifact": ".build/pr-recording-diagnostics-tests.log",
+      "sha256": "8979443d1500d88af5c1fce41c43eb3b2484a1d1cc1ee3efd1411ccbe3cef367"
+    },
+    "signedDeviceTestBuild": {
+      "localArtifact": ".build/pr-diagnostics-device-build-for-testing-final.log",
+      "sha256": "b2f5efaeca7f69d143cec96b86db97bc2fc960e5d05b60d3649a4ba59b8c94be"
+    },
+    "unsignedDeviceRelease": {
+      "localArtifact": ".build/pr-ios27-release-build-2.log",
+      "sha256": "2361aae25bae5d62d367a5cb2eae773f76bb8cf58742dd276fbab869ef03c497"
+    }
+  },
+  "artifactPolicy": "Logs and xcresult bundles are local generated artifacts under ignored .build/. This checked-in report records their results and hashes; it does not embed those artifacts.",
+  "sourceSHA256": {
+    "Sayso/Services/SpeechService.swift": "a8eac3f622e61740dbfc4e5c8589952516ab3a91fc7745666e53b9d33ede022c",
+    "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+    "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+    "Sayso/ContentView.swift": "85d4ab8a918bd28bd86f14f7e687c54e2d8f52c2095c341e7e5c8477bd59858f",
+    "Sayso/Models/DictationController.swift": "efb7aa54056901afd53bb639c37d53de3d6b76d7166586fb2659a134aa2ba2dd",
+    "SaysoTests/SpeechDiagnosticsTests.swift": "dbf0d4c01252402a4f803c2f6d66c516ea51698f8aaa2128afd18379798dbfb4",
+    "SaysoTests/SpeechPipelineTests.swift": "e704d1287f2fb15804524b2aa70e503e18509d534ed6d14f981b76bfeeb5d54a",
+    "SaysoTests/DictationControllerTests.swift": "94b5b3b8c2da900e6eea059671f29d0eef08e93a6c7bc4d39cc7d3e07e8cb817",
+    "SaysoTests/SpeechRecognitionIntegrationTests.swift": "866819aa5d68431d6eaf51a3b6bc69885960d4d82419ff68a1781b11df1762df",
+    "SaysoTests/Fixtures/DeviceSpeechEnglish.wav": "6cf42cebb9e453ae7f92b7c00fbfd365b479bcb0faf53d8894a5f28dbdfc0f1c",
+    "Sayso.xcodeproj/project.pbxproj": "a60344c3fc9b83f76b9f1f813b58feefb8c20739eb0bdfda81938a1d4bd4fe6d"
+  }
+}
