@@ -46,6 +46,8 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["recordButton"].isEnabled)
         XCTAssertTrue(app.buttons["importButton"].exists)
+        XCTAssertTrue(app.buttons["importButton"].isHittable)
+        XCTAssertTrue(app.staticTexts["Speak freely."].isHittable)
         capture("01-Home", app: app)
 
         app.buttons["modeButton"].tap()
@@ -60,6 +62,7 @@ final class SaysoUITests: XCTestCase {
         app.buttons["settingsButton"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.switches["saveHistoryToggle"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["speechProviderPicker"].firstMatch.exists)
         XCTAssertTrue(app.descendants(matching: .any)["languagePicker"].firstMatch.exists)
         capture("03-Settings", app: app)
         app.navigationBars.buttons["Done"].tap()
@@ -70,6 +73,27 @@ final class SaysoUITests: XCTestCase {
         capture("04-Empty-History", app: app)
         app.navigationBars.buttons["Done"].tap()
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 5))
+    }
+
+    func testAppleSpeechIsDefaultAndLocalParakeetIsOptional() {
+        let app = launch()
+        let modelButton = app.buttons["speechModelButton"]
+        XCTAssertTrue(modelButton.waitForExistence(timeout: 10))
+        XCTAssertTrue(modelButton.label.contains("Apple Speech"))
+        modelButton.tap()
+        app.descendants(matching: .any)["speechProviderPicker"].firstMatch.tap()
+        app.buttons["Parakeet · local"].tap()
+        XCTAssertTrue(app.buttons["downloadParakeetButton"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["importParakeetButton"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["languagePicker"].firstMatch.exists)
+        capture("Parakeet-Settings", app: app)
+        app.descendants(matching: .any)["speechProviderPicker"].firstMatch.tap()
+        app.buttons["Apple Speech"].tap()
+        let language = app.descendants(matching: .any)["languagePicker"].firstMatch
+        if !language.isHittable { app.swipeUp() }
+        XCTAssertTrue(language.waitForExistence(timeout: 5))
+        app.navigationBars.buttons["Done"].tap()
+        XCTAssertTrue(modelButton.label.contains("Apple Speech"))
     }
 
     func testCustomModeCommitsOnlyValidDoneAndSwipeDismissPreservesSavedStyle() throws {

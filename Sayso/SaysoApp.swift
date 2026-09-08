@@ -21,7 +21,7 @@ struct SaysoApp: App {
         let url: URL? = nil
         preferences = .standard
         #endif
-        _model = State(initialValue: DictationController(store: DictationStore(fileURL: url)))
+        _model = State(initialValue: DictationController(store: DictationStore(fileURL: url), preferences: preferences))
     }
     var body: some Scene {
         WindowGroup {

@@ -9,6 +9,7 @@ struct ContentView: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @AppStorage("writingMode") private var modeRaw = WritingMode.transcript.rawValue
     @AppStorage("speechLocale") private var locale = SpeechLanguage.defaultIdentifier
+    @AppStorage(SpeechProvider.preferenceKey) private var providerRaw = SpeechProvider.defaultProvider.rawValue
     @AppStorage("customInstructions") private var instructions = ""
     @AppStorage("vocabulary") private var vocabulary = ""
     @AppStorage("saveHistory") private var saveHistory = true
@@ -21,6 +22,7 @@ struct ContentView: View {
     @State private var discardRecording = false
     @State private var followingLiveTranscript = true
     private var mode: WritingMode { WritingMode(rawValue: modeRaw) ?? .transcript }
+    private var provider: SpeechProvider { SpeechProvider(rawValue: providerRaw) ?? .defaultProvider }
     private var recording: Bool { model.phase == .recording }
     private var compactHeight: Bool { verticalSizeClass == .compact }
 
@@ -99,7 +101,8 @@ struct ContentView: View {
                     sheet = nil
                     model.reworkSaved(id, mode: selected, instructions: instructions, vocabulary: vocabulary)
                 }
-            case .settings: SettingsView(intelligence: model.intelligence, store: model.store)
+            case .settings: SettingsView(intelligence: model.intelligence, store: model.store,
+                                         speechModels: model.speechModels, isDictationBusy: model.isBusy)
             case .modes:
                 ModePickerView(selected: $modeRaw, instructions: $instructions, intelligence: model.intelligence)
                     .presentationDetents([.large])
@@ -254,7 +257,11 @@ struct ContentView: View {
             if model.destination == .keyboard {
                 information("Return to the app you’re writing in. Stop from the Live Activity or Sayso keyboard, then tap Insert. Recording ends after 10 minutes.", symbol: "keyboard")
             }
-            Text(model.speech.partialText.isEmpty ? "Go ahead. I’m listening." : model.speech.partialText)
+            Text(model.speech.partialText.isEmpty
+                 ? (provider == .parakeet
+                    ? (recording ? "I’m listening. Your transcript appears after you stop." : "Transcribing with Parakeet on this iPhone…")
+                    : "Go ahead. I’m listening.")
+                 : model.speech.partialText)
                 .font(.system(size: writingSize, weight: .regular, design: .serif)).lineSpacing(8)
                 .foregroundStyle(model.speech.partialText.isEmpty ? .secondary : .primary)
                 .contentTransition(.opacity)
@@ -365,10 +372,7 @@ struct ContentView: View {
                     Button("Discard recording") { discardRecording = true }.foregroundStyle(.secondary)
                         .accessibilityIdentifier("discardRecordingButton")
                 } else {
-                    Image(systemName: "lock").font(.system(size: 10))
-                    Text("On-device")
-                    Text("·").padding(.horizontal, 2)
-                    Text(SpeechLanguage.shortName(for: locale))
+                    speechModelButton
                 }
             }
             .font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
@@ -380,6 +384,7 @@ struct ContentView: View {
 
     private var compactControls: some View {
         VStack(spacing: 6) {
+            if !model.isBusy { speechModelButton }
             if model.phase == .preparing || model.phase == .finishing || model.phase == .refining {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
@@ -420,6 +425,18 @@ struct ContentView: View {
         .padding(.horizontal, 24).padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background { LinearGradient(colors: [.clear, SaysoTheme.canvas, SaysoTheme.canvas], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .bottom) }
+    }
+
+    private var speechModelButton: some View {
+        Button { sheet = .settings } label: {
+            Label(provider == .parakeet
+                  ? "Parakeet · \(model.speechModels.isInstalled ? "on device" : "setup required")"
+                  : "Apple Speech · \(SpeechLanguage.shortName(for: locale))", systemImage: "lock")
+                .font(.footnote).foregroundStyle(.secondary)
+                .padding(.vertical, 6).contentShape(.rect)
+        }
+        .buttonStyle(.plain).disabled(model.isBusy)
+        .accessibilityIdentifier("speechModelButton")
     }
 
     private var modeControl: some View {
@@ -466,7 +483,7 @@ struct ContentView: View {
         .buttonBorderShape(dynamicTypeSize.isAccessibilitySize && !compactHeight ? .capsule : .circle)
         .disabled(model.isBusy && !recording)
         .accessibilityLabel(recording ? "Stop recording" : "Start recording")
-        .accessibilityHint(recording ? "Finish and prepare your text" : "Dictate in \(SpeechLanguage.name(for: locale))")
+        .accessibilityHint(recording ? "Finish and prepare your text" : (provider == .parakeet ? "Record with the local Parakeet model" : "Dictate in \(SpeechLanguage.name(for: locale))"))
         .accessibilityIdentifier("recordButton")
     }
 

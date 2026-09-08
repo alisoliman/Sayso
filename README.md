@@ -1,14 +1,15 @@
 # Sayso
 
-A quiet native iPhone app for turning speech into useful text. Record, choose a writing style, and copy, share or insert the result where you need it. Sayso uses Apple Speech and Apple Intelligence locally; no Sayso account, API key, server or third-party package is required.
+A quiet native iPhone app for turning speech into useful text. Record, choose a writing style, and copy, share or insert the result where you need it. Sayso supports local Parakeet transcription through FluidAudio, Apple Speech, and optional Apple Intelligence rewriting. No Sayso account, API key or server is required.
 
-**iOS 27.0 or later · SwiftUI · Apple Speech · Foundation Models**
+**iOS 27.0 or later · SwiftUI · Parakeet / Apple Speech · Foundation Models**
 
 [Current normal-launch Home](docs/screenshots/ios27/final-visual/home-light-normal-final.png)
 
 ## What it does
 
-- Live transcription with a waveform, timer and explicit Start, Stop and Discard controls. Long recordings follow the newest words; scrolling back lets you review without losing your place.
+- **Apple Speech**, the default, provides live transcription with a waveform, timer and explicit Start, Stop and Discard controls. Long transcripts follow the newest words; scrolling back lets you review without losing your place.
+- **Parakeet TDT v3** is an optional local speech model in Settings. Download it once (about 500 MB) or import its Core ML model folder. It detects 25 European languages, including English and Dutch, automatically and transcribes after Stop. Parakeet recordings and imports are limited to ten minutes.
 - **Original**, the default, keeps your words. **Clean, Message, Email, Notes and Custom** optionally refine them with Apple Intelligence. The original remains available when rewriting is cancelled or fails.
 - Editable results, original/refined comparison, local searchable history, vocabulary spellings and a choice of supported speech languages. Saving history is optional.
 - Copy, native Share and audio-file import. The embedded keyboard supports ordinary typing and explicit insertion of a result sent from Sayso.
@@ -16,7 +17,7 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 - Shortcuts for ordinary and keyboard dictation, suitable for Siri or the Action button.
 - Native Liquid Glass controls and a layered app icon, light/dark appearances, compact landscape layouts, Dynamic Type, VoiceOver labels and Reduce Motion support.
 
-Language/model downloads may need internet access initially. Apple Intelligence must be available for rewriting; Original remains the basic transcription mode. Rewrites can still omit or change meaning, so keep the original available and review important details.
+Language/model downloads need internet access initially; Parakeet is fetched only through the explicit download control. A missing local model never silently switches providers. Apple Intelligence must be available for rewriting; **Original works with Parakeet without Apple Intelligence**. Rewrites can still omit or change meaning, so keep the original available and review important details. [Parakeet setup, supported files and verification](docs/PARAKEET.md).
 
 ## Build and run
 
@@ -52,6 +53,8 @@ Enable Sayso through **Settings → General → Keyboard → Keyboards** using t
 For ongoing dictation, choose **Dictate in another app** or its Keyboard Dictation shortcut, then manually return to the destination. Stop through the Live Activity, or enable Full Access to use keyboard Stop/Discard. Insert the finished result explicitly. The keyboard does not launch Sayso or capture audio. Ordinary dictation finishes when Sayso goes into the background. [Keyboard behavior and platform boundaries](docs/KEYBOARD_DESIGN.md).
 
 ## Verification and iPhone acceptance
+
+**Optional local Parakeet:** the device Release build and 35 focused model/capture tests passed. The broader run plus focused rerun has passing latest results for 145 distinct methods, with the existing physical-device probe skipped. Real Parakeet inference through Sayso’s audio converter also passed on the Mac with networking denied, including right-channel-only stereo audio. Apple Speech remains the default. [Setup, detailed results and iPhone acceptance boundary](docs/PARAKEET.md).
 
 **Build 2 adds recording diagnostics.** Empty-input errors distinguish missing microphone buffers, failed conversion, audio not processed by the analyzer and audio with no recognized words. **Copy diagnostics** explicitly copies content-free counters and technical metadata to the local-device pasteboard. This is diagnostic instrumentation, not a confirmed recognition fix.
 

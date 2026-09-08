@@ -11,6 +11,7 @@ final class DictationController {
     let speech: any SpeechTranscribing
     let intelligence: IntelligenceService
     let store: DictationStore
+    let speechModels: ParakeetModelStore
     var phase: Phase = .idle
     var current: Dictation?
     var notice: String?
@@ -45,8 +46,11 @@ final class DictationController {
 
     init(store: DictationStore, speech: (any SpeechTranscribing)? = nil,
          intelligence: IntelligenceService? = nil,
-         transformation: Transformation? = nil, keyboardRecording: KeyboardRecordingCoordinator? = nil) {
-        let resolvedSpeech = speech ?? SpeechService()
+         transformation: Transformation? = nil, keyboardRecording: KeyboardRecordingCoordinator? = nil,
+         preferences: UserDefaults = .standard, speechModels: ParakeetModelStore? = nil) {
+        let models = speechModels ?? ParakeetModelStore()
+        self.speechModels = models
+        let resolvedSpeech = speech ?? SpeechProviderService(preferences: preferences, models: models)
         let resolvedIntelligence = intelligence ?? IntelligenceService()
         self.store = store
         self.speech = resolvedSpeech
@@ -352,7 +356,7 @@ final class DictationController {
         // same recording, so completing it updates one saved entry.
         let entry = Dictation(id: activeDictationID, createdAt: activeCreatedAt,
                               text: raw, original: raw, mode: .transcript,
-                              duration: duration, localeIdentifier: activeLocale)
+                              duration: duration, localeIdentifier: speech.usesAutomaticLanguageDetection ? "und" : activeLocale)
         current = entry
         resetCopyFeedback()
         currentKeepsHistory = activeKeepsHistory
