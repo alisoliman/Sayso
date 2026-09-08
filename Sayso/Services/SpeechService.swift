@@ -12,6 +12,7 @@ protocol SpeechTranscribing: AnyObject {
     var status: String { get }
     var isRecording: Bool { get }
     var diagnosticsReport: String? { get }
+    var usesAutomaticLanguageDetection: Bool { get }
     var onInterruption: (() -> Void)? { get set }
     func resetTranscript()
     func start(localeIdentifier: String, contextualStrings: [String]) async throws
@@ -22,6 +23,7 @@ protocol SpeechTranscribing: AnyObject {
 
 extension SpeechTranscribing {
     var diagnosticsReport: String? { nil }
+    var usesAutomaticLanguageDetection: Bool { false }
 }
 
 /// Owns one on-device transcription at a time. Speech assets may be downloaded

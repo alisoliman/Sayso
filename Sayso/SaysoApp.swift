@@ -24,7 +24,7 @@ struct SaysoApp: App {
         preferences = .standard
         _styles = State(initialValue: WritingStyleStore(defaults: preferences))
         #endif
-        _model = State(initialValue: DictationController(store: DictationStore(fileURL: url)))
+        _model = State(initialValue: DictationController(store: DictationStore(fileURL: url), preferences: preferences))
     }
     var body: some Scene {
         WindowGroup {

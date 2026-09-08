@@ -33,7 +33,9 @@ final class WritingModesUITests: XCTestCase {
         replaceText(in: name, with: renamedTitle, app: app)
         editor.tap()
         editor.typeText(" Include an owner for each action.")
-        let revisedPrompt = try XCTUnwrap(editor.value as? String)
+        // Saving trims boundary whitespace, including when tapping places the
+        // insertion point before the existing prompt.
+        let revisedPrompt = try XCTUnwrap(editor.value as? String).trimmingCharacters(in: .whitespacesAndNewlines)
         XCTAssertNotEqual(revisedPrompt, prompt)
         app.buttons["saveModeButton"].tap()
         XCTAssertTrue(app.navigationBars["Modes"].waitForExistence(timeout: 5))
@@ -58,7 +60,8 @@ final class WritingModesUITests: XCTestCase {
         let delete = app.buttons["deleteModeButton"]
         reveal(delete, in: app)
         delete.tap()
-        let confirm = app.buttons["confirmDeleteModeButton"]
+        // SwiftUI can expose the same dialog action as nested buttons.
+        let confirm = app.sheets["Delete \(renamedTitle)?"].buttons["confirmDeleteModeButton"].firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 5))
         capture("Writing-Mode-Delete-Confirmation", app: app)
         confirm.tap()
@@ -87,7 +90,7 @@ final class WritingModesUITests: XCTestCase {
         XCTAssertTrue(app.buttons["saveModeButton"].isEnabled)
         editor.tap()
         editor.typeText(" Keep each sentence under twelve words.")
-        let savedPrompt = try XCTUnwrap(editor.value as? String)
+        let savedPrompt = try XCTUnwrap(editor.value as? String).trimmingCharacters(in: .whitespacesAndNewlines)
         XCTAssertNotEqual(savedPrompt, defaultPrompt)
         capture("Writing-Mode-Customized-Preset", app: app)
         app.buttons["saveModeButton"].tap()
