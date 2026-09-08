@@ -10,6 +10,7 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 
 - Live transcription with a waveform, timer and explicit Start, Stop and Discard controls. Long recordings follow the newest words; scrolling back lets you review without losing your place.
 - **Original**, the default, keeps your words. **Clean, Message, Email, Notes and Custom** optionally refine them with Apple Intelligence. The original remains available when rewriting is cancelled or fails.
+- Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap the pencil or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording, imports and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
 - Editable results, original/refined comparison, local searchable history, vocabulary spellings and a choice of supported speech languages. Saving history is optional.
 - Copy, native Share and audio-file import. The embedded keyboard supports ordinary typing and explicit insertion of a result sent from Sayso.
 - **Dictate in another app** starts recording in Sayso and provides a Live Activity, Dynamic Island and Stop/Discard controls while you return to your destination. Recording is limited to ten minutes.

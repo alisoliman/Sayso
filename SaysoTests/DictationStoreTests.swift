@@ -46,6 +46,57 @@ final class DictationStoreTests: XCTestCase {
         XCTAssertEqual(restored.entries.first?.original, "Original: First version")
     }
 
+    func testLegacyHistoryWithoutStyleMetadataLoadsAndKeepsModeDisplay() throws {
+        let directory = try workspace()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "dictations.json")
+        let legacyJSON = """
+        [{"id":"D81D7F8E-9C54-4CBC-A6D5-D10927D7DE96","createdAt":123,
+          "text":"A saved thought","original":"um a saved thought","mode":"notes",
+          "duration":3.5,"localeIdentifier":"nl-NL"}]
+        """
+        try Data(legacyJSON.utf8).write(to: url)
+
+        let restored = DictationStore(fileURL: url)
+        let saved = try XCTUnwrap(restored.entries.first)
+        XCTAssertNil(restored.storageError)
+        XCTAssertEqual(saved.mode, .notes)
+        XCTAssertNil(saved.writingStyle)
+        XCTAssertEqual(saved.modeTitle, WritingMode.notes.title)
+        XCTAssertEqual(saved.modeSymbol, WritingMode.notes.symbol)
+        XCTAssertTrue(restored.save(saved))
+        XCTAssertEqual(DictationStore(fileURL: url).entries, [saved])
+    }
+
+    func testHistoryKeepsStyleSnapshotAfterModeIsRenamedOrDeleted() throws {
+        let directory = try workspace()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appending(path: "dictations.json")
+        let store = DictationStore(fileURL: url)
+        let suite = "SaysoHistoryStylesTests-\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let styles = WritingStyleStore(defaults: defaults)
+        var style = WritingStyle(title: "Team update", prompt: "Use short paragraphs and keep uncertainties.")
+        XCTAssertTrue(styles.save(style))
+        var saved = entry("The update for the team.")
+        saved.mode = .custom
+        saved.writingStyle = style
+        XCTAssertTrue(store.save(saved))
+
+        style.title = "Renamed update"
+        style.prompt = "Use a numbered list."
+        XCTAssertTrue(styles.save(style))
+        var restored = DictationStore(fileURL: url)
+        XCTAssertEqual(restored.entries, [saved])
+        XCTAssertEqual(restored.entries.first?.modeTitle, "Team update")
+        XCTAssertTrue(styles.delete(style))
+        restored = DictationStore(fileURL: url)
+        XCTAssertEqual(restored.entries.first?.writingStyle, saved.writingStyle)
+        XCTAssertEqual(restored.entries.first?.modeTitle, "Team update")
+        XCTAssertEqual(restored.entries.first?.modeSymbol, WritingMode.custom.symbol)
+    }
+
     func testDeleteAndDeleteAllPersistWithoutRemovingOtherEntries() throws {
         let directory = try workspace()
         defer { try? FileManager.default.removeItem(at: directory) }

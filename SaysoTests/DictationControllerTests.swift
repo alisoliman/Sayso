@@ -87,10 +87,13 @@ final class DictationControllerTests: XCTestCase {
         speech.fileResult = .failure(StubFailure.interrupted)
         let controller = DictationController(store: DictationStore(fileURL: url), speech: speech)
         controller.importAudio(URL(filePath: "/unused-test-audio.m4a"), mode: .clean, locale: "en-US",
-                               instructions: "", vocabulary: "", saveHistory: true)
+                               instructions: "", vocabulary: "", saveHistory: true,
+                               writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
         await waitUntil("Failed import should settle") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.text, "Recover these words.")
         XCTAssertEqual(controller.current?.original, "Recover these words.")
+        XCTAssertEqual(controller.current?.mode, .transcript)
+        XCTAssertNil(controller.current?.writingStyle)
         XCTAssertEqual(DictationStore(fileURL: url).entries.first?.text, "Recover these words.")
         XCTAssertNotNil(controller.resultNote)
     }
@@ -206,12 +209,15 @@ final class DictationControllerTests: XCTestCase {
             XCTFail("Original restoration must not need a model")
             return "Wrong text"
         })
-        controller.current = Dictation(text: "A manual edit", original: "um original words", mode: .clean, duration: 2, localeIdentifier: "en-US")
-        controller.rework(mode: .transcript, instructions: "", vocabulary: "")
+        controller.current = Dictation(text: "A manual edit", original: "um original words", mode: .custom, duration: 2, localeIdentifier: "en-US",
+                                       writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
+        controller.rework(mode: .transcript, instructions: "", vocabulary: "",
+                          writingStyle: WritingStyle(id: WritingMode.transcript.rawValue, title: "Original", prompt: WritingMode.transcript.instructions))
         await waitUntil("Original restoration should finish") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.text, "um original words")
         XCTAssertEqual(controller.current?.original, "um original words")
         XCTAssertEqual(controller.current?.mode, .transcript)
+        XCTAssertNil(controller.current?.writingStyle)
     }
 
     func testFailedReworkPreservesCurrentManualEdits() async {
@@ -220,12 +226,143 @@ final class DictationControllerTests: XCTestCase {
         let controller = DictationController(store: DictationStore(fileURL: url), speech: StubSpeech(), transformation: { _, _, _, _ in
             throw IntelligenceError.refused
         })
-        let edited = Dictation(text: "My deliberate edits", original: "um original words", mode: .clean, duration: 2, localeIdentifier: "en-US")
+        let edited = Dictation(text: "My deliberate edits", original: "um original words", mode: .custom, duration: 2, localeIdentifier: "en-US",
+                               writingStyle: WritingStyle(title: "Friendly", prompt: "Use a friendly tone."))
+        XCTAssertTrue(controller.store.save(edited))
         controller.current = edited
-        controller.rework(mode: .notes, instructions: "", vocabulary: "")
+        controller.rework(mode: .notes, instructions: "", vocabulary: "",
+                          writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
         await waitUntil("Failed rewrite should settle") { controller.phase == .idle }
         XCTAssertEqual(controller.current, edited)
+        XCTAssertEqual(controller.store.entries, [edited])
         XCTAssertNotNil(controller.resultNote)
+    }
+
+    func testCustomRewriteForwardsFrozenPromptAndSavesModeIdentity() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        var style = WritingStyle(title: "Team update", prompt: "Use short paragraphs and keep uncertainties.")
+        let selectedStyle = style
+        var receivedMode: WritingMode?
+        var receivedPrompt: String?
+        var receivedVocabulary: [String] = []
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: StubSpeech(), transformation: { text, mode, prompt, vocabulary in
+            XCTAssertEqual(text, "My corrected update.")
+            receivedMode = mode
+            receivedPrompt = prompt
+            receivedVocabulary = vocabulary
+            return "A team update."
+        })
+        let saved = Dictation(text: "My corrected update.", original: "um my update", mode: .clean, duration: 2, localeIdentifier: "en-US")
+        XCTAssertTrue(controller.store.save(saved))
+        controller.reworkSaved(saved.id, mode: .clean, instructions: "Old custom instructions", vocabulary: "Sayso\nAlex", writingStyle: style)
+        style.title = "Renamed mode"
+        style.prompt = "A different prompt."
+        await waitUntil("Custom rewrite should finish") { controller.phase == .idle }
+
+        XCTAssertEqual(receivedMode, .custom)
+        XCTAssertEqual(receivedPrompt, selectedStyle.prompt)
+        XCTAssertEqual(receivedVocabulary, ["Sayso", "Alex"])
+        XCTAssertEqual(controller.current?.writingStyle, selectedStyle)
+        XCTAssertEqual(controller.current?.mode, .custom)
+        XCTAssertEqual(controller.current?.modeTitle, "Team update")
+        XCTAssertEqual(controller.current?.original, saved.original)
+        XCTAssertEqual(controller.current?.id, saved.id)
+        XCTAssertEqual(DictationStore(fileURL: url).entries.first, controller.current)
+    }
+
+    func testEditedBuiltInPromptUsesCustomTransformationAndKeepsBuiltInIdentity() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let style = WritingStyle(id: WritingMode.notes.rawValue, title: "Notes", prompt: "Use a numbered list of complete thoughts.")
+        var receivedMode: WritingMode?
+        var receivedPrompt: String?
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: StubSpeech(), transformation: { _, mode, prompt, _ in
+            receivedMode = mode
+            receivedPrompt = prompt
+            return "1. A complete thought."
+        })
+        controller.current = Dictation(text: "A complete thought.", original: "um a complete thought", mode: .clean, duration: 2, localeIdentifier: "en-US")
+        controller.rework(mode: .notes, instructions: "", vocabulary: "", writingStyle: style)
+        await waitUntil("Edited built-in rewrite should finish") { controller.phase == .idle }
+
+        XCTAssertEqual(receivedMode, .custom)
+        XCTAssertEqual(receivedPrompt, style.prompt)
+        XCTAssertEqual(controller.current?.mode, .notes)
+        XCTAssertEqual(controller.current?.writingStyle, style)
+        XCTAssertEqual(controller.current?.modeSymbol, WritingMode.notes.symbol)
+    }
+
+    func testCancelledCustomRewriteKeepsPreviousTextAndStyle() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let suspended = SuspendedRewrite()
+        defer { suspended.resume("Cleanup") }
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: StubSpeech(), transformation: { _, _, _, _ in
+            await suspended.wait()
+        })
+        let previous = Dictation(text: "My manual edits.", original: "um the original", mode: .custom, duration: 2, localeIdentifier: "en-US",
+                                  writingStyle: WritingStyle(title: "Friendly", prompt: "Use a friendly tone."))
+        XCTAssertTrue(controller.store.save(previous))
+        controller.current = previous
+        controller.rework(mode: .custom, instructions: "", vocabulary: "",
+                          writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
+        await waitUntil("Rewrite should suspend") { suspended.isWaiting }
+        controller.cancel()
+        await waitUntil("Cancellation should finish") { controller.phase == .idle }
+        suspended.resume("Cancelled rewrite")
+        await waitUntil("Cancelled rewrite should return") { suspended.didReturn }
+
+        XCTAssertEqual(controller.current, previous)
+        XCTAssertEqual(DictationStore(fileURL: url).entries, [previous])
+    }
+
+    func testRecordingFreezesSelectedStyleBeforeAudioFinishes() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let speech = StubSpeech()
+        speech.stopText = "The recorded thought."
+        var style = WritingStyle(title: "Brief", prompt: "Write a brief update.")
+        let selectedStyle = style
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: speech, transformation: { text, mode, prompt, _ in
+            XCTAssertEqual(text, speech.stopText)
+            XCTAssertEqual(mode, .custom)
+            XCTAssertEqual(prompt, selectedStyle.prompt)
+            return "A brief recording."
+        })
+        controller.start(mode: .custom, locale: "en-US", instructions: "Old preferences", vocabulary: "", saveHistory: true, writingStyle: style)
+        await waitUntil("Recording should start") { controller.phase == .recording }
+        style.title = "Changed during recording"
+        style.prompt = "Use a different format."
+        controller.finish()
+        await waitUntil("Recording should finish") { controller.phase == .idle }
+
+        XCTAssertEqual(controller.current?.text, "A brief recording.")
+        XCTAssertEqual(controller.current?.writingStyle, selectedStyle)
+        XCTAssertEqual(controller.store.entries.first?.writingStyle, selectedStyle)
+    }
+
+    func testImportFreezesSelectedStyleBeforeTranscriptionBegins() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let speech = StubSpeech()
+        speech.fileResult = .success("The imported thought.")
+        var style = WritingStyle(id: WritingMode.message.rawValue, title: "Message", prompt: WritingMode.message.instructions)
+        let selectedStyle = style
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: speech, transformation: { text, mode, prompt, _ in
+            XCTAssertEqual(text, "The imported thought.")
+            XCTAssertEqual(mode, .message)
+            XCTAssertEqual(prompt, selectedStyle.prompt)
+            return "A message from the import."
+        })
+        controller.importAudio(URL(filePath: "/unused-test-audio.m4a"), mode: .message, locale: "en-US",
+                               instructions: "Old preferences", vocabulary: "", saveHistory: true, writingStyle: style)
+        style.prompt = "An edited message prompt."
+        await waitUntil("Import should finish") { controller.phase == .idle }
+
+        XCTAssertEqual(controller.current?.text, "A message from the import.")
+        XCTAssertEqual(controller.current?.writingStyle, selectedStyle)
+        XCTAssertEqual(controller.current?.mode, .message)
     }
 
     func testHistoryRewriteUsesLatestSavedEditsAndUpdatesSameEntry() async {

@@ -2,7 +2,8 @@ import SwiftUI
 
 struct HistoryView: View {
     let store: DictationStore
-    var onRewrite: (UUID, WritingMode) -> Void
+    let styles: WritingStyleStore
+    var onRewrite: (UUID, WritingStyle) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var search = ""
     @State private var deleting: Dictation?
@@ -26,14 +27,14 @@ struct HistoryView: View {
                         if filtered.isEmpty { ContentUnavailableView.search(text: search).listRowBackground(Color.clear) }
                         ForEach(filtered) { entry in
                             NavigationLink {
-                                HistoryDetailView(entry: entry, store: store, onRewrite: onRewrite)
+                                HistoryDetailView(entry: entry, store: store, styles: styles, onRewrite: onRewrite)
                             } label: {
                                 VStack(alignment: .leading, spacing: 10) {
                                     Text(entry.text).font(.system(size: 18, design: .serif)).lineLimit(3).lineSpacing(4)
                                     HStack(spacing: 7) {
                                         Text(entry.createdAt, format: .dateTime.month(.abbreviated).day().hour().minute())
                                         Text("·")
-                                        Text(entry.mode.title)
+                                        Text(entry.modeTitle)
                                     }.font(.system(size: 11)).foregroundStyle(.secondary)
                                 }.padding(.vertical, 12)
                             }
@@ -73,11 +74,13 @@ struct HistoryView: View {
 struct HistoryDetailView: View {
     let entry: Dictation
     let store: DictationStore
-    var onRewrite: (UUID, WritingMode) -> Void
+    let styles: WritingStyleStore
+    var onRewrite: (UUID, WritingStyle) -> Void
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .title) private var writingSize = 26.0
     @State private var showOriginal = false
     @State private var copied = false
+    @State private var managingModes = false
     @State private var editing = false
     @State private var draft = ""
     private var saved: Dictation { store.entries.first { $0.id == entry.id } ?? entry }
@@ -85,7 +88,7 @@ struct HistoryDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 HStack {
-                    Eyebrow(text: saved.mode.title)
+                    Eyebrow(text: saved.modeTitle)
                     Spacer()
                     Text("\(saved.wordCount) words").font(.caption).foregroundStyle(.secondary)
                 }
@@ -110,10 +113,13 @@ struct HistoryDetailView: View {
                     }
                     Spacer()
                     Menu {
-                        ForEach(WritingMode.allCases) { mode in
+                        ForEach(styles.styles) { mode in
                             Button { onRewrite(saved.id, mode) } label: { Label(mode.title, systemImage: mode.symbol) }
-                                .accessibilityIdentifier("history-rewrite-\(mode.rawValue)")
+                                .disabled(mode.mode != .transcript && mode.prompt.isEmpty)
+                                .accessibilityIdentifier("history-rewrite-\(mode.id)")
                         }
+                        Divider()
+                        Button("Edit prompts & modes", systemImage: "slider.horizontal.3") { managingModes = true }
                     } label: { Label("Rewrite", systemImage: "sparkles") }
                         .accessibilityIdentifier("historyRewriteButton")
                 }.font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
@@ -128,6 +134,12 @@ struct HistoryDetailView: View {
             guard copied else { return }
             do { try await Task.sleep(for: .seconds(2)) } catch { return }
             copied = false
+        }
+        .sheet(isPresented: $managingModes) {
+            NavigationStack {
+                WritingModesSettingsView(styles: styles)
+                    .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { managingModes = false } } }
+            }
         }
         .sheet(isPresented: $editing) {
             NavigationStack {
