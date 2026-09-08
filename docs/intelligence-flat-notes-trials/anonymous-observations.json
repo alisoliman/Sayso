@@ -1,0 +1,362 @@
+{
+  "rubric": "scripts/fixtures/intelligence-flat-notes-challenge-criteria.md",
+  "fixtureSHA256": "0c57a3e532c2045ac49f772ab1e30e71c8518a824ca1a43204c4b901c2d2a45e",
+  "observations": [
+    {
+      "observationID": "8e3636ac7e",
+      "id": "flat-notes-nl-role-labels-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. The three Dutch bullets are useful unchanged. Two complete action bullets are also acceptable if they explicitly retain the primary and backup contact roles.",
+        "Vika is the primary contact and Jules is the backup. Aanspreekpunt and reservecontact are role labels, not additional people.",
+        "Vika asks tomorrow whether the lunchroom is available. Availability remains an inquiry, not a confirmed reservation or an instruction to book the room.",
+        "Jules calls only if Vika gets no answer. Preserve that condition and do not invent a recipient for Jules's call or assign tomorrow to an unconditional backup call."
+      ],
+      "output": "- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "repetition": 2,
+      "source": "- Aanspreekpunt: Vika; reservecontact: Jules.\n- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "violations": []
+    },
+    {
+      "observationID": "4b7b04af10",
+      "id": "flat-notes-en-filler-runons-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Produce two readable owner-based bullets, remove the audible uh/um fillers, and punctuate the run-on inquiry and prohibition. Copying source text or merely changing bullet markers fails usefulness.",
+        "Quinn asks the kiln technician whether the seal can be reused. Reuse remains uncertain; do not claim that the seal is reusable, make Quinn the technician, or lose Quinn while cleaning the label.",
+        "A replacement must not be ordered yet. Preserve this temporary prohibition and do not assign a new ordering task to Anika.",
+        "Anika photographs the hinge and keeps the close-up with the repair notes. Both related duties remain hers, and the close-up belongs with the notes rather than being sent to an invented recipient."
+      ],
+      "output": "- Quinn: ask the kiln technician whether the seal can be reused. Do not order a replacement yet.\n- Anika: photograph the hinge and keep the close-up with the repair notes.",
+      "repetition": 1,
+      "source": "- uh Quinn: ask the kiln technician whether the seal can be reused do not order a replacement yet\n- um Anika: photograph the hinge and keep the close-up with the repair notes",
+      "violations": []
+    },
+    {
+      "observationID": "074a40751b",
+      "id": "flat-notes-nl-corrected-owner-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Resolve the spoken owner correction into two unambiguous current transport assignments, with the shared deadline either retained separately or attached to both. Unchanged source text fails even though its bullet count is allowed.",
+        "Joep takes the transparent container. Vera's apparent owner prefix is superseded for that container; do not retain her as its current or joint owner.",
+        "Vera still takes the black container. Do not erase Vera globally or give both containers to Joep when resolving the correction.",
+        "Both containers must be ready before Saturday. Do not attach that condition only to the black container or change it into a confirmed Saturday transport date."
+      ],
+      "output": "- Neem de transparante bak mee.\n- Neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "repetition": 1,
+      "source": "- Vera: neem de transparante bak mee, nee Joep neemt die bak mee.\n- Vera: neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "violations": [
+        "Missing required phrase: Vera",
+        "Missing required phrase: Joep"
+      ]
+    },
+    {
+      "observationID": "4f8ed44765",
+      "id": "flat-notes-nl-recipient-deadline-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Retain three clear current action/constraint bullets while resolving the corrected recipient and day. An unchanged list must fail despite preserving all owner prefixes and the correct bullet count.",
+        "Rens sends the quotation to Otis on Tuesday. Liv and Monday are superseded for that delivery; do not leave two active recipients or delivery dates.",
+        "Liv still checks only the attachment on Wednesday. Preserve her independent assignment, its limited object, and its own day; do not transfer it to Otis or broaden it to the whole quotation.",
+        "Otis must not confirm an order yet. Do not turn this into an affirmative confirmation, apply it to Liv's check, or infer that Tuesday is an approved order date.",
+        "Clearly superseded history may be mentioned briefly, but all three current owner-action relationships must be unambiguous. Names and dates appearing somewhere in the output are insufficient."
+      ],
+      "output": "- Rens: stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Liv: controleer woensdag alleen de bijlage.\n- Otis: bevestig nog geen bestelling.",
+      "repetition": 1,
+      "source": "- Rens: stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Liv: controleer woensdag alleen de bijlage.\n- Otis: bevestig nog geen bestelling.",
+      "violations": []
+    },
+    {
+      "observationID": "1fe8d7eda7",
+      "id": "flat-notes-en-filler-runons-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Produce two readable owner-based bullets, remove the audible uh/um fillers, and punctuate the run-on inquiry and prohibition. Copying source text or merely changing bullet markers fails usefulness.",
+        "Quinn asks the kiln technician whether the seal can be reused. Reuse remains uncertain; do not claim that the seal is reusable, make Quinn the technician, or lose Quinn while cleaning the label.",
+        "A replacement must not be ordered yet. Preserve this temporary prohibition and do not assign a new ordering task to Anika.",
+        "Anika photographs the hinge and keeps the close-up with the repair notes. Both related duties remain hers, and the close-up belongs with the notes rather than being sent to an invented recipient."
+      ],
+      "output": "- Quinn: ask the kiln technician whether the seal can be reused do not order a replacement yet\n- um Anika: photograph the hinge and keep the close-up with the repair notes",
+      "repetition": 1,
+      "source": "- uh Quinn: ask the kiln technician whether the seal can be reused do not order a replacement yet\n- um Anika: photograph the hinge and keep the close-up with the repair notes",
+      "violations": [
+        "Unexpected phrase: um Anika"
+      ]
+    },
+    {
+      "observationID": "cc872bbe68",
+      "id": "flat-notes-en-literal-colon-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL AND LITERAL-COLON CASE. Preserve the three readable notes; unchanged output is acceptable.",
+        "Eden: keep this crate upright is literal printed-warning text. Preserve its words and internal colon as quoted content; do not assign a real-world crate-handling task to Eden. Equivalent outer quotation marks are allowed.",
+        "Remy attaches that warning to the empty crate. Printed warning is a content label, not another owner; the quoted name must not replace Remy's explicit assignment.",
+        "Do not seal the crate until Remy has attached the warning. Preserve the prerequisite and negation; do not convert it into immediate sealing or leave the pronoun referring to a person."
+      ],
+      "output": "- Printed warning: \"Eden: keep this crate upright\".\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "repetition": 2,
+      "source": "- Printed warning: “Eden: keep this crate upright”.\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "violations": []
+    },
+    {
+      "observationID": "85b1ebd042",
+      "id": "flat-notes-en-owner-and-status-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. Preserve three complete, already-useful bullets. Unchanged output is acceptable; faithful concise wording and equivalent bullet markers are allowed.",
+        "Mina checks the walnut finish on Tuesday. Rowan packages the dry sample only after Mina approves it. Preserve both owners, the dry-sample qualification, and the approval prerequisite.",
+        "Tuesday belongs to Mina's check, not a confirmed courier collection or an unconditional packaging deadline.",
+        "Status is a label, not a person. The courier slot remains unconfirmed; do not turn it into a booking task, a confirmed slot, or a prohibition on all courier use."
+      ],
+      "output": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "repetition": 1,
+      "source": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "violations": []
+    },
+    {
+      "observationID": "0339b142a7",
+      "id": "flat-notes-en-literal-colon-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL AND LITERAL-COLON CASE. Preserve the three readable notes; unchanged output is acceptable.",
+        "Eden: keep this crate upright is literal printed-warning text. Preserve its words and internal colon as quoted content; do not assign a real-world crate-handling task to Eden. Equivalent outer quotation marks are allowed.",
+        "Remy attaches that warning to the empty crate. Printed warning is a content label, not another owner; the quoted name must not replace Remy's explicit assignment.",
+        "Do not seal the crate until Remy has attached the warning. Preserve the prerequisite and negation; do not convert it into immediate sealing or leave the pronoun referring to a person."
+      ],
+      "output": "- Printed warning: \"Eden: keep this crate upright\".\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "repetition": 1,
+      "source": "- Printed warning: “Eden: keep this crate upright”.\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "violations": []
+    },
+    {
+      "observationID": "16c4d086d9",
+      "id": "flat-notes-en-owner-and-status-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. Preserve three complete, already-useful bullets. Unchanged output is acceptable; faithful concise wording and equivalent bullet markers are allowed.",
+        "Mina checks the walnut finish on Tuesday. Rowan packages the dry sample only after Mina approves it. Preserve both owners, the dry-sample qualification, and the approval prerequisite.",
+        "Tuesday belongs to Mina's check, not a confirmed courier collection or an unconditional packaging deadline.",
+        "Status is a label, not a person. The courier slot remains unconfirmed; do not turn it into a booking task, a confirmed slot, or a prohibition on all courier use."
+      ],
+      "output": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "repetition": 2,
+      "source": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "violations": []
+    },
+    {
+      "observationID": "87b26f841e",
+      "id": "flat-notes-en-owner-and-status-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. Preserve three complete, already-useful bullets. Unchanged output is acceptable; faithful concise wording and equivalent bullet markers are allowed.",
+        "Mina checks the walnut finish on Tuesday. Rowan packages the dry sample only after Mina approves it. Preserve both owners, the dry-sample qualification, and the approval prerequisite.",
+        "Tuesday belongs to Mina's check, not a confirmed courier collection or an unconditional packaging deadline.",
+        "Status is a label, not a person. The courier slot remains unconfirmed; do not turn it into a booking task, a confirmed slot, or a prohibition on all courier use."
+      ],
+      "output": "- Check the walnut finish on Tuesday.\n- Package the dry sample only after Mina approves it.\n- The courier slot is not confirmed.",
+      "repetition": 1,
+      "source": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "violations": [
+        "Missing required phrase: Rowan"
+      ]
+    },
+    {
+      "observationID": "f8d284b4a2",
+      "id": "flat-notes-en-filler-runons-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Produce two readable owner-based bullets, remove the audible uh/um fillers, and punctuate the run-on inquiry and prohibition. Copying source text or merely changing bullet markers fails usefulness.",
+        "Quinn asks the kiln technician whether the seal can be reused. Reuse remains uncertain; do not claim that the seal is reusable, make Quinn the technician, or lose Quinn while cleaning the label.",
+        "A replacement must not be ordered yet. Preserve this temporary prohibition and do not assign a new ordering task to Anika.",
+        "Anika photographs the hinge and keeps the close-up with the repair notes. Both related duties remain hers, and the close-up belongs with the notes rather than being sent to an invented recipient."
+      ],
+      "output": "- Quinn: ask the kiln technician whether the seal can be reused. Do not order a replacement yet.\n- Anika: photograph the hinge and keep the close-up with the repair notes.",
+      "repetition": 2,
+      "source": "- uh Quinn: ask the kiln technician whether the seal can be reused do not order a replacement yet\n- um Anika: photograph the hinge and keep the close-up with the repair notes",
+      "violations": []
+    },
+    {
+      "observationID": "38ecb6fc70",
+      "id": "flat-notes-nl-role-labels-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. The three Dutch bullets are useful unchanged. Two complete action bullets are also acceptable if they explicitly retain the primary and backup contact roles.",
+        "Vika is the primary contact and Jules is the backup. Aanspreekpunt and reservecontact are role labels, not additional people.",
+        "Vika asks tomorrow whether the lunchroom is available. Availability remains an inquiry, not a confirmed reservation or an instruction to book the room.",
+        "Jules calls only if Vika gets no answer. Preserve that condition and do not invent a recipient for Jules's call or assign tomorrow to an unconditional backup call."
+      ],
+      "output": "- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "repetition": 1,
+      "source": "- Aanspreekpunt: Vika; reservecontact: Jules.\n- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "violations": []
+    },
+    {
+      "observationID": "f302e7f81e",
+      "id": "flat-notes-nl-corrected-owner-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Resolve the spoken owner correction into two unambiguous current transport assignments, with the shared deadline either retained separately or attached to both. Unchanged source text fails even though its bullet count is allowed.",
+        "Joep takes the transparent container. Vera's apparent owner prefix is superseded for that container; do not retain her as its current or joint owner.",
+        "Vera still takes the black container. Do not erase Vera globally or give both containers to Joep when resolving the correction.",
+        "Both containers must be ready before Saturday. Do not attach that condition only to the black container or change it into a confirmed Saturday transport date."
+      ],
+      "output": "- Neem de transparante bak mee.\n- Neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "repetition": 2,
+      "source": "- Vera: neem de transparante bak mee, nee Joep neemt die bak mee.\n- Vera: neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "violations": [
+        "Missing required phrase: Vera",
+        "Missing required phrase: Joep"
+      ]
+    },
+    {
+      "observationID": "7006effa75",
+      "id": "flat-notes-nl-corrected-owner-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Resolve the spoken owner correction into two unambiguous current transport assignments, with the shared deadline either retained separately or attached to both. Unchanged source text fails even though its bullet count is allowed.",
+        "Joep takes the transparent container. Vera's apparent owner prefix is superseded for that container; do not retain her as its current or joint owner.",
+        "Vera still takes the black container. Do not erase Vera globally or give both containers to Joep when resolving the correction.",
+        "Both containers must be ready before Saturday. Do not attach that condition only to the black container or change it into a confirmed Saturday transport date."
+      ],
+      "output": "- Vera: neem de transparante bak mee, nee Joep neemt die bak mee.\n- Vera: neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "repetition": 2,
+      "source": "- Vera: neem de transparante bak mee, nee Joep neemt die bak mee.\n- Vera: neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "violations": []
+    },
+    {
+      "observationID": "298a78795e",
+      "id": "flat-notes-en-literal-colon-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL AND LITERAL-COLON CASE. Preserve the three readable notes; unchanged output is acceptable.",
+        "Eden: keep this crate upright is literal printed-warning text. Preserve its words and internal colon as quoted content; do not assign a real-world crate-handling task to Eden. Equivalent outer quotation marks are allowed.",
+        "Remy attaches that warning to the empty crate. Printed warning is a content label, not another owner; the quoted name must not replace Remy's explicit assignment.",
+        "Do not seal the crate until Remy has attached the warning. Preserve the prerequisite and negation; do not convert it into immediate sealing or leave the pronoun referring to a person."
+      ],
+      "output": "- Printed warning: \"Eden: keep this crate upright\".\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "repetition": 2,
+      "source": "- Printed warning: “Eden: keep this crate upright”.\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "violations": []
+    },
+    {
+      "observationID": "637865271c",
+      "id": "flat-notes-en-filler-runons-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Produce two readable owner-based bullets, remove the audible uh/um fillers, and punctuate the run-on inquiry and prohibition. Copying source text or merely changing bullet markers fails usefulness.",
+        "Quinn asks the kiln technician whether the seal can be reused. Reuse remains uncertain; do not claim that the seal is reusable, make Quinn the technician, or lose Quinn while cleaning the label.",
+        "A replacement must not be ordered yet. Preserve this temporary prohibition and do not assign a new ordering task to Anika.",
+        "Anika photographs the hinge and keeps the close-up with the repair notes. Both related duties remain hers, and the close-up belongs with the notes rather than being sent to an invented recipient."
+      ],
+      "output": "- Quinn: ask the kiln technician whether the seal can be reused do not order a replacement yet\n- um Anika: photograph the hinge and keep the close-up with the repair notes",
+      "repetition": 2,
+      "source": "- uh Quinn: ask the kiln technician whether the seal can be reused do not order a replacement yet\n- um Anika: photograph the hinge and keep the close-up with the repair notes",
+      "violations": [
+        "Unexpected phrase: um Anika"
+      ]
+    },
+    {
+      "observationID": "cc0a21ae2b",
+      "id": "flat-notes-nl-role-labels-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. The three Dutch bullets are useful unchanged. Two complete action bullets are also acceptable if they explicitly retain the primary and backup contact roles.",
+        "Vika is the primary contact and Jules is the backup. Aanspreekpunt and reservecontact are role labels, not additional people.",
+        "Vika asks tomorrow whether the lunchroom is available. Availability remains an inquiry, not a confirmed reservation or an instruction to book the room.",
+        "Jules calls only if Vika gets no answer. Preserve that condition and do not invent a recipient for Jules's call or assign tomorrow to an unconditional backup call."
+      ],
+      "output": "- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "repetition": 1,
+      "source": "- Aanspreekpunt: Vika; reservecontact: Jules.\n- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "violations": []
+    },
+    {
+      "observationID": "8f852d7620",
+      "id": "flat-notes-nl-recipient-deadline-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Retain three clear current action/constraint bullets while resolving the corrected recipient and day. An unchanged list must fail despite preserving all owner prefixes and the correct bullet count.",
+        "Rens sends the quotation to Otis on Tuesday. Liv and Monday are superseded for that delivery; do not leave two active recipients or delivery dates.",
+        "Liv still checks only the attachment on Wednesday. Preserve her independent assignment, its limited object, and its own day; do not transfer it to Otis or broaden it to the whole quotation.",
+        "Otis must not confirm an order yet. Do not turn this into an affirmative confirmation, apply it to Liv's check, or infer that Tuesday is an approved order date.",
+        "Clearly superseded history may be mentioned briefly, but all three current owner-action relationships must be unambiguous. Names and dates appearing somewhere in the output are insufficient."
+      ],
+      "output": "- Rens: stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Liv: controleer woensdag alleen de bijlage.\n- Otis: bevestig nog geen bestelling.",
+      "repetition": 2,
+      "source": "- Rens: stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Liv: controleer woensdag alleen de bijlage.\n- Otis: bevestig nog geen bestelling.",
+      "violations": []
+    },
+    {
+      "observationID": "1ea3b7e0a1",
+      "id": "flat-notes-nl-recipient-deadline-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Retain three clear current action/constraint bullets while resolving the corrected recipient and day. An unchanged list must fail despite preserving all owner prefixes and the correct bullet count.",
+        "Rens sends the quotation to Otis on Tuesday. Liv and Monday are superseded for that delivery; do not leave two active recipients or delivery dates.",
+        "Liv still checks only the attachment on Wednesday. Preserve her independent assignment, its limited object, and its own day; do not transfer it to Otis or broaden it to the whole quotation.",
+        "Otis must not confirm an order yet. Do not turn this into an affirmative confirmation, apply it to Liv's check, or infer that Tuesday is an approved order date.",
+        "Clearly superseded history may be mentioned briefly, but all three current owner-action relationships must be unambiguous. Names and dates appearing somewhere in the output are insufficient."
+      ],
+      "output": "- Stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Controleer woensdag alleen de bijlage.\n- Bevestig nog geen bestelling.",
+      "repetition": 2,
+      "source": "- Rens: stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Liv: controleer woensdag alleen de bijlage.\n- Otis: bevestig nog geen bestelling.",
+      "violations": [
+        "Missing required phrase: Rens"
+      ]
+    },
+    {
+      "observationID": "32d734182b",
+      "id": "flat-notes-en-literal-colon-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL AND LITERAL-COLON CASE. Preserve the three readable notes; unchanged output is acceptable.",
+        "Eden: keep this crate upright is literal printed-warning text. Preserve its words and internal colon as quoted content; do not assign a real-world crate-handling task to Eden. Equivalent outer quotation marks are allowed.",
+        "Remy attaches that warning to the empty crate. Printed warning is a content label, not another owner; the quoted name must not replace Remy's explicit assignment.",
+        "Do not seal the crate until Remy has attached the warning. Preserve the prerequisite and negation; do not convert it into immediate sealing or leave the pronoun referring to a person."
+      ],
+      "output": "- Printed warning: \"Eden: keep this crate upright\".\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "repetition": 1,
+      "source": "- Printed warning: “Eden: keep this crate upright”.\n- Remy: attach that warning to the empty crate.\n- Do not seal the crate until Remy has attached it.",
+      "violations": []
+    },
+    {
+      "observationID": "b5220dc8bc",
+      "id": "flat-notes-nl-role-labels-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. The three Dutch bullets are useful unchanged. Two complete action bullets are also acceptable if they explicitly retain the primary and backup contact roles.",
+        "Vika is the primary contact and Jules is the backup. Aanspreekpunt and reservecontact are role labels, not additional people.",
+        "Vika asks tomorrow whether the lunchroom is available. Availability remains an inquiry, not a confirmed reservation or an instruction to book the room.",
+        "Jules calls only if Vika gets no answer. Preserve that condition and do not invent a recipient for Jules's call or assign tomorrow to an unconditional backup call."
+      ],
+      "output": "- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "repetition": 2,
+      "source": "- Aanspreekpunt: Vika; reservecontact: Jules.\n- Vika: vraag morgen of de lunchruimte beschikbaar is.\n- Jules: bel alleen als Vika geen antwoord krijgt.",
+      "violations": []
+    },
+    {
+      "observationID": "cfd9b64cef",
+      "id": "flat-notes-en-owner-and-status-preserve",
+      "manualCriteria": [
+        "PRESERVATION CONTROL. Preserve three complete, already-useful bullets. Unchanged output is acceptable; faithful concise wording and equivalent bullet markers are allowed.",
+        "Mina checks the walnut finish on Tuesday. Rowan packages the dry sample only after Mina approves it. Preserve both owners, the dry-sample qualification, and the approval prerequisite.",
+        "Tuesday belongs to Mina's check, not a confirmed courier collection or an unconditional packaging deadline.",
+        "Status is a label, not a person. The courier slot remains unconfirmed; do not turn it into a booking task, a confirmed slot, or a prohibition on all courier use."
+      ],
+      "output": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "repetition": 2,
+      "source": "- Mina: check the walnut finish on Tuesday.\n- Rowan: package the dry sample only after Mina approves it.\n- Status: the courier slot is not confirmed.",
+      "violations": []
+    },
+    {
+      "observationID": "b29753f4a3",
+      "id": "flat-notes-nl-recipient-deadline-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Retain three clear current action/constraint bullets while resolving the corrected recipient and day. An unchanged list must fail despite preserving all owner prefixes and the correct bullet count.",
+        "Rens sends the quotation to Otis on Tuesday. Liv and Monday are superseded for that delivery; do not leave two active recipients or delivery dates.",
+        "Liv still checks only the attachment on Wednesday. Preserve her independent assignment, its limited object, and its own day; do not transfer it to Otis or broaden it to the whole quotation.",
+        "Otis must not confirm an order yet. Do not turn this into an affirmative confirmation, apply it to Liv's check, or infer that Tuesday is an approved order date.",
+        "Clearly superseded history may be mentioned briefly, but all three current owner-action relationships must be unambiguous. Names and dates appearing somewhere in the output are insufficient."
+      ],
+      "output": "- Stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Controleer woensdag alleen de bijlage.\n- Bevestig nog geen bestelling.",
+      "repetition": 1,
+      "source": "- Rens: stuur de offerte naar Liv op maandag, nee naar Otis op dinsdag.\n- Liv: controleer woensdag alleen de bijlage.\n- Otis: bevestig nog geen bestelling.",
+      "violations": [
+        "Missing required phrase: Rens"
+      ]
+    },
+    {
+      "observationID": "f910d42bf4",
+      "id": "flat-notes-nl-corrected-owner-transform",
+      "manualCriteria": [
+        "REQUIRED CORRECTION. Resolve the spoken owner correction into two unambiguous current transport assignments, with the shared deadline either retained separately or attached to both. Unchanged source text fails even though its bullet count is allowed.",
+        "Joep takes the transparent container. Vera's apparent owner prefix is superseded for that container; do not retain her as its current or joint owner.",
+        "Vera still takes the black container. Do not erase Vera globally or give both containers to Joep when resolving the correction.",
+        "Both containers must be ready before Saturday. Do not attach that condition only to the black container or change it into a confirmed Saturday transport date."
+      ],
+      "output": "- Vera: neem de transparante bak mee, nee Joep neemt die bak mee.\n- Vera: neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "repetition": 1,
+      "source": "- Vera: neem de transparante bak mee, nee Joep neemt die bak mee.\n- Vera: neem de zwarte bak mee.\n- Beide bakken moeten voor zaterdag klaarstaan.",
+      "violations": []
+    }
+  ]
+}

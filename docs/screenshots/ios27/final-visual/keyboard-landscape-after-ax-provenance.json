@@ -1,0 +1,135 @@
+{
+  "reviewedAtUTC": "2026-09-08T08:10:59.128090+00:00",
+  "resultBundle": ".build/Sayso-iOS27-Keyboard-Compact-AX-Responder.xcresult",
+  "summary": ".build/ios27-keyboard-compact-ax-responder-summary.json",
+  "log": ".build/test-ios27-keyboard-compact-ax-responder.log",
+  "attachmentManifest": ".build/ios27-keyboard-compact-ax-responder-attachments/manifest.json",
+  "environment": ".build/ios27-keyboard-compact-ax-responder-environment.json",
+  "environmentSHA256": "82d65d9d8ea6823e86ce50692ebe4b8644cbb5412915b98ec24de30c7b203db7",
+  "testIdentifier": "KeyboardInsertionUITests/testKeyboardReadyAndExactInsertionInBothLandscapeOrientations()",
+  "result": {
+    "exitCode": 0,
+    "passedMethods": 1,
+    "failedMethods": 0,
+    "skippedMethods": 0,
+    "durationSeconds": 294.819,
+    "note": "One existing regression method exercises both rotations. Four reviewed state captures are not four test methods. The broader suite is outside this focused review."
+  },
+  "device": {
+    "architecture": "arm64",
+    "deviceId": "358BDEE9-19AE-49BA-BC91-975523C2B8E7",
+    "deviceName": "Sayso \u00b7 iPhone 17 Pro \u00b7 iOS 27",
+    "modelName": "iPhone 17 Pro",
+    "osBuildNumber": "24A5423a",
+    "osVersion": "27.0",
+    "platform": "iOS Simulator"
+  },
+  "sourceSHA256": {
+    "Sayso/ContentView.swift": "f22fe23153773894b58f07bfb133187d61d055d7c767b3a1ee7eb70497035cf3",
+    "SaysoKeyboard/KeyboardViewController.swift": "554cad9a2deec50d9d98b64dbdfd3815de5e21b4775c3873c02d7bb221df65a3",
+    "SaysoUITests/KeyboardInsertionUITests.swift": "7892f8bf3beede59542a45a2bc7320ebd5e88f8d5acd8dfb20d8c98b02989edb"
+  },
+  "sourceBinding": "Source identities come from the frozen run environment. ContentView and keyboard production hashes still matched at review. The working UI test file had subsequent edits, so no current-UI-test-source equivalence is claimed.",
+  "contentSize": {
+    "scope": "actual simulator-wide content size, including the extension",
+    "tested": "accessibility-extra-extra-extra-large",
+    "before": "large",
+    "restored": "large"
+  },
+  "host": "Sayso own DEBUG Edit text editor using --uitesting --preview-result, with isolated test history/preferences and explicit publication through the real App Group. This is a real extension insertion into its containing app, not another-app insertion evidence.",
+  "editorGeometryPoints": {
+    "window": [
+      0,
+      0,
+      874,
+      402
+    ],
+    "editor": [
+      82,
+      86,
+      710,
+      50
+    ],
+    "navigationBottom": 78,
+    "keyboardHeaderTop": 150,
+    "unobscuredEditor": [
+      82,
+      86,
+      710,
+      50
+    ],
+    "bothOrientationsMatch": true,
+    "finding": "The full 50pt editor height remains unobscured. Empty field/caret is visible in Ready; the complete fixture occupies two readable lines after insertion."
+  },
+  "nativeGlobeLimit": "The system-provided globe has AX frame x8.5,y336.7,w68.1,h68.7 extending 3.4pt below the 402pt window. Its visible glyph and centered 44pt interaction target fit inside the screen; the test specifically preserves that native-geometry distinction. Own extension controls must fit their full frames.",
+  "responderRetry": {
+    "used": false,
+    "evidence": "The mandatory Keyboard-Editor-Focused-Without-Visible-Keyboard diagnostic is absent from both log and complete manifest. Event log has only the two expected editButton taps at t54.71 and t130.41, with normal draft cancellation between per-orientation preparations.",
+    "limit": "This run does not establish that the newly added one-time responder reopen repairs the earlier hidden-native-keyboard condition."
+  },
+  "cleanup": {
+    "passed": true,
+    "fullAccess": "Off before and after, native Settings AX value0 in 696182E1-58F0-4755-A237-236983C1F615.txt and 5682BC33-69D9-4FDE-BEA6-76B0D436DDA4.txt.",
+    "sharedFixture": "Native Shared text alert says The text shared with your keyboard has been removed.; evidence 0C427CF8-8CE8-418C-88F1-95FFDB4A74A3.txt.",
+    "editor": "Owned unsaved editor cancelled.",
+    "keyboard": "Final log shows native English (US) selection at t290.36 and Settings search closed without modifying its text.",
+    "contentSize": "Frozen environment records restoration to large.",
+    "orientation": "Test cleanup restores portrait."
+  },
+  "limits": [
+    "Only Ready/Inserted layout and the stated typing/insertion sequence are covered here; recording Stop/Discard, dark appearance, other hosts, physical devices, microphone/audio capture, and model output are outside this focused review.",
+    "The unresolved native iOS27 runtime signature verification error -67054 is not resolved by a passing UI method. No security bypass was used."
+  ],
+  "review": ".build/ios27-keyboard-compact-ax-visual-review.json",
+  "copyMethod": "Byte-identical filesystem copy of full-screen attachments; no image crop, resize, rotation, recompression, or metadata changes.",
+  "images": [
+    {
+      "orientation": "Left",
+      "state": "Ready",
+      "sourceCapture": ".build/ios27-keyboard-compact-ax-responder-attachments/34C5E374-7714-4F92-919F-FC9D70AB124B.png",
+      "sourceHierarchy": ".build/ios27-keyboard-compact-ax-responder-attachments/6EC8016B-AF3F-46DA-87E5-32417F90AF26.txt",
+      "geometryAttachment": ".build/ios27-keyboard-compact-ax-responder-attachments/DAD3A2BA-598B-432A-B8B4-084E43B31F36.txt",
+      "timestamp": 1788854555.344,
+      "sha256": "e770b87fd4ad7090ab35f22bdda6dba7aef415a244b2497827ff0ca2bac072d2",
+      "hierarchySHA256": "30600ce0aff5fea78f8a767a28906cc8a6a7d0df4fc91a3bd9049a06ddae8af1",
+      "rawPixelSize": [
+        1206,
+        2622
+      ],
+      "exifOrientation": 8,
+      "presentationPixelSize": [
+        2622,
+        1206
+      ],
+      "fullyNearBlackRows": 0,
+      "fullyNearBlackColumns": 0,
+      "visualFinding": "Full keyboard and editor are visible without overlap. Insert is enabled and visually prominent; empty editor is visible, Save disabled.",
+      "actionableIssue": null,
+      "promotedCapture": "docs/screenshots/ios27/final-visual/keyboard-landscape-after-ax-xxxl-left-ready.png"
+    },
+    {
+      "orientation": "Right",
+      "state": "Inserted",
+      "sourceCapture": ".build/ios27-keyboard-compact-ax-responder-attachments/61E747DA-D1CD-4C84-82A5-AE44E19003F7.png",
+      "sourceHierarchy": ".build/ios27-keyboard-compact-ax-responder-attachments/D06BBE1F-6905-4BCB-B7C6-B2C826A11D46.txt",
+      "geometryAttachment": null,
+      "timestamp": 1788854640.26,
+      "sha256": "6b0ebc0e1f58c507f26eae66c17031441f7efab6668a0bac167eb97520524daa",
+      "hierarchySHA256": "506086cff8a876cb01170167cffe85ccf3204b46888c3cfd1e842c1334eb9a38",
+      "rawPixelSize": [
+        1206,
+        2622
+      ],
+      "exifOrientation": 6,
+      "presentationPixelSize": [
+        2622,
+        1206
+      ],
+      "fullyNearBlackRows": 0,
+      "fullyNearBlackColumns": 0,
+      "visualFinding": "Complete two-line text is visible above the keyboard. Inserted is natively disabled with a readable adjacent explanation; Save is enabled.",
+      "actionableIssue": null,
+      "promotedCapture": "docs/screenshots/ios27/final-visual/keyboard-landscape-after-ax-xxxl-right-inserted.png"
+    }
+  ]
+}

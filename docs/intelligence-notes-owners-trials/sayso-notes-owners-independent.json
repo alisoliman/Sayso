@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "corpusID": "notes-bulleted-owners-independent-2026-09-07-v1",
+  "purpose": "Six independent synthetic English/Dutch Notes fixtures authored without viewing the new candidate code or any new trial outputs. Frozen before the requested bounded candidate comparison.",
+  "interpretation": "Two already-good controls permit unchanged output and are scored separately. Four transformations require filler cleanup plus task separation or explicit correction resolution; unchanged bullets are failures there. Automated phrases and bullet counts are diagnostics; all usefulEditCriteria require manual assessment.",
+  "cases": [
+    {
+      "id": "bulleted-independent-en-owner-control",
+      "mode": "notes",
+      "source": "- Keziah labels the sample vials for the field-survey team by Thursday.\n- Oren checks the cold-box seal before that team leaves.\n- Replacement batteries have not been approved.",
+      "vocabulary": [
+        "Keziah",
+        "Oren"
+      ],
+      "required": [
+        "Keziah",
+        "Oren",
+        "Thursday"
+      ],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "ALREADY-GOOD CONTROL: unchanged text is a successful preservation result, not a transformation win. Three readable bullets must remain.",
+        "Keziah owns labeling the sample vials for the field-survey team, with a deadline by Thursday. Do not remove the owner, team context, object, or deadline.",
+        "Oren owns checking the cold-box seal before the same team departs. Do not assign Oren vial labeling, treat Thursday as his stated deadline, or detach before departure from his check.",
+        "Replacement batteries are not approved. Do not turn that unresolved approval into an instruction to buy, replace, or permanently prohibit batteries."
+      ]
+    },
+    {
+      "id": "bulleted-independent-nl-scope-control",
+      "mode": "notes",
+      "source": "- Voor de wijkarchiefavond sorteert Hanneke de glasnegatieven.\n- Wessel belt de gemeente alleen als de zaalsleutel vrijdag nog niet bezorgd is.\n- Vergrotingen zijn nog niet besteld.",
+      "vocabulary": [
+        "Hanneke",
+        "Wessel"
+      ],
+      "required": [
+        "Hanneke",
+        "Wessel",
+        "vrijdag"
+      ],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "ALREADY-GOOD CONTROL: unchanged Dutch text is a successful preservation result, not a transformation win. Keep three readable bullets.",
+        "Hanneke sorts glass negatives for the neighborhood archive evening. Keep the event scope and her ownership; do not replace the negatives with enlargements.",
+        "Wessel calls the municipality only if the hall key has still not arrived on Friday. Preserve the exclusive condition, Friday, and Wessel as caller. Do not make the call unconditional or impose Friday on sorting.",
+        "Enlargements have not yet been ordered. Preserve this status without inventing an ordering task, owner, deadline, or permanent prohibition."
+      ]
+    },
+    {
+      "id": "bulleted-independent-en-fillers-distinct-owners",
+      "mode": "notes",
+      "source": "- um Zinnia checks the projector on Monday and uh Lennox collects the folding chairs on Tuesday\n- er keep the spare cables in the storeroom",
+      "vocabulary": [
+        "Zinnia",
+        "Lennox"
+      ],
+      "required": [
+        "Zinnia",
+        "Lennox",
+        "Monday",
+        "Tuesday"
+      ],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "TRANSFORMATION: unchanged existing bullets are NOT a success. Remove the spoken filler tokens um, uh, and er, restore readable sentence capitalization/punctuation, and separate the two differently owned tasks in the first source bullet.",
+        "Produce three complete concise action bullets: the projector check, the chair collection, and keeping spare cables in the storeroom. Do not create filler-only or owner-only fragments.",
+        "Zinnia checks the projector on Monday; Lennox collects the folding chairs on Tuesday. Preserve each owner, task, object, and day without swapping or merging assignments.",
+        "The spare cables stay in the storeroom. Do not invent an owner or deadline for that instruction or assign its location to chair collection."
+      ]
+    },
+    {
+      "id": "bulleted-independent-nl-fillers-distinct-owners",
+      "mode": "notes",
+      "source": "- eh Merel belt de drukker woensdag en uh Tibor haalt vrijdag de proefdruk op\n- um de grote doos blijft op kantoor",
+      "vocabulary": [
+        "Merel",
+        "Tibor"
+      ],
+      "required": [
+        "Merel",
+        "Tibor",
+        "woensdag",
+        "vrijdag"
+      ],
+      "minimumBullets": 3,
+      "maximumBullets": 3,
+      "usefulEditCriteria": [
+        "TRANSFORMATION: unchanged existing bullets are NOT a success. Remove the spoken fillers eh, uh, and um, restore grammatical readable Dutch, and separate the two differently owned tasks in the first source bullet.",
+        "Produce three complete concise bullets: the printer call, collection of the proof, and the location of the large box. Arbitrarily splitting an owner from a verb fails.",
+        "Merel calls the printer on Wednesday; Tibor collects the proof on Friday. Preserve the two assignments and keep each day with the correct task.",
+        "The large box stays at the office. Do not make Merel or Tibor transport it, omit its size/location, or assign it an unstated deadline."
+      ]
+    },
+    {
+      "id": "bulleted-independent-en-owner-date-correction",
+      "mode": "notes",
+      "source": "- Calista delivers the display stand on Thursday — correction, Felix delivers it on Friday.\n- Calista only prepares the carrying case; do not ask her to transport the stand.",
+      "vocabulary": [
+        "Calista",
+        "Felix"
+      ],
+      "required": [
+        "Calista",
+        "Felix",
+        "Friday"
+      ],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "TRANSFORMATION: unchanged bulleted source is NOT a useful edit. Resolve the explicit correction into two unambiguous notes; retaining competing current delivery assignments fails.",
+        "Felix is the active owner of delivering the display stand on Friday. Thursday and Calista as stand-delivery owner are superseded. If mentioned at all, their superseded status must be explicit and nonactionable.",
+        "Calista prepares only the carrying case. Do not broaden her assignment to packing or transporting the stand, assign her Friday, or delete her ownership.",
+        "Preserve the instruction not to ask Calista to transport the stand. The carrying case and display stand must remain different objects. Complete concise English notes are required."
+      ]
+    },
+    {
+      "id": "bulleted-independent-nl-owner-date-correction",
+      "mode": "notes",
+      "source": "- Renske regelt maandag vervoer voor de houten kast. Nee, dinsdag; Boudewijn regelt het vervoer.\n- Renske pakt alleen de losse planken in.",
+      "vocabulary": [
+        "Renske",
+        "Boudewijn"
+      ],
+      "required": [
+        "Renske",
+        "Boudewijn",
+        "dinsdag"
+      ],
+      "minimumBullets": 2,
+      "maximumBullets": 2,
+      "usefulEditCriteria": [
+        "TRANSFORMATION: unchanged bulleted source is NOT a useful edit. Resolve the corrected day and owner into two clear grammatical Dutch notes instead of preserving conflicting current instructions.",
+        "Boudewijn arranges transport for the wooden cabinet on Tuesday. Monday and Renske as transport organizer are superseded. If retained as history, they must be explicitly nonactionable.",
+        "Renske only packs the loose boards. Preserve her ownership, the restriction alleen, and the distinction between loose boards and the whole wooden cabinet.",
+        "Do not turn arranging transport into a claim that Boudewijn personally drives or delivers the cabinet, and do not give the board-packing task an unstated day."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Twelve novel blind holdouts for email structure, conservative Clean editing, and Notes topic preservation. Prepared without model calls or production edits.",
+  "scoring": {
+    "independence": "Freeze these cases before the first run. Do not tune production rules to these exact names, phrases, or examples.",
+    "automaticConstraints": "The existing harness fields are diagnostic checks only. Synonyms that satisfy the semantic anchors may be manually accepted even when a phrase check fails.",
+    "semanticPass": "Every semantic anchor survives with the correct speaker, owner, scope, condition, timing, uncertainty, and source language; no forbidden invention occurs.",
+    "usefulModePass": "Semantic pass plus every useful-edit criterion. Raw source copied through is not successful cleanup when fillers or unclear sentence boundaries remain. No change is acceptable when the source is already suitable.",
+    "minorPolish": "Do not fail only for an optional comma after a salutation or a missing terminal period if structure and meaning are clear.",
+    "listCounts": "Notes minimumBullets count distinct content items. An explicit topic may appear as a heading, a separate context line, or a faithfully scoped part of an item. No exact total is required for Notes.",
+    "negativeEvidence": "Absence of a greeting, closing, signature, or clear topic is intentional evidence; do not synthesize missing material to fill a schema."
+  },
+  "cases": [
+    {
+      "id": "polish-email-en-complete",
+      "language": "en",
+      "mode": "email",
+      "source": "dear Dr Okafor the archive scans arrived yesterday could you confirm whether page 18 is missing from your copy kind regards Rina",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["Dr Okafor", "18", "Rina"],
+      "requiredAny": [["yesterday"], ["whether", "if"], ["kind regards"]],
+      "forbidden": ["Subject:", "[Your Name]"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The email addresses Dr Okafor and is signed by Rina.",
+        "The archive scans arrived yesterday.",
+        "The sender asks whether page 18 is missing from the recipient's copy; missingness is unconfirmed.",
+        "The supplied closing is kind regards."
+      ],
+      "forbiddenInventions": [
+        "A definite assertion that page 18 is missing.",
+        "A date, attachment, additional recipient, subject, or sender identity absent from the source."
+      ],
+      "usefulEditCriteria": [
+        "Separate the salutation from the body.",
+        "Make the body a readable statement and question.",
+        "Separate the closing and sender from the body, with Rina visibly attributable as the sender rather than a second addressee."
+      ]
+    },
+    {
+      "id": "polish-email-en-no-greeting",
+      "language": "en",
+      "mode": "email",
+      "source": "we should leave the east staircase clear during the exhibition please ask the stewards to check it every hour regards Dario",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["east staircase", "exhibition", "Dario"],
+      "requiredAny": [["stewards"], ["every hour", "hourly"], ["regards"]],
+      "forbidden": ["Dear Dario", "Hi Dario", "Subject:", "[Recipient]"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The east staircase should remain clear during the exhibition.",
+        "The recipient is asked to ask the stewards to check it every hour.",
+        "Regards is the closing and Dario is the sender.",
+        "No greeting or recipient name was supplied."
+      ],
+      "forbiddenInventions": [
+        "Any invented salutation or addressee, including addressing the sender Dario.",
+        "A claim that the stewards have already checked the staircase.",
+        "An exhibition date, additional check interval, or subject."
+      ],
+      "usefulEditCriteria": [
+        "Begin with the body, without filling an absent greeting.",
+        "Punctuate the body into readable sentences.",
+        "Place the supplied closing and sender after the body with clear sender attribution."
+      ]
+    },
+    {
+      "id": "polish-email-nl-no-closing",
+      "language": "nl",
+      "mode": "email",
+      "source": "Hoi Niels de vitrinekast kan pas worden opgehaald nadat het glas is vervangen kun je laten weten wanneer dat klaar is",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["Niels", "vitrinekast", "glas"],
+      "requiredAny": [["nadat", "na", "als"], ["wanneer"]],
+      "forbidden": ["Met vriendelijke groet", "[Je naam]", "[Uw naam]", "Subject:"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The greeting addresses Niels.",
+        "The display cabinet can only be collected after the glass has been replaced.",
+        "The sender asks to be told when that work is finished.",
+        "No closing or sender name was supplied."
+      ],
+      "forbiddenInventions": [
+        "Any added closing, signature, gratitude, or sender name.",
+        "A claim that the glass has already been replaced or the cabinet is ready now.",
+        "A pickup date or time."
+      ],
+      "usefulEditCriteria": [
+        "Keep the email entirely in Dutch.",
+        "Separate the greeting from a punctuated body containing the question.",
+        "End after the body instead of filling absent closing and sender fields."
+      ]
+    },
+    {
+      "id": "polish-email-nl-body-thanks-no-envelope",
+      "language": "nl",
+      "mode": "email",
+      "source": "bedankt voor de foto's van het mozaïek de hoek linksboven lijkt nog los te zitten kun je daar eerst naar kijken",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["bedankt", "foto", "mozaïek", "linksboven"],
+      "requiredAny": [["lijkt", "schijnt"], ["eerst"]],
+      "forbidden": ["Met vriendelijke groet", "[Je naam]", "[Uw naam]", "Subject:"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The sender thanks the recipient for photos of the mosaic as part of the body.",
+        "The upper-left corner appears to remain loose; this is an observation with uncertainty.",
+        "The sender asks the recipient to look at that corner first.",
+        "No greeting, closing, recipient name, or sender name was supplied."
+      ],
+      "forbiddenInventions": [
+        "Any greeting, closing, signature, or named person.",
+        "Certainty that the corner is loose, or a claim it has been repaired.",
+        "A repair commitment or date."
+      ],
+      "usefulEditCriteria": [
+        "Keep the email entirely in Dutch.",
+        "Keep bedankt voor de foto's with the body rather than extracting it as a closing.",
+        "Produce readable sentences and a question without adding an email envelope around the body."
+      ]
+    },
+    {
+      "id": "polish-clean-en-true-fillers",
+      "language": "en",
+      "mode": "clean",
+      "source": "um the orange cable goes in the left socket uh don't connect the battery until the cover is closed",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["orange cable", "left socket", "battery", "cover"],
+      "requiredAny": [["don't", "do not"], ["until", "before"], ["closed", "shut"]],
+      "forbidden": ["um the", "uh don't"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The orange cable goes in the left socket.",
+        "Do not connect the battery until the cover is closed."
+      ],
+      "forbiddenInventions": [
+        "Permission to connect the battery while the cover is open.",
+        "A different cable color, socket, power source, or operating step."
+      ],
+      "usefulEditCriteria": [
+        "Remove the empty spoken fillers um and uh.",
+        "Capitalize and clearly separate the location statement from the conditional prohibition.",
+        "Do not add procedural advice."
+      ]
+    },
+    {
+      "id": "polish-clean-en-meaningful-ah",
+      "language": "en",
+      "mode": "clean",
+      "source": "Ah, you meant the side gate, not the loading door. I wasn't sure which entrance you meant.",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["side gate", "loading door"],
+      "requiredAny": [["Ah", "Oh", "I see"], ["not"], ["wasn't sure", "was not sure", "hadn't been sure"]],
+      "forbidden": [],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "Ah expresses an acknowledgment or realization, rather than empty hesitation.",
+        "The intended entrance is the side gate, not the loading door.",
+        "The speaker was previously uncertain which entrance was intended."
+      ],
+      "forbiddenInventions": [
+        "Changing the intended entrance to the loading door.",
+        "Changing previous uncertainty into certainty throughout.",
+        "A promise to arrive, open a gate, or meet someone."
+      ],
+      "usefulEditCriteria": [
+        "Preserve the meaningful acknowledgment, whether as Ah or a genuinely equivalent expression such as I see.",
+        "Do not strip Ah merely because it is an interjection.",
+        "The source is already clean; returning it unchanged is acceptable."
+      ]
+    },
+    {
+      "id": "polish-clean-en-quoted-hesitation",
+      "language": "en",
+      "mode": "clean",
+      "source": "uh the actor must say \"um, I don't know\" exactly as written before opening the envelope",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["actor", "um", "I don't know", "envelope"],
+      "requiredAny": [["exactly as written", "verbatim"], ["before"]],
+      "forbidden": ["uh the actor"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The actor must say the dictated phrase um, I don't know exactly as written.",
+        "The quoted hesitation um is part of the required line.",
+        "The line must be spoken before the envelope is opened."
+      ],
+      "forbiddenInventions": [
+        "Removing or rewriting um inside the verbatim dialogue.",
+        "Changing the dialogue's negation or reversing the action order.",
+        "Responding with the dialogue instead of editing the entire source."
+      ],
+      "usefulEditCriteria": [
+        "Remove only the leading empty filler uh.",
+        "Capitalize and punctuate the surrounding sentence.",
+        "Keep a clear quotation boundary around the required dialogue; ordinary straight or curly quotation marks are acceptable."
+      ]
+    },
+    {
+      "id": "polish-clean-nl-uncertainty",
+      "language": "nl",
+      "mode": "clean",
+      "source": "eh ik vermoed dat de lekkage misschien van de bovenburen komt maar dat weten we nog niet zeker bel de loodgieter nog niet",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["lekkage", "bovenburen", "loodgieter"],
+      "requiredAny": [["vermoed", "denk"], ["misschien", "mogelijk", "wellicht"], ["niet zeker"], ["nog niet"]],
+      "forbidden": ["eh ik"],
+      "minimumBullets": null,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The speaker suspects that the leak may come from the upstairs neighbors.",
+        "The cause remains uncertain.",
+        "Do not call the plumber yet."
+      ],
+      "forbiddenInventions": [
+        "Certainty about the source of the leak.",
+        "An instruction to call the plumber now or a claim that a call was made.",
+        "A repair method, cost, or deadline."
+      ],
+      "usefulEditCriteria": [
+        "Keep the output entirely in Dutch.",
+        "Remove empty eh while preserving meaningful expressions of suspicion and uncertainty.",
+        "Add readable sentence boundaries, particularly before the instruction not to call."
+      ]
+    },
+    {
+      "id": "polish-notes-en-explicit-purpose",
+      "language": "en",
+      "mode": "notes",
+      "source": "for the community orchard opening Lena will label the pear trees on Saturday Yusuf needs to collect the spare watering cans we haven't chosen a ribbon colour yet",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["community orchard", "opening", "Lena", "pear trees", "Saturday", "Yusuf", "watering cans", "ribbon"],
+      "requiredAny": [["haven't chosen", "have not chosen", "not yet chosen", "undecided"]],
+      "forbidden": [],
+      "minimumBullets": 3,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "These notes concern preparations for the community orchard opening.",
+        "Lena will label the pear trees on Saturday.",
+        "Yusuf needs to collect the spare watering cans.",
+        "A ribbon color has not yet been chosen."
+      ],
+      "forbiddenInventions": [
+        "An assertion that the opening itself is on Saturday.",
+        "A Saturday deadline for Yusuf or an invented ribbon color.",
+        "A claim that either task has already been completed."
+      ],
+      "usefulEditCriteria": [
+        "Preserve the explicit opening purpose in a heading, context line, or clearly scoped note.",
+        "Separate the two assigned tasks and the undecided detail into distinct items.",
+        "Keep Saturday attached only to Lena's task."
+      ]
+    },
+    {
+      "id": "polish-notes-nl-explicit-topic",
+      "language": "nl",
+      "mode": "notes",
+      "source": "over het herstel van de muurschildering Farah test morgen de vernis op een klein stukje Bram vraagt de beheerder om de sleutel de nieuwe datum ligt nog niet vast",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["herstel", "muurschildering", "Farah", "morgen", "vernis", "Bram", "beheerder", "sleutel", "datum"],
+      "requiredAny": [["klein stukje", "klein gedeelte", "klein deel"], ["niet vast", "onbeslist", "nog niet bepaald", "nog niet vastgesteld"]],
+      "forbidden": [],
+      "minimumBullets": 3,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "The topic is restoration of the mural.",
+        "Farah will test the varnish on a small section tomorrow.",
+        "Bram will ask the caretaker for the key.",
+        "The new date is not yet fixed."
+      ],
+      "forbiddenInventions": [
+        "Applying tomorrow to Bram or to the unspecified new date.",
+        "A claim that Bram already has the key or the varnish test is complete.",
+        "An invented event associated with the new date or a selected date."
+      ],
+      "usefulEditCriteria": [
+        "Keep the notes entirely in Dutch.",
+        "Preserve the explicit mural-restoration topic without making up a larger project title.",
+        "Separate Farah's task, Bram's task, and the unresolved date into distinct items."
+      ]
+    },
+    {
+      "id": "polish-notes-en-two-topic-scopes",
+      "language": "en",
+      "mode": "notes",
+      "source": "for the planetarium evening book a captioning screen separately for the library return the borrowed atlas before Monday",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["planetarium", "library", "captioning screen", "atlas", "Monday"],
+      "requiredAny": [["before Monday", "prior to Monday"]],
+      "forbidden": ["on Monday"],
+      "minimumBullets": 2,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "Book a captioning screen for the planetarium evening.",
+        "Separately, return the borrowed atlas for the library before Monday.",
+        "The two introductory topics apply to different tasks."
+      ],
+      "forbiddenInventions": [
+        "Treating both tasks as preparations for the planetarium evening.",
+        "Applying the Monday deadline to the screen booking or the planetarium event.",
+        "Changing before Monday to on Monday, or claiming a booking or return has occurred."
+      ],
+      "usefulEditCriteria": [
+        "Keep at least two distinct actionable items.",
+        "Preserve both explicit topics with their correct local scope.",
+        "A single invented umbrella heading must not replace the two source topics."
+      ]
+    },
+    {
+      "id": "polish-notes-en-no-clear-topic",
+      "language": "en",
+      "mode": "notes",
+      "source": "put the copper key back in the drawer the shuttle leaves at 16:20 the jar by the window is empty",
+      "customInstructions": "",
+      "vocabulary": [],
+      "required": ["copper key", "drawer", "shuttle", "16:20", "jar", "window"],
+      "requiredAny": [["empty"]],
+      "forbidden": ["16:30", "Fill the jar", "Travel preparation", "Trip preparation"],
+      "minimumBullets": 3,
+      "maximumBullets": null,
+      "exactOutput": null,
+      "semanticAnchors": [
+        "Put the copper key back in the drawer.",
+        "The shuttle departs at 16:20.",
+        "The jar by the window is empty.",
+        "The source does not establish a shared purpose or topic."
+      ],
+      "forbiddenInventions": [
+        "A substantive shared topic such as travel preparation, house departure, or an event.",
+        "Turning the empty-jar observation into a task to fill, move, or buy something.",
+        "A request to book the shuttle or a claim that the key has already been returned."
+      ],
+      "usefulEditCriteria": [
+        "Separate the directive and the two observations into distinct readable items.",
+        "Leave any optional topic field empty; a neutral generic label such as Notes is acceptable but unnecessary.",
+        "Preserve the different speech acts rather than converting every item into a command."
+      ]
+    }
+  ]
+}

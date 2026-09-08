@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "path": ".build/verification-20260908-121332-31037-keyboard-ax-retry-attachments/8B20A37B-9E63-41BA-A7CA-5C4F30B83F4B.png",
+    "sha256": "9485bec79992211cd7da952fce8bed08ec151a132f664ff503faf69fadddabc7"
+  },
+  "promoted": {
+    "path": "docs/screenshots/ios27/final-visual/keyboard-portrait-ax-xxxl-ready-after-native-selection.png",
+    "sha256": "9485bec79992211cd7da952fce8bed08ec151a132f664ff503faf69fadddabc7"
+  },
+  "byteIdentical": true,
+  "imageEdits": "None; EXIF and encoded pixels preserved.",
+  "review": {
+    "path": ".build/verification-20260908-121332-31037-keyboard-ax-retry-visual-review.json",
+    "sha256": "0d5df8d0916870b229ec8b832e95dddcea9f4f2f3e4dade759cadaf61bad46e5"
+  },
+  "capture": {
+    "path": ".build/verification-20260908-121332-31037-keyboard-ax-retry-attachments/8B20A37B-9E63-41BA-A7CA-5C4F30B83F4B.png",
+    "sha256": "9485bec79992211cd7da952fce8bed08ec151a132f664ff503faf69fadddabc7",
+    "attachment": {
+      "testIdentifier": "KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn()",
+      "configurationName": "Test Scheme Action",
+      "deviceId": "358BDEE9-19AE-49BA-BC91-975523C2B8E7",
+      "deviceName": "Sayso \u00b7 iPhone 17 Pro \u00b7 iOS 27",
+      "exportedFileName": "8B20A37B-9E63-41BA-A7CA-5C4F30B83F4B.png",
+      "isAssociatedWithFailure": false,
+      "suggestedHumanReadableName": "Keyboard-Stopped-Result-Ready_0_55893EED-85CD-409E-B458-1DE57E2D652A.png",
+      "timestamp": 1788862727.102
+    },
+    "encodedPixels": [
+      1206,
+      2622
+    ],
+    "exifOrientation": 1,
+    "visualReview": "Ready: large complete Insert icon/title with dark ink on lavender; abbreviated preview and full instruction fit above keys. Settings Search is empty before explicit insertion. Clean representative keyboard state; no active island.",
+    "pairedHierarchies": [
+      {
+        "path": ".build/verification-20260908-121332-31037-keyboard-ax-retry-attachments/7A44479F-E307-4BEC-8DC3-EC36D85FC178.txt",
+        "sha256": "c9317bb23eca76abf78360d84aef738e058cc377d0b48ecb62f5533815b7deb9"
+      }
+    ],
+    "containedAXControls": [
+      "StaticText, 0x112530140, {{12.0, 374.0}, {378.0, 57.3}}, identifier: 'keyboardPreview', label: 'Let\u2019s meet tomorrow morning. We can walk by the water, find a quiet caf\u00e9, and talk through the ideas for our next project.'",
+      "Button, 0x1125303c0, {{158.7, 441.3}, {231.3, 99.3}}, identifier: 'keyboardInsertButton', label: 'Insert'",
+      "StaticText, 0x112530640, {{5.0, 550.7}, {392.0, 20.3}}, identifier: 'keyboardInstruction', label: 'Shared from Sayso \u00b7 available for 10 minutes'",
+      "Button, 0x112530a00, {{5.0, 581.0}, {34.7, 42.0}}, identifier: 'keyboardKey-q', label: 'q'",
+      "Button, 0x1125cd040, {{358.0, 677.0}, {39.0, 42.0}}, identifier: 'keyboardDeleteButton', label: 'Delete'",
+      "Button, 0x1125cd900, {{319.0, 725.0}, {78.0, 42.0}}, identifier: 'keyboardReturnButton', label: 'Return'"
+    ]
+  },
+  "resultBundle": ".build/Verification-20260908-121332-31037-Keyboard-AX-Retry.xcresult",
+  "status": {
+    "result": "Passed",
+    "passedTests": 2,
+    "failedTests": 0,
+    "totalTestCount": 2
+  },
+  "sameConditions": {
+    "appearance": "light",
+    "contentSize": "accessibility-extra-extra-extra-large",
+    "simulatorID": "358BDEE9-19AE-49BA-BC91-975523C2B8E7",
+    "runtime": {
+      "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-27-0",
+      "name": "iOS 27.0",
+      "version": "27.0",
+      "buildversion": "24A5423a",
+      "isAvailable": true
+    },
+    "sourceChanges": {
+      "SaysoUITests/KeyboardInsertionUITests.swift": {
+        "before": "71702454f33de862783a5b9a06e1db4ed9e5a242fbe152a963679149fe9f7d75",
+        "after": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5"
+      }
+    },
+    "allOtherFrozenSourceHashesUnchanged": true
+  },
+  "sourceProvenance": {
+    "path": ".build/verification-20260908-121332-31037-provenance.json",
+    "sha256": "72c2a86b6266142c0e75080a2d90230d8c95e025d4b440255a7f2920c251617b"
+  },
+  "limitations": [
+    "Original AX bundle remains Failed 2/2; this later retry passes the same two methods under the same recorded Light/AX XXXL conditions. Historical failure artifacts are unchanged.",
+    "Only keyboard UI test helper changed; production hashes remain unchanged. Native Next keyboard is tapped directly only when its observed value is Sayso.",
+    "One island image lacks the leading zero. No persistence, transition cause or all-clear timer claim is made.",
+    "Real keyboard/App Group/ActivityKit surfaces use DEBUG scripted recording, not actual microphone, model quality or physical-device acceptance.",
+    "Runtime verification -67054 remains unresolved; no security bypass used.",
+    "English cleanup is supported by native English (US) selection and the passing helper assertion that Sayso disappeared; no separate final native-English screenshot is claimed."
+  ]
+}

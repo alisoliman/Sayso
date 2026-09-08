@@ -1,0 +1,15 @@
+--- Sayso/Services/IntelligenceService.swift
++++ Sayso/Services/IntelligenceService.swift
+@@ -397,6 +397,12 @@
+         recognizer.processString(source)
+         let language = recognizer.dominantLanguage
+         let confidence = language.flatMap { recognizer.languageHypotheses(withMaximum: 1)[$0] } ?? 0
++        return try polishedCleanText(output, source: source, recognizedLanguage: language, confidence: confidence)
++    }
++
++    // Keep the language-dependent decision separate from recognition: short-fragment confidence
++    // varies across Apple's installed language assets, so low confidence must preserve words.
++    static func polishedCleanText(_ output: String, source: String, recognizedLanguage language: NLLanguage?, confidence: Double) throws -> String {
+         let mayRemoveFillers = (language == .english || language == .dutch) && confidence >= 0.8
+         let quotes = try NSRegularExpression(pattern: #"\"[^\"]*\"|“[^”]*”|«[^»]*»"#)
+         func ranges(in text: String) -> [Range<String.Index>] {

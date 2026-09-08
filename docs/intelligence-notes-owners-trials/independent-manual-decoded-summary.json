@@ -1,0 +1,20 @@
+{
+  "baseline": {
+    "observations": 12,
+    "classifications": {
+      "faithful-but-not-useful": 4,
+      "accepted-semantic-failure": 4,
+      "safe fallback": 2,
+      "control-preserved": 2
+    }
+  },
+  "candidate-c": {
+    "observations": 12,
+    "classifications": {
+      "faithful-but-not-useful": 6,
+      "accepted-semantic-failure": 2,
+      "control-preserved": 2,
+      "safe fallback": 2
+    }
+  }
+}
