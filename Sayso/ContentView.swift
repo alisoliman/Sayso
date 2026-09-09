@@ -13,8 +13,8 @@ struct ContentView: View {
     @AppStorage(SpeechProvider.preferenceKey) private var providerRaw = SpeechProvider.defaultProvider.rawValue
     @AppStorage("vocabulary") private var vocabulary = ""
     @AppStorage("saveHistory") private var saveHistory = true
-    @ScaledMetric(relativeTo: .largeTitle) private var idleTitleSize = 38.0
-    @ScaledMetric(relativeTo: .title) private var writingSize = 26.0
+    @ScaledMetric(relativeTo: .largeTitle) private var idleTitleSize = 44.0
+    @ScaledMetric(relativeTo: .title) private var writingSize = 23.0
     @State private var sheet: HomeSheet?
     @State private var importing = false
     @State private var showOriginal = false
@@ -25,6 +25,13 @@ struct ContentView: View {
     private var provider: SpeechProvider { SpeechProvider(rawValue: providerRaw) ?? .defaultProvider }
     private var recording: Bool { model.phase == .recording }
     private var compactHeight: Bool { verticalSizeClass == .compact }
+    // Finishing keeps the live view in place; refining keeps the result in
+    // place. Only changing the reading surface gets an entrance transition.
+    private var contentStage: Int {
+        if model.current != nil && !recording { return 2 }
+        if recording || model.phase == .finishing { return 1 }
+        return 0
+    }
 
     enum HomeSheet: String, Identifiable {
         case history, settings, modes, edit
@@ -41,11 +48,14 @@ struct ContentView: View {
                             if let error = model.store.storageError { information(error, symbol: "externaldrive.badge.exclamationmark") }
                             if let result = model.current, model.phase != .recording {
                                 resultContent(result)
+                                    .transition(SaysoMotion.content(reduceMotion: reduceMotion))
                             } else if recording || model.phase == .finishing {
                                 liveContent
+                                    .transition(SaysoMotion.content(reduceMotion: reduceMotion))
                             } else {
                                 idleContent
-                                    .frame(minHeight: compactHeight ? 0 : (dynamicTypeSize.isAccessibilitySize ? 260 : max(260, geometry.size.height - 295)))
+                                    .frame(minHeight: compactHeight ? 0 : (dynamicTypeSize.isAccessibilitySize ? 260 : max(260, geometry.size.height - 345)))
+                                    .transition(SaysoMotion.content(reduceMotion: reduceMotion))
                             }
                         }
                         .id("transcriptContent")
@@ -54,6 +64,7 @@ struct ContentView: View {
                         .padding(.bottom, compactHeight ? 12 : 28)
                         .frame(maxWidth: 640)
                         .frame(maxWidth: .infinity)
+                        .animation(reduceMotion ? nil : SaysoMotion.stateChange, value: contentStage)
                     }
                     .accessibilityIdentifier("transcriptScrollView")
                     .defaultScrollAnchor(.top, for: .alignment)
@@ -67,7 +78,7 @@ struct ContentView: View {
                     }
                     .onChange(of: model.speech.partialText) { _, _ in
                         if recording && followingLiveTranscript {
-                            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { reader.scrollTo("transcriptContent", anchor: .bottom) }
+                            withAnimation(reduceMotion ? nil : SaysoMotion.feedback) { reader.scrollTo("transcriptContent", anchor: .bottom) }
                         }
                     }
                     .onChange(of: model.phase) { _, phase in
@@ -85,12 +96,15 @@ struct ContentView: View {
                             }
                             .buttonStyle(.glass).padding(compactHeight ? 12 : 20)
                             .accessibilityIdentifier("latestWordsButton")
+                            .transition(reduceMotion ? .identity : .opacity)
                         }
                     }
+                    .animation(reduceMotion ? nil : SaysoMotion.feedback, value: followingLiveTranscript)
                 }
                 if compactHeight { compactControls }
                 else { controls }
             }
+            .foregroundStyle(SaysoTheme.ink)
             .background { QuietBackground() }
         }
         .sheet(item: $sheet) { active in
@@ -151,8 +165,6 @@ struct ContentView: View {
             // sayso://recording from a Live Activity opens the current session.
             consumeRoute()
         }
-        .animation(reduceMotion ? nil : .smooth(duration: 0.32), value: model.phase)
-        .animation(reduceMotion ? nil : .smooth(duration: 0.3), value: model.current?.id)
         .task {
             model.intelligence.refreshAvailability()
             try? KeyboardHandoff().purgeExpired()
@@ -166,8 +178,8 @@ struct ContentView: View {
     private var header: some View {
         HStack {
             HStack(spacing: 7) {
-                Image(systemName: "waveform").font(.system(size: 20, weight: .medium)).foregroundStyle(SaysoTheme.accent)
-                Text("sayso").font(.system(size: 28, weight: .semibold, design: .rounded)).tracking(-1.4)
+                VoiceEmblem().frame(width: 22, height: 22)
+                Text("sayso").font(.system(.title2, design: .rounded, weight: .semibold)).tracking(-1)
             }.accessibilityElement(children: .combine).accessibilityLabel("Sayso")
             Spacer()
             HStack(spacing: 10) {
@@ -177,61 +189,40 @@ struct ContentView: View {
         }.padding(.horizontal, 26).padding(.top, compactHeight ? 4 : 12).padding(.bottom, compactHeight ? 4 : 12)
     }
 
-    @ViewBuilder
     private var idleContent: some View {
-        if compactHeight {
-            VStack(spacing: 8) {
-                HStack(spacing: 18) {
-                    if !dynamicTypeSize.isAccessibilitySize {
-                        WaveformView(recording: false, level: 0).frame(width: 160, height: 42)
-                    }
-                    Text("Speak freely.")
-                        .font(.system(size: idleTitleSize, weight: .medium, design: .serif)).tracking(-1.3)
-                        .multilineTextAlignment(.center)
-                }
-                if !dynamicTypeSize.isAccessibilitySize {
-                    Text("A thought, a message, a whole idea.")
-                        .font(.system(size: 15)).foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                Button { importing = true } label: {
-                    Label("Import audio", systemImage: "arrow.down.doc")
-                        .font(.subheadline.weight(.medium))
-                        .padding(.vertical, 8).padding(.horizontal, 16)
-                        .frame(minHeight: 44)
-                        .contentShape(.rect)
-                }
-                .foregroundStyle(.secondary).buttonStyle(.plain)
-                .accessibilityIdentifier("importButton")
-                .disabled(model.isBusy)
+        VStack(spacing: 0) {
+            Spacer(minLength: compactHeight || dynamicTypeSize.isAccessibilitySize ? 8 : 28)
+            if !dynamicTypeSize.isAccessibilitySize {
+                VoiceEmblem()
+                    .frame(width: compactHeight ? 78 : 150, height: compactHeight ? 44 : 116)
+                    .padding(.bottom, compactHeight ? 12 : 36)
             }
-            .padding(.top, 8)
-            .frame(maxWidth: .infinity)
-        } else {
-            VStack(spacing: 0) {
-                Spacer(minLength: 30)
-                if !dynamicTypeSize.isAccessibilitySize {
-                    WaveformView(recording: false, level: 0)
-                        .frame(width: 250, height: 116)
-                        .padding(.bottom, 38)
-                }
-                Text("Speak freely.")
-                    .font(.system(size: idleTitleSize, weight: .medium, design: .serif)).tracking(-1.3)
-                    .multilineTextAlignment(.center)
+            Text("Speak freely.")
+                .font(.system(size: idleTitleSize, weight: .regular, design: .serif))
+                .tracking(-1.6)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+            if !compactHeight && !dynamicTypeSize.isAccessibilitySize {
                 Text("A thought, a message, a whole idea.")
-                    .font(.system(size: 15)).foregroundStyle(.secondary)
-                    .padding(.top, 12).multilineTextAlignment(.center)
-                Spacer(minLength: 46)
-                Button { importing = true } label: {
-                    Label("Import audio", systemImage: "arrow.down.doc")
-                        .font(.system(size: 14, weight: .medium)).padding(.vertical, 10).padding(.horizontal, 16)
-                }
-                .foregroundStyle(.secondary).buttonStyle(.plain)
-                .accessibilityIdentifier("importButton")
-                .disabled(model.isBusy)
-                .padding(.bottom, 22)
-            }.frame(maxWidth: .infinity)
+                    .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                    .multilineTextAlignment(.center).lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 14)
+            }
+            Spacer(minLength: compactHeight || dynamicTypeSize.isAccessibilitySize ? 12 : 32)
+            Button { importing = true } label: {
+                Label("Import audio", systemImage: "arrow.down.doc")
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 16).frame(minHeight: 44)
+                    .contentShape(.rect)
+            }
+            .foregroundStyle(SaysoTheme.secondaryInk).buttonStyle(SaysoPressButtonStyle())
+            .accessibilityIdentifier("importButton")
+            .disabled(model.isBusy)
+            .padding(.bottom, compactHeight ? 0 : 8)
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var liveContent: some View {
@@ -240,6 +231,8 @@ struct ContentView: View {
                 HStack(spacing: 8) {
                     Circle().fill(SaysoTheme.accent).frame(width: 6, height: 6)
                     Eyebrow(text: model.phase == .finishing ? "Finishing" : "Listening")
+                        .contentTransition(reduceMotion ? .identity : .opacity)
+                        .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.phase)
                 }
                 Spacer()
                 if let start = model.startedAt {
@@ -250,7 +243,7 @@ struct ContentView: View {
                             Text("\(seconds / 60):\(String(format: "%02d", seconds % 60))")
                         }
                     }
-                    .monospacedDigit().font(.system(size: 13)).foregroundStyle(.secondary)
+                    .monospacedDigit().font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
                     .accessibilityLabel("Recording duration")
                 }
             }
@@ -262,14 +255,20 @@ struct ContentView: View {
                     ? (recording ? "I’m listening. Your transcript appears after you stop." : "Transcribing with Parakeet on this iPhone…")
                     : "Go ahead. I’m listening.")
                  : model.speech.partialText)
-                .font(.system(size: writingSize, weight: .regular, design: .serif)).lineSpacing(8)
+                .font(.system(size: writingSize, weight: .regular)).lineSpacing(8)
                 .foregroundStyle(model.speech.partialText.isEmpty ? .secondary : .primary)
-                .contentTransition(.opacity)
+                // Partial recognition can replace earlier words. Keep those
+                // edits immediate instead of making the reading line drift.
+                .transaction { $0.animation = nil }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityIdentifier("liveTranscript")
             WaveformView(recording: recording, level: model.speech.level)
                 .frame(height: compactHeight ? 20 : 60).padding(.top, compactHeight ? 6 : 24)
         }
+        // Following new words animates the scroll position, not the internal
+        // layout. A newly wrapped line and the meter must move together.
+        // The status and meter retain their own explicit local animations.
+        .transaction { $0.animation = nil }
     }
 
     private func resultContent(_ entry: Dictation) -> some View {
@@ -277,35 +276,57 @@ struct ContentView: View {
         return VStack(alignment: .leading, spacing: compactHeight ? 16 : 25) {
             HStack {
                 Eyebrow(text: model.phase == .refining ? "Refining your words" : "Ready to use")
+                    .contentTransition(reduceMotion ? .identity : .opacity)
+                    .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.phase)
                 Spacer()
-                Text("\(entry.wordCount) words").font(.system(size: 12)).foregroundStyle(.tertiary)
+                Text("\(entry.wordCount) words").font(.caption).foregroundStyle(SaysoTheme.secondaryInk)
             }
             Text(showOriginal ? entry.original : entry.text)
-                .font(.system(size: writingSize, weight: .regular, design: .serif)).lineSpacing(9)
+                .font(.system(size: writingSize, weight: .regular)).lineSpacing(9)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityIdentifier("resultText")
+                // Different versions can have different heights. Update the
+                // words and layout together, without drawing old lines over actions.
+                .transaction { $0.animation = nil }
             if let note = model.resultNote { information(note, symbol: "info.circle") }
             actions {
                 Button { model.copy(showOriginal ? entry.original : entry.text) } label: {
-                    Label(model.copied ? "Copied" : "Copy", systemImage: model.copied ? "checkmark" : "document.on.document")
-                        .font(.subheadline.weight(.medium)).foregroundStyle(SaysoTheme.onAccent).fixedSize().padding(.horizontal, 4).padding(.vertical, 7)
-                }.buttonStyle(.glassProminent).buttonBorderShape(.capsule).accessibilityIdentifier("copyButton")
+                    ZStack {
+                        Label("Copied", systemImage: "document.on.document")
+                            .hidden().accessibilityHidden(true)
+                        Label {
+                            Text(model.copied ? "Copied" : "Copy")
+                                .contentTransition(reduceMotion ? .identity : .opacity)
+                        } icon: {
+                            Image(systemName: model.copied ? "checkmark" : "document.on.document")
+                                .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
+                        }
+                    }
+                    .font(.subheadline.weight(.medium)).fixedSize(horizontal: false, vertical: true)
+                    .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.copied)
+                }.buttonStyle(SaysoPrimaryButtonStyle()).accessibilityIdentifier("copyButton")
                 ShareLink(item: showOriginal ? entry.original : entry.text) {
-                    Image(systemName: "square.and.arrow.up").font(.system(size: 18)).frame(width: 42, height: 42)
-                }.buttonStyle(.glass).buttonBorderShape(.circle).accessibilityLabel("Share text")
+                    Image(systemName: "square.and.arrow.up").font(.system(size: 18)).frame(width: 44, height: 44)
+                }.buttonStyle(SaysoQuietButtonStyle()).accessibilityLabel("Share text")
                 Button { editText = entry.text; sheet = .edit } label: {
-                    Image(systemName: "pencil").font(.system(size: 18)).frame(width: 42, height: 42)
-                }.buttonStyle(.glass).buttonBorderShape(.circle).accessibilityLabel("Edit text").accessibilityIdentifier("editButton")
+                    Image(systemName: "pencil").font(.system(size: 18)).frame(width: 44, height: 44)
+                }.buttonStyle(SaysoQuietButtonStyle()).accessibilityLabel("Edit text").accessibilityIdentifier("editButton")
                 KeyboardSendButton(text: showOriginal ? entry.original : entry.text, id: entry.id)
                 if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
             }.disabled(model.isBusy)
-            HStack {
+            actions {
                 if entry.original != entry.text {
-                    Button(showOriginal ? "Show refined" : "Show original") { showOriginal.toggle() }
+                    Button { showOriginal.toggle() } label: {
+                        Text(showOriginal ? "Show refined" : "Show original")
+                            .contentTransition(reduceMotion ? .identity : .opacity)
+                            .animation(reduceMotion ? nil : SaysoMotion.feedback, value: showOriginal)
+                            .frame(minHeight: 44).contentShape(.rect)
+                    }
+                        .buttonStyle(SaysoPressButtonStyle())
                         .accessibilityIdentifier("originalButton")
                 }
-                Spacer()
+                if !dynamicTypeSize.isAccessibilitySize { Spacer() }
                 Menu {
                     ForEach(styles.styles) { option in
                         Button { showOriginal = false; model.rework(mode: option.mode, instructions: option.prompt, vocabulary: vocabulary, writingStyle: option) } label: {
@@ -316,80 +337,69 @@ struct ContentView: View {
                     }
                     Divider()
                     Button("Edit prompts & modes", systemImage: "slider.horizontal.3") { sheet = .modes }
-                } label: { Label("Rewrite", systemImage: "sparkles") }
+                } label: {
+                    Label("Rewrite", systemImage: "sparkles")
+                        .frame(minHeight: 44).contentShape(.rect)
+                }
                     .accessibilityIdentifier("rewriteButton")
-            }.font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary).disabled(model.isBusy)
+            }.font(.subheadline.weight(.medium)).foregroundStyle(SaysoTheme.accent).frame(minHeight: 44).disabled(model.isBusy)
             Button { importing = true } label: {
                 Label("Import audio", systemImage: "arrow.down.doc")
-                    .font(.system(size: 14, weight: .medium)).padding(.vertical, 10)
+                    .font(.subheadline.weight(.medium)).frame(minHeight: 44)
             }
-            .foregroundStyle(.secondary).buttonStyle(.plain)
+            .foregroundStyle(SaysoTheme.secondaryInk).buttonStyle(SaysoPressButtonStyle())
             .accessibilityIdentifier("importButton").disabled(model.isBusy)
         }
     }
 
     private var controls: some View {
-        VStack(spacing: 18) {
-            if !model.isBusy {
-                Button { startRecording(destination: .keyboard) } label: {
-                    HStack(spacing: 9) {
-                        Image(systemName: "keyboard").font(.system(size: 17, weight: .medium))
-                        Text(dynamicTypeSize.isAccessibilitySize ? "Other apps" : "Dictate in another app")
-                            .font(.subheadline.weight(.medium))
-                            .multilineTextAlignment(.center)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }.padding(.vertical, 7).padding(.horizontal, 12)
-                }
-                .buttonStyle(.glass).buttonBorderShape(.capsule)
-                .accessibilityLabel("Dictate in another app")
-                .accessibilityIdentifier("keyboardRecordButton")
-                .accessibilityHint("Starts a recording you can continue after returning to your app")
-            }
+        VStack(spacing: 8) {
             if model.phase == .preparing || model.phase == .finishing || model.phase == .refining {
                 HStack(spacing: 10) {
                     ProgressView().controlSize(.small)
                     Text(model.phase == .refining ? "A little polish…" : model.phase == .finishing ? "Finishing your thought…" : (model.speech.status.isEmpty ? "Getting ready…" : model.speech.status))
-                        .font(.system(size: 13)).foregroundStyle(.secondary)
-                        .lineLimit(3)
-                    Button("Cancel") { model.cancel() }.font(.system(size: 13, weight: .medium)).disabled(!model.canCancel)
-                }.padding(.horizontal, 20)
-            }
-            Group {
-                if dynamicTypeSize.isAccessibilitySize {
-                    VStack(spacing: 12) {
-                        modeControl
-                        recordControl
-                    }
-                    .padding(16)
-                    .glassEffect(.regular, in: .rect(cornerRadius: 32))
-                } else {
-                    HStack(spacing: 16) {
-                        modeControl
-                        recordControl
-                    }
-                    .padding(10)
-                    .glassEffect(.regular, in: .rect(cornerRadius: 40))
+                        .font(.footnote).foregroundStyle(SaysoTheme.secondaryInk)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button("Cancel") { model.cancel() }
+                        .font(.subheadline.weight(.medium)).frame(minHeight: 44)
+                        .disabled(!model.canCancel)
                 }
             }
-            .frame(maxWidth: 410)
-            HStack(spacing: 6) {
-                if recording {
-                    Button("Discard recording") { discardRecording = true }.foregroundStyle(.secondary)
-                        .accessibilityIdentifier("discardRecordingButton")
-                } else {
-                    speechModelButton
+            modeControl
+                .padding(.horizontal, 12)
+                .background(SaysoTheme.surface, in: .rect(cornerRadius: 20))
+            recordControl
+                .padding(.top, 4)
+            if recording {
+                Button("Discard recording") { discardRecording = true }
+                    .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                    .frame(minHeight: 44)
+                    .accessibilityIdentifier("discardRecordingButton")
+            } else if !model.isBusy {
+                Button { startRecording(destination: .keyboard) } label: {
+                    Label(dynamicTypeSize.isAccessibilitySize ? "Other apps" : "Dictate in another app", systemImage: "keyboard")
+                        .font(.subheadline.weight(.medium))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(minHeight: 44)
                 }
+                .buttonStyle(SaysoPressButtonStyle()).foregroundStyle(SaysoTheme.accent)
+                .accessibilityLabel("Dictate in another app")
+                .accessibilityIdentifier("keyboardRecordButton")
+                .accessibilityHint("Starts a recording you can continue after returning to your app")
             }
-            .font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
-            .frame(minHeight: 20)
+            if !recording && !dynamicTypeSize.isAccessibilitySize { speechModelButton }
         }
-        .padding(.horizontal, 24).padding(.top, 15).padding(.bottom, 16)
-        .background { LinearGradient(colors: [.clear, SaysoTheme.canvas, SaysoTheme.canvas], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .bottom) }
+        .frame(maxWidth: 410)
+        .padding(.horizontal, 28).padding(.top, 12).padding(.bottom, 8)
+        .frame(maxWidth: .infinity)
+        .background(SaysoTheme.canvas)
+        .animation(reduceMotion ? nil : SaysoMotion.settle, value: model.phase)
     }
 
     private var compactControls: some View {
         VStack(spacing: 6) {
-            if !model.isBusy { speechModelButton }
+            // Provider configuration stays in Settings; one control row leaves
+            // room to read and review a thought in landscape.
             if model.phase == .preparing || model.phase == .finishing || model.phase == .refining {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
@@ -430,6 +440,7 @@ struct ContentView: View {
         .padding(.horizontal, 24).padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background { LinearGradient(colors: [.clear, SaysoTheme.canvas, SaysoTheme.canvas], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .bottom) }
+        .animation(reduceMotion ? nil : SaysoMotion.settle, value: model.phase)
     }
 
     private var speechModelButton: some View {
@@ -437,57 +448,68 @@ struct ContentView: View {
             Label(provider == .parakeet
                   ? "Parakeet · \(model.speechModels.isInstalled ? "on device" : "setup required")"
                   : "Apple Speech · \(SpeechLanguage.shortName(for: locale))", systemImage: "lock")
-                .font(.footnote).foregroundStyle(.secondary)
-                .padding(.vertical, 6).contentShape(.rect)
+                .font(.caption).foregroundStyle(SaysoTheme.secondaryInk)
+                .frame(minHeight: 44).contentShape(.rect)
         }
-        .buttonStyle(.plain).disabled(model.isBusy)
+        .buttonStyle(SaysoPressButtonStyle()).disabled(model.isBusy)
         .accessibilityIdentifier("speechModelButton")
     }
 
     private var modeControl: some View {
         Button { sheet = .modes } label: {
             HStack(spacing: 9) {
-                Image(systemName: mode.symbol).font(.system(size: 16))
+                Image(systemName: mode.symbol).font(.system(size: 18)).foregroundStyle(SaysoTheme.accent)
+                    .frame(width: 28)
+                    .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
                 VStack(alignment: .leading, spacing: 3) {
                     Text(mode.title)
                         .font(dynamicTypeSize.isAccessibilitySize ? .headline : .subheadline.weight(.semibold))
                         .fixedSize(horizontal: false, vertical: true)
+                        .contentTransition(reduceMotion ? .identity : .opacity)
                     if !dynamicTypeSize.isAccessibilitySize && !compactHeight {
-                        Text(recording ? "Tap stop when you’re done" : "Dictation mode")
-                            .font(.caption2).foregroundStyle(.secondary)
+                        Text(recording ? "Your writing style" : "Writing style")
+                            .font(.caption2).foregroundStyle(SaysoTheme.secondaryInk)
                     }
                 }
                 Spacer(minLength: 4)
                 Image(systemName: "chevron.up.chevron.down").font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
             }
-            .foregroundStyle(.primary).padding(.leading, 9)
+            .foregroundStyle(SaysoTheme.ink).padding(.leading, compactHeight ? 9 : 0)
             .frame(maxWidth: .infinity, minHeight: compactHeight ? 44 : 56)
             .contentShape(.rect)
+            .animation(reduceMotion ? nil : SaysoMotion.feedback, value: mode.id)
         }
-        .buttonStyle(.plain).disabled(model.isBusy).accessibilityIdentifier("modeButton")
+        .buttonStyle(SaysoPressButtonStyle()).disabled(model.isBusy).accessibilityIdentifier("modeButton")
         .accessibilityHint("Choose a dictation mode")
+    }
+
+    private var recordingActionTitle: String {
+        if dynamicTypeSize.isAccessibilitySize { return recording ? "Stop" : "Dictate" }
+        return recording ? "Finish dictation" : (model.current == nil ? "Start dictation" : "New dictation")
     }
 
     private var recordControl: some View {
         Button {
             if recording { model.finish() } else { startRecording() }
         } label: {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 Image(systemName: recording ? "stop.fill" : "mic.fill")
-                    .font(.system(size: recording ? 23 : 26, weight: .medium))
+                    .font(.system(size: compactHeight ? 23 : 19, weight: .medium))
                     .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
-                if dynamicTypeSize.isAccessibilitySize && !compactHeight {
-                    Text(recording ? "Stop" : "Dictate").font(.headline)
+                if !compactHeight {
+                    Text(recordingActionTitle)
+                        .font(.headline)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .contentTransition(reduceMotion ? .identity : .opacity)
                 }
             }
-            .foregroundStyle(SaysoTheme.onAccent)
-            .frame(width: compactHeight ? 56 : (dynamicTypeSize.isAccessibilitySize ? nil : 64), height: compactHeight ? 56 : (dynamicTypeSize.isAccessibilitySize ? nil : 64))
-            .frame(maxWidth: dynamicTypeSize.isAccessibilitySize && !compactHeight ? .infinity : nil, minHeight: compactHeight ? 56 : 64)
+            .frame(maxWidth: compactHeight ? nil : .infinity, minHeight: compactHeight ? 28 : 30)
+            .animation(reduceMotion ? nil : SaysoMotion.feedback, value: recording)
         }
-        .buttonStyle(.glassProminent)
-        .buttonBorderShape(dynamicTypeSize.isAccessibilitySize && !compactHeight ? .capsule : .circle)
+        .buttonStyle(SaysoPrimaryButtonStyle())
         .disabled(model.isBusy && !recording)
         .accessibilityLabel(recording ? "Stop recording" : "Start recording")
+        .accessibilityInputLabels([Text(recordingActionTitle), Text(recording ? "Stop recording" : "Start recording")])
         .accessibilityHint(recording ? "Finish and prepare your text" : (provider == .parakeet ? "Record with the local Parakeet model" : "Dictate in \(SpeechLanguage.name(for: locale))"))
         .accessibilityIdentifier("recordButton")
     }
@@ -495,7 +517,7 @@ struct ContentView: View {
     private func information(_ text: String, symbol: String) -> some View {
         Label(text, systemImage: symbol).font(.footnote).foregroundStyle(.primary).lineSpacing(3)
             .padding(16).frame(maxWidth: .infinity, alignment: .leading)
-            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 16))
+            .background(SaysoTheme.surface, in: RoundedRectangle(cornerRadius: 16))
     }
     private func startRecording(destination: DictationController.Destination = .app) {
         showOriginal = false
@@ -519,7 +541,7 @@ private struct DictationTextEditor: View {
         // saved text assigned immediately before presenting this sheet.
         NavigationStack {
             TextEditor(text: $text)
-                .font(.system(size: 21))
+                .font(.title3).foregroundStyle(SaysoTheme.ink)
                 .padding(.horizontal, 20)
                 .padding(.vertical, verticalSizeClass == .compact ? 8 : 20)
                 .scrollContentBackground(.hidden)

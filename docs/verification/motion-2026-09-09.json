@@ -1,0 +1,1282 @@
+{
+  "recordedAtUTC": "2026-09-09T17:01:47.872319+00:00",
+  "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+  "environment": {
+    "xcode": "27.0 beta 6",
+    "xcodeBuild": "27A5252f",
+    "runtime": "iOS 27",
+    "runtimeBuild": "24A5423a",
+    "device": "iPhone 17 Pro simulator",
+    "simulatorId": "5950F29E-BEA9-4314-9B76-0698897B9395"
+  },
+  "build": {
+    "action": "build-for-testing",
+    "result": "passed",
+    "log": ".build/motion-geometry-build.log",
+    "logSHA256": "ef2591ae4f1ddb55a8046b8f7040e9539f5c2d584968eb816de1280670652d9f"
+  },
+  "sourceSHA256": {
+    "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+    "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+    "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+    "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+    "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+    "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+    "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+    "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+    "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+    "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+    "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+    "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+    "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+    "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+    "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+    "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+    "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+    "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+    "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+    "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+    "Sayso/Views/SaysoTheme.swift": "1782d67e2782602040f750db3ea32dce53a62bc61a8ce35fe1925fd31d8bb583",
+    "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+    "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+    "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+    "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+    "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+    "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+    "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+    "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+  },
+  "sourceSnapshots": {
+    ".build/motion-source-provenance.json": {
+      "sha256": "2080480a31e212511e1f100fb72a0b4d325b7f6fdb551e2e0f672b4a0abe32c4",
+      "sourceSHA256": {
+        "Sayso/ContentView.swift": "4e327b53efe00bea636b4cc58dec868a131a4c8f906266c362ab2198172cdb50",
+        "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+        "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+        "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+        "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+        "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+        "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+        "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+        "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+        "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+        "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+        "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+        "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+        "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+        "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+        "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+        "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+        "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+        "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+        "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+        "Sayso/Views/SaysoTheme.swift": "ce77a29270507f00014d448e92ba29a511f4e17e5adbd5325542440e9c8c1217",
+        "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+        "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+        "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+        "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+        "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+        "SaysoUITests/MotionUITests.swift": "56c668447aa0778b291d33a6aad54104d85155639028223fa736012f84c6a39e",
+        "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+        "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+      }
+    },
+    ".build/motion-final-source-provenance.json": {
+      "sha256": "f9fdb049e6e4fc7352449261759151dbb89574a14370181aa861ddfdec3eeda3",
+      "sourceSHA256": {
+        "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+        "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+        "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+        "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+        "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+        "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+        "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+        "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+        "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+        "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+        "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+        "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+        "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+        "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+        "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+        "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+        "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+        "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+        "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+        "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+        "Sayso/Views/SaysoTheme.swift": "ce77a29270507f00014d448e92ba29a511f4e17e5adbd5325542440e9c8c1217",
+        "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+        "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+        "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+        "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+        "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+        "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+        "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+        "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+      }
+    },
+    ".build/motion-meter-source-provenance.json": {
+      "sha256": "e91e95dffd2a5c6ab5a53e97b47fca79232a2613d10740560806b4caa9205a90",
+      "sourceSHA256": {
+        "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+        "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+        "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+        "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+        "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+        "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+        "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+        "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+        "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+        "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+        "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+        "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+        "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+        "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+        "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+        "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+        "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+        "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+        "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+        "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+        "Sayso/Views/SaysoTheme.swift": "281447eb6a8241619078b293f7811e5af966d01b5886779c257ceabd886fdf80",
+        "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+        "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+        "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+        "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+        "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+        "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+        "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+        "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+      }
+    },
+    ".build/motion-geometry-source-provenance.json": {
+      "sha256": "2a0ede9393eeac3194407e302a01b46fd4c392558f928494a3534c5752675310",
+      "sourceSHA256": {
+        "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+        "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+        "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+        "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+        "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+        "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+        "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+        "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+        "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+        "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+        "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+        "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+        "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+        "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+        "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+        "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+        "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+        "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+        "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+        "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+        "Sayso/Views/SaysoTheme.swift": "1782d67e2782602040f750db3ea32dce53a62bc61a8ce35fe1925fd31d8bb583",
+        "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+        "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+        "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+        "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+        "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+        "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+        "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+        "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+      }
+    }
+  },
+  "completedCohorts": [
+    {
+      "resultBundle": ".build/Motion-Standard.xcresult",
+      "log": ".build/motion-standard-tests.log",
+      "logSHA256": "d18f24c282ee76acf35981486789981b33c96841f94afc93d12aa97cb0768535",
+      "scope": "Initial motion pass; before reading-surface fixes",
+      "passed": 4,
+      "failed": 1,
+      "tests": [
+        {
+          "test": "SaysoUITests.KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+          "result": "failed",
+          "durationSeconds": 42.845
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testCancelAndImmediateRestartDoNotRestoreStaleUIWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 31.042
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 25.652
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch",
+          "result": "passed",
+          "durationSeconds": 31.713
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testScriptedLiveActivityStopFromNotificationCenter",
+          "result": "passed",
+          "durationSeconds": 25.604
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Motion-System.xcresult",
+      "log": ".build/motion-system-tests.log",
+      "logSHA256": "ea676d4e09918f7c69c8bf8834a1c514936a866baac988420442df54ba27a655",
+      "scope": "Initial Settings helper and hidden software-keyboard failures",
+      "passed": 0,
+      "failed": 3,
+      "tests": [
+        {
+          "test": "SaysoUITests.KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+          "result": "failed",
+          "durationSeconds": 44.829
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testReducedMotionCancelAndImmediateRestart",
+          "result": "failed",
+          "durationSeconds": 54.896
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testReducedMotionRecordingRefinementResultAndCopyFeedback",
+          "result": "failed",
+          "durationSeconds": 40.784
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Motion-Refined.xcresult",
+      "log": ".build/motion-refined-tests.log",
+      "logSHA256": "877b8503e06775c0147fe1035437dca5dd8e02756266f07a808a67434dea6ea5",
+      "scope": "Light; staged surface fades and immediate paragraph replacement",
+      "passed": 8,
+      "failed": 1,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable",
+          "result": "passed",
+          "durationSeconds": 53.475
+        },
+        {
+          "test": "SaysoUITests.KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+          "result": "failed",
+          "durationSeconds": 35.676
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testCancelAndImmediateRestartDoNotRestoreStaleUIWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 31.9
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testCompactRecordingRefinementResultAndCopyFeedback",
+          "result": "passed",
+          "durationSeconds": 29.935
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 26.463
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testReducedMotionCancelAndImmediateRestart",
+          "result": "passed",
+          "durationSeconds": 69.97
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testReducedMotionRecordingRefinementResultAndCopyFeedback",
+          "result": "passed",
+          "durationSeconds": 67.253
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch",
+          "result": "passed",
+          "durationSeconds": 39.843
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testScriptedLiveActivityStopFromNotificationCenter",
+          "result": "passed",
+          "durationSeconds": 25.084
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Motion-Final-Dark.xcresult",
+      "log": ".build/motion-final-dark-tests.log",
+      "logSHA256": "6d8f5cf47e904cd8c87eda28d5157b55976f8f2d12744ac8b544782036266541",
+      "scope": "Dark; six motion methods, live preference change; keyboard cold-start failure",
+      "passed": 6,
+      "failed": 1,
+      "tests": [
+        {
+          "test": "SaysoUITests.KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+          "result": "failed",
+          "durationSeconds": 87.234
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testCancelAndImmediateRestartDoNotRestoreStaleUIWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 33.748
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testCompactRecordingRefinementResultAndCopyFeedback",
+          "result": "passed",
+          "durationSeconds": 26.211
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testLiveSystemMotionChangePreservesRecording",
+          "result": "passed",
+          "durationSeconds": 100.282
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 26.429
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testReducedMotionCancelAndImmediateRestart",
+          "result": "passed",
+          "durationSeconds": 58.318
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testReducedMotionRecordingRefinementResultAndCopyFeedback",
+          "result": "passed",
+          "durationSeconds": 60.081
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Motion-Keyboard.xcresult",
+      "log": ".build/motion-keyboard-tests.log",
+      "logSHA256": "cf3cb8712742aa5f2853e91cbe1f50f3ab43854e75c17a2abe052730dd17da2a",
+      "scope": "Isolated native keyboard Stop and exact insertion; no source or retry changes",
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+          "result": "passed",
+          "durationSeconds": 136.135
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Motion-Meter.xcresult",
+      "log": ".build/motion-meter-tests.log",
+      "logSHA256": "48f1425b943d12ebb2e51a3f7c1237657328527caff0390497fc8b0189cd6e27",
+      "scope": "Drawing wrapper; portrait, compact and live preference-change checks",
+      "passed": 3,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.MotionUITests/testCompactRecordingRefinementResultAndCopyFeedback",
+          "result": "passed",
+          "durationSeconds": 36.054
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testLiveSystemMotionChangePreservesRecording",
+          "result": "passed",
+          "durationSeconds": 99.026
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 26.832
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Motion-Geometry.xcresult",
+      "log": ".build/motion-geometry-tests.log",
+      "logSHA256": "9308046ebde3df67e9eb8a00c75d6547ef2c3d9a19d8d94538358e9e99ed0924",
+      "scope": "Latest source; geometry isolation, compact and portrait recording/copy",
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.MotionUITests/testCompactRecordingRefinementResultAndCopyFeedback",
+          "result": "passed",
+          "durationSeconds": 30.838
+        },
+        {
+          "test": "SaysoUITests.MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting",
+          "result": "passed",
+          "durationSeconds": 26.693
+        }
+      ]
+    }
+  ],
+  "latestObservedOutcomes": [
+    {
+      "test": "SaysoUITests.KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+      "result": "passed",
+      "durationSeconds": 136.135,
+      "resultBundle": ".build/Motion-Keyboard.xcresult"
+    },
+    {
+      "test": "SaysoUITests.MotionUITests/testCancelAndImmediateRestartDoNotRestoreStaleUIWithSystemMotionSetting",
+      "result": "passed",
+      "durationSeconds": 33.748,
+      "resultBundle": ".build/Motion-Final-Dark.xcresult"
+    },
+    {
+      "test": "SaysoUITests.MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting",
+      "result": "passed",
+      "durationSeconds": 26.693,
+      "resultBundle": ".build/Motion-Geometry.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch",
+      "result": "passed",
+      "durationSeconds": 39.843,
+      "resultBundle": ".build/Motion-Refined.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testScriptedLiveActivityStopFromNotificationCenter",
+      "result": "passed",
+      "durationSeconds": 25.084,
+      "resultBundle": ".build/Motion-Refined.xcresult"
+    },
+    {
+      "test": "SaysoUITests.MotionUITests/testReducedMotionCancelAndImmediateRestart",
+      "result": "passed",
+      "durationSeconds": 58.318,
+      "resultBundle": ".build/Motion-Final-Dark.xcresult"
+    },
+    {
+      "test": "SaysoUITests.MotionUITests/testReducedMotionRecordingRefinementResultAndCopyFeedback",
+      "result": "passed",
+      "durationSeconds": 60.081,
+      "resultBundle": ".build/Motion-Final-Dark.xcresult"
+    },
+    {
+      "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable",
+      "result": "passed",
+      "durationSeconds": 53.475,
+      "resultBundle": ".build/Motion-Refined.xcresult"
+    },
+    {
+      "test": "SaysoUITests.MotionUITests/testCompactRecordingRefinementResultAndCopyFeedback",
+      "result": "passed",
+      "durationSeconds": 30.838,
+      "resultBundle": ".build/Motion-Geometry.xcresult"
+    },
+    {
+      "test": "SaysoUITests.MotionUITests/testLiveSystemMotionChangePreservesRecording",
+      "result": "passed",
+      "durationSeconds": 99.026,
+      "resultBundle": ".build/Motion-Meter.xcresult"
+    }
+  ],
+  "latestObservedPassingMethodCount": 10,
+  "countQualification": "Latest outcome for each of 10 distinct methods across source snapshots, not a claim that all ten ran after the final geometry-only change. Latest source has two focused portrait/compact methods; preceding runs cover system motion changes, cancellation, keyboard, History, largest text, and Live Activity Stop.",
+  "preservedNativeCaptures": [
+    {
+      "path": "docs/motion/2026-09-09/runtime-standard.png",
+      "original": ".build/motion-final-dark-attachments/1BB524D5-135D-4D09-A002-26B0ED9C262E.png",
+      "sha256": "102b776dce5bc121959eca84fec1f46ea6a2bd31ace256afc7e6cb447ce26707",
+      "modification": "none"
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-reduced.png",
+      "original": ".build/motion-final-dark-attachments/624157E6-67E0-4EA7-9F7B-CADFF19696F2.png",
+      "sha256": "754a9b55be2b77405e69deba39c1f6ee414d473e93a2f33e3738afe76b797832",
+      "modification": "none"
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-restored.png",
+      "original": ".build/motion-final-dark-attachments/C8E92E23-C3F1-406E-979D-AA201F7569D8.png",
+      "sha256": "64589959dbeffb8f4fb478c96afb90da068eee0fac1b52d7a85e5d8d070e5b04",
+      "modification": "none"
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-setting-timeline.txt",
+      "original": ".build/motion-final-dark-attachments/B8E2240E-5DD6-4AC7-B17F-A8B1AC7D733A.txt",
+      "sha256": "486a8652487d0b7e0e9c90e1e8ca25324cfb594993f47cb1b35a319d8bc48e6c",
+      "modification": "none"
+    }
+  ],
+  "keyboardTemporalReview": {
+    "reviewedAtUTC": "2026-09-09T16:50:40.970997+00:00",
+    "scope": "Bounded temporal inspection of the finalized native Simulator keyboard capture; no simulator actions, source changes, or new tests.",
+    "result": "No actionable motion-induced text/control overlap or key-row displacement observed in the reviewed windows.",
+    "provenance": {
+      "file": ".build/motion-final-source-provenance.json",
+      "sha256": "f9fdb049e6e4fc7352449261759151dbb89574a14370181aa861ddfdec3eeda3",
+      "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+      "sourceSHA256": {
+        "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+        "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+        "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11"
+      },
+      "currentSourcesMatchProvenance": true
+    },
+    "evidence": {
+      "video": ".build/motion-keyboard-full.mp4",
+      "videoSHA256": "011670773f4cc264cf58cb763bbb49f94e32d37f58c41d0564cea2f0be6d5b70",
+      "resultBundle": ".build/Motion-Keyboard.xcresult",
+      "testLog": ".build/motion-keyboard-tests.log",
+      "attachmentsManifest": ".build/motion-keyboard-attachments/manifest.json",
+      "frameIndex": ".build/motion-keyboard-temporal-frames/frames-index.json",
+      "contactSheets": [
+        ".build/motion-keyboard-temporal-frames/stop-handoff.jpg",
+        ".build/motion-keyboard-temporal-frames/ready-return-handoff.jpg",
+        ".build/motion-keyboard-temporal-frames/insert-handoff.jpg",
+        ".build/motion-keyboard-temporal-frames/stable-key-rows.jpg"
+      ]
+    },
+    "method": {
+      "videoSeconds": "Source presentation timestamps relative to video start, derived from FFmpeg showinfo after adding the input seek offset. Test elapsed times are a separate clock.",
+      "decode": "One decoder thread and one filter thread; consecutive source frames in bounded windows, no frame-rate conversion.",
+      "overviewSeconds": [
+        45,
+        50,
+        51,
+        52,
+        53,
+        54,
+        56,
+        60,
+        61,
+        62,
+        64
+      ]
+    },
+    "observations": [
+      {
+        "windowSeconds": [
+          51.628333,
+          52.08
+        ],
+        "event": "Stop acceptance",
+        "detail": "Recording 0:13 and the Stop control are visible initially. By 51.801667s the instruction has changed to Finishing your words\u2026; its restrained reveal does not retain the previous instruction. The Stop control shows native pressed/disabled feedback. Keys and control positions remain stable before the test activates Sayso."
+      },
+      {
+        "windowSeconds": [
+          54.526667,
+          55.773333
+        ],
+        "event": "Ready after foreground consumption",
+        "detail": "Native app activation transitions through a cached host snapshot and hides the keyboard before live ready content appears at 55.380000s. The returned keyboard shows the result preview and Insert with clear separation and no overlapping text. This does not establish a continuous visible keyboard processing-to-ready transition."
+      },
+      {
+        "windowSeconds": [
+          60.51,
+          61.121667
+        ],
+        "event": "Insert confirmation",
+        "detail": "The Insert control receives native press feedback; by 60.683333s its checkmark and the new Inserted instruction are visible, followed by the disabled Inserted title. The new preview/instruction opacity settles without old/new paragraph overlap. The longer button title reduces available preview width and re-truncates it, while all key rows stay in place."
+      }
+    ],
+    "functionalEvidence": {
+      "source": "Passing focused XCTest log, distinct from visual inference",
+      "test": "KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn",
+      "outcome": "Passed including teardown",
+      "assertions": [
+        "Enabled Stop before command",
+        "Enabled Insert after foreground consumption",
+        "Host Search value exactly matches the scripted result",
+        "Inserted control is disabled after consumption"
+      ],
+      "testElapsedSeconds": {
+        "stopTap": 53.66,
+        "insertTap": 62.54,
+        "exactHostValueCheck": 64.1,
+        "disabledInsertedCheck": 65.45
+      }
+    },
+    "limitations": [
+      "Simulator capture with scripted speech; not physical microphone, device performance, or real background audio evidence.",
+      "No runtime Reduce Motion toggle or normal character keypress sequence was exercised in this focused video.",
+      "Variable frame timing and native UIButton state transitions prevent attributing the full visible button change duration solely to the 0.18-second custom opacity animation.",
+      "Native app-switch snapshots and initial keyboard attachment are outside the custom handoff reveal and obscure a continuous in-extension processing-to-ready transition."
+    ]
+  },
+  "runtimeMeterMetrics": [
+    {
+      "name": "Motion-Standard-Runtime-Standard-Meter-Frame-0_0_F07E0489-303B-4392-9A8B-C52D3AB1C6B1.png",
+      "file": "1BB524D5-135D-4D09-A002-26B0ED9C262E.png",
+      "timestamp": 1788971896.968,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Standard-Meter-Frame-1_0_76E19796-EB9C-4E2A-9FA5-079F05EF0EED.png",
+      "file": "B2BBB5A7-DF6E-4425-BB0E-0E61B7F1ACEA.png",
+      "timestamp": 1788971897.25,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Standard-Meter-Frame-2_0_8AC376C6-0380-451C-AA8B-A19EA973CDB1.png",
+      "file": "E458C1F7-6481-4ED5-9D4A-58A8F44AF590.png",
+      "timestamp": 1788971897.536,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Standard-Meter-Frame-3_0_C2FC0D77-BDF0-407F-9FDC-4F7E4E6D73D4.png",
+      "file": "5BCF5007-64E3-4E44-9C28-DEB7581729FF.png",
+      "timestamp": 1788971897.829,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Reduced-Runtime-Reduced-Meter-Frame-0_0_0A69C8D9-4E0D-4289-9760-000D8F51B04A.png",
+      "file": "624157E6-67E0-4EA7-9F7B-CADFF19696F2.png",
+      "timestamp": 1788971921.624,
+      "meterBoundsWithinCrop": [
+        7,
+        118,
+        1030,
+        129
+      ],
+      "meterOccupiedHeightPixels": 12,
+      "meterPixelHash": "e2693b7fc4dbb6dfb9d33a3a72c161b1f2c0142fe582d79dd1e36b1cc964007b",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Reduced-Runtime-Reduced-Meter-Frame-1_0_A86E6504-6E11-468F-999B-F0093F1055D1.png",
+      "file": "685DDD13-76D8-42A0-81F3-144EA7A8CAEF.png",
+      "timestamp": 1788971921.929,
+      "meterBoundsWithinCrop": [
+        7,
+        118,
+        1030,
+        129
+      ],
+      "meterOccupiedHeightPixels": 12,
+      "meterPixelHash": "e2693b7fc4dbb6dfb9d33a3a72c161b1f2c0142fe582d79dd1e36b1cc964007b",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Reduced-Runtime-Reduced-Meter-Frame-2_0_EF7525E6-5B60-4FA6-B38D-248E47B87F00.png",
+      "file": "D5E19756-FAE8-4828-B120-E800C82B444B.png",
+      "timestamp": 1788971922.206,
+      "meterBoundsWithinCrop": [
+        7,
+        118,
+        1030,
+        129
+      ],
+      "meterOccupiedHeightPixels": 12,
+      "meterPixelHash": "e2693b7fc4dbb6dfb9d33a3a72c161b1f2c0142fe582d79dd1e36b1cc964007b",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Reduced-Runtime-Reduced-Meter-Frame-3_0_8B6DF9A4-EC9A-45A3-8CFD-36CA5E12F691.png",
+      "file": "3B8AD4AE-056C-475B-B3AA-05F39E9A759D.png",
+      "timestamp": 1788971922.486,
+      "meterBoundsWithinCrop": [
+        7,
+        118,
+        1030,
+        129
+      ],
+      "meterOccupiedHeightPixels": 12,
+      "meterPixelHash": "e2693b7fc4dbb6dfb9d33a3a72c161b1f2c0142fe582d79dd1e36b1cc964007b",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Restored-Meter-Frame-0_0_D2A7BB78-AC0F-48CD-A69C-A60D0BD09C66.png",
+      "file": "C8E92E23-C3F1-406E-979D-AA201F7569D8.png",
+      "timestamp": 1788971944.005,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Restored-Meter-Frame-1_0_EB7412B8-B6E6-4F49-987E-7CA074C3EA97.png",
+      "file": "52164392-1127-4893-B662-BFEF473C21C6.png",
+      "timestamp": 1788971944.289,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Restored-Meter-Frame-2_0_D6E1673D-2D4D-4308-AE17-733CBAAF7F6F.png",
+      "file": "6F0306C3-3F05-4653-87B2-BF010D473116.png",
+      "timestamp": 1788971944.571,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    },
+    {
+      "name": "Motion-Standard-Runtime-Restored-Meter-Frame-3_0_0C5E6EE5-60D5-409D-A462-AD4AE504FF6B.png",
+      "file": "D7412FA9-A1FC-4460-B97C-7707818EBC61.png",
+      "timestamp": 1788971944.862,
+      "meterBoundsWithinCrop": [
+        7,
+        38,
+        1030,
+        209
+      ],
+      "meterOccupiedHeightPixels": 172,
+      "meterPixelHash": "d914e58ee7805769e635dbb623912018e7e4a90d6329fb350ec26c9f29cf1ce5",
+      "transcriptPixelHash": "a685b787a6b69adfd5093a509fc587322993fd92bfd853fefc94b8f490b5b935"
+    }
+  ],
+  "remainingBoundaries": [
+    "Scripted speech does not measure real microphone recognition or Apple Intelligence quality.",
+    "Physical-device frame pacing, thermal/power behavior, background audio and Always On display are not measured.",
+    "Keyboard Stop uses a no-audio fixture and foreground resumption before result insertion; native app switching obscures continuous processing-to-ready animation.",
+    "Recorded History before/after comparison contains a 1.69-second gap; explicit paragraph no-animation source is also reviewed.",
+    "Simulator keyboard startup had a hidden-software-keyboard issue and one host-disconnection episode; isolated native rerun passed without application or retry changes. Concurrent encoding as a cause is unproven."
+  ],
+  "finalTemporalReview": {
+    "reviewedAtUTC": "2026-09-09T17:00:23.416583+00:00",
+    "source": ".build/motion-geometry-full.mp4",
+    "sourceSHA256": "0a3d5373dc839acc6ee18f8286f1117d4247ac8e4bacee82c200f403c0140714",
+    "sourceProvenance": ".build/motion-geometry-source-provenance.json",
+    "sourceProvenanceSHA256": "2a0ede9393eeac3194407e302a01b46fd4c392558f928494a3534c5752675310",
+    "sourceProvenanceSnapshot": {
+      "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+      "sourceSHA256": {
+        "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+        "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+        "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+        "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+        "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+        "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+        "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+        "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+        "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+        "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+        "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+        "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+        "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+        "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+        "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+        "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+        "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+        "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+        "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+        "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+        "Sayso/Views/SaysoTheme.swift": "1782d67e2782602040f750db3ea32dce53a62bc61a8ce35fe1925fd31d8bb583",
+        "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+        "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+        "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+        "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+        "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+        "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+        "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+        "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+      }
+    },
+    "resultBundle": ".build/Motion-Geometry.xcresult",
+    "verdict": "APPROVED for reviewed compact wrap, portrait surface transitions, and portrait recording/result/Copy demo. Prior compact overlap and clipping dropout are absent in observed latest-build frames.",
+    "method": "Independent visual inspection of real simulator video; ffmpeg contact sheets at 30 fps around changed boundaries, plus latest rendered demo contact sheet. No generated imagery, synthetic motion, source changes, or simulator interaction. Captured UI tests locate journeys rather than substitute for temporal inspection. All extraction/encoding uses one thread.",
+    "approvedIntervals": [
+      {
+        "flow": "Compact first-to-second transcript line wrap",
+        "timeSeconds": [
+          33.45,
+          33.65
+        ],
+        "observed": "Second line arrives around 33.533 s with complete meter already below it. No old-position bars, clipped tips, or blank-meter dropout.",
+        "evidence": ".build/motion-review-geometry-compact-wrap.png"
+      },
+      {
+        "flow": "Compact second-to-third transcript line wrap",
+        "timeSeconds": [
+          34.45,
+          34.7
+        ],
+        "observed": "Third line arrives around 34.567 s with complete meter correctly below the paragraph. No intersection or dropout.",
+        "evidence": ".build/motion-review-geometry-compact-wrap.png"
+      },
+      {
+        "flow": "Portrait idle to recording",
+        "timeSeconds": [
+          58.96,
+          59.13
+        ],
+        "observed": "Outgoing hero becomes clear before incoming listening surface appears; no simultaneous reading of both surfaces.",
+        "evidence": ".build/motion-review-geometry-portrait-start.png"
+      },
+      {
+        "flow": "Portrait finishing to result/refining",
+        "timeSeconds": [
+          63.53,
+          63.7
+        ],
+        "observed": "Outgoing paragraph fades clear before the incoming result paragraph; no mixed headers or duplicated baselines.",
+        "evidence": ".build/motion-review-geometry-portrait-finish.png"
+      },
+      {
+        "flow": "Portrait recording through result and Copy/reset",
+        "timeSeconds": [
+          56.7,
+          71.7
+        ],
+        "observed": "Latest real-time continuous segment includes settled idle, live transcript, finishing/refining, result, Copy confirmation, and Copy reset. Copy footprint and neighboring actions stay stable.",
+        "evidence": [
+          "docs/motion/2026-09-09/recording-and-copy.mp4",
+          ".build/motion-review-geometry-demo-contact.png"
+        ]
+      }
+    ],
+    "demo": {
+      "path": "docs/motion/2026-09-09/recording-and-copy.mp4",
+      "SHA256": "3b61d63d7568217ee6bb4f72fdecd6ce21c45385fe5c8f9ce4cac4ffe12b34a9",
+      "sourceStartSeconds": 56.7,
+      "sourceEndSeconds": 71.7,
+      "speed": 1,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 720,
+            "height": 1566,
+            "avg_frame_rate": "30/1",
+            "nb_frames": "450"
+          }
+        ],
+        "format": {
+          "duration": "15.000000",
+          "size": "488235"
+        }
+      },
+      "transformations": [
+        "Trim continuous source interval [56.7,71.7) seconds; reset presentation timestamps to zero.",
+        "Resample variable-frame-rate recording to 30 fps using real-time timestamps; duplicates/selection only, no optical-flow interpolation and no speed change.",
+        "Scale full source frame to 720 by 1566 pixels; no cropping or overlays.",
+        "Encode H.264 CRF 18, fast preset, yuv420p, single-thread decoder/filter/encoder, faststart MP4. No audio track."
+      ],
+      "ffmpegFilter": "fps=30,trim=start=56.7:end=71.7,setpts=PTS-STARTPTS,scale=720:-2"
+    },
+    "priorEvidence": {
+      "runtimeReduceMotion": ".build/motion-review-latest-runtime-meter-metrics.json",
+      "history": ".build/motion-refined-temporal-review.json",
+      "note": "These earlier source-specific reviews remain separate evidence; the latest geometry capture specifically reruns compact and portrait recording/Copy flows."
+    },
+    "limitations": [
+      "Variable-frame-rate simulator capture and 30 fps review sampling limit claims about every physical display frame. Approved intervals are approximate source timeline positions.",
+      "No claim about physical-device frame pacing or live speech/model behavior.",
+      "Previous static design screenshots are not new motion evidence."
+    ]
+  },
+  "restoredEnvironment": {
+    "ReduceMotionEnabled": 0,
+    "ConnectHardwareKeyboardPreferenceAbsent": true,
+    "appearance": "light",
+    "simulatorFrontendOpenedForReview": "closed",
+    "dedicatedSimulator": "booted headless; normal Sayso launch succeeded (PID 79126)"
+  },
+  "artifacts": [
+    {
+      "path": "docs/motion/2026-09-09/landscape-wrapping-frames.png",
+      "sha256": "7f13803c5320b0b020b6faa86e78202ab68cd2bfed7c9fa39076e649420f0a97",
+      "bytes": 829585
+    },
+    {
+      "path": "docs/motion/2026-09-09/recording-and-copy.mp4",
+      "sha256": "3b61d63d7568217ee6bb4f72fdecd6ce21c45385fe5c8f9ce4cac4ffe12b34a9",
+      "bytes": 488235
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-reduced.png",
+      "sha256": "754a9b55be2b77405e69deba39c1f6ee414d473e93a2f33e3738afe76b797832",
+      "bytes": 225111
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-restored.png",
+      "sha256": "64589959dbeffb8f4fb478c96afb90da068eee0fac1b52d7a85e5d8d070e5b04",
+      "bytes": 229011
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-setting-timeline.txt",
+      "sha256": "486a8652487d0b7e0e9c90e1e8ca25324cfb594993f47cb1b35a319d8bc48e6c",
+      "bytes": 2685
+    },
+    {
+      "path": "docs/motion/2026-09-09/runtime-standard.png",
+      "sha256": "102b776dce5bc121959eca84fec1f46ea6a2bd31ace256afc7e6cb447ce26707",
+      "bytes": 224426
+    }
+  ],
+  "rawTemporalReviewHistory": [
+    {
+      "path": ".build/motion-refined-temporal-review.json",
+      "sha256": "82b07decbf093ab7e4e0c4497f0e3e1ede95706ce564415444f2ee7002a3e277",
+      "review": {
+        "reviewedAtUTC": "2026-09-09T16:40:00.045002+00:00",
+        "source": ".build/motion-refined-full.mp4",
+        "sourceSHA256": "8d7ea291ebb91c5963a333338add4c39a9d3fb124089d6736e78c1ec596fbd35",
+        "sourceProvenance": ".build/motion-source-provenance.json",
+        "sourceProvenanceSnapshot": {
+          "recordedAtUTC": "2026-09-09T16:20:22.000697+00:00",
+          "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+          "sourceSHA256": {
+            "Sayso/ContentView.swift": "4e327b53efe00bea636b4cc58dec868a131a4c8f906266c362ab2198172cdb50",
+            "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+            "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+            "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+            "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+            "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+            "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+            "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+            "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+            "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+            "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+            "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+            "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+            "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+            "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+            "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+            "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+            "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+            "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+            "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+            "Sayso/Views/SaysoTheme.swift": "ce77a29270507f00014d448e92ba29a511f4e17e5adbd5325542440e9c8c1217",
+            "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+            "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+            "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+            "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+            "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+            "SaysoUITests/MotionUITests.swift": "56c668447aa0778b291d33a6aad54104d85155639028223fa736012f84c6a39e",
+            "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+            "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+          }
+        },
+        "resultBundle": ".build/Motion-Refined.xcresult",
+        "method": "Independent visual review of actual continuous simulator recording, using ffmpeg native-frame and time-sampled contact sheets. No simulator interaction, generated imagery, source changes, or build. Tests used to locate journeys, not to infer visual quality.",
+        "verdict": "Three earlier reading collisions are absent in observed revised states. Normal portrait staged surface changes and Copy feedback are clean. Compact transcript wrap still briefly intersects the meter in this recording; root is fixing and rerunning. This is supporting historical evidence, not final latest-source approval.",
+        "findings": [
+          {
+            "flow": "Portrait idle to recording",
+            "timeSeconds": [
+              217.25,
+              217.5
+            ],
+            "status": "clean",
+            "observed": "Outgoing hero clears, a near-empty interval separates states, then the incoming listening surface appears. No simultaneous hero/live paragraph reading.",
+            "evidence": ".build/motion-review-final-start-detail.png"
+          },
+          {
+            "flow": "Portrait finishing to result",
+            "timeSeconds": [
+              222.0,
+              222.25
+            ],
+            "status": "clean",
+            "observed": "Outgoing live paragraph clears before the result paragraph enters. No duplicated baselines or mixed old/new headers in sampled frames.",
+            "evidence": ".build/motion-review-final-finish-detail.png"
+          },
+          {
+            "flow": "History refined to original at largest accessibility text",
+            "timeSeconds": [
+              92.618333,
+              94.433333
+            ],
+            "status": "observed endpoints clean; native capture gap",
+            "observed": "Old refined paragraph at 92.618\u201392.738 s; original paragraph at 94.430\u201394.433 s. Each observed paragraph is coherent and remains separated from Copy/actions. Label feedback is scoped. A 1.69 s gap means this does not prove every intervening frame.",
+            "evidence": ".build/motion-review-final-history-boundary.png"
+          },
+          {
+            "flow": "Portrait result Copy and reset",
+            "timeSeconds": [
+              225.0,
+              229.5
+            ],
+            "status": "clean",
+            "observed": "Copy to Copied feedback remains within its fixed pill; neighboring actions and paragraph do not shift.",
+            "evidence": ".build/motion-review-final-demo-contact.png"
+          },
+          {
+            "flow": "Compact live transcript wrap",
+            "timeSeconds": [
+              192.3,
+              192.8
+            ],
+            "status": "defect; root fixing",
+            "observed": "A newly wrapped second transcript line appears immediately while the meter settles downward, briefly intersecting text around 192.45 s. Excluded from normal demo.",
+            "evidence": ".build/motion-review-final-compact-wordwrap-detail.png"
+          },
+          {
+            "flow": "Actual system Reduce Motion recording and result",
+            "timeSeconds": [
+              333.0,
+              339.0
+            ],
+            "status": "clean in observed frames",
+            "observed": "Idle to live and live to result change coherently without visible paragraph travel/crossfade. Meter is a flat/static treatment; no decorative perpetual motion observed.",
+            "evidence": [
+              ".build/motion-review-final-reduced-start-detail.png",
+              ".build/motion-review-final-reduced-finish-detail.png"
+            ],
+            "systemSettingEvidence": ".build/motion-refined-attachments/9566AA6C-D94B-4007-8733-6D277F5765EE.txt"
+          }
+        ],
+        "supportingClip": {
+          "path": ".build/motion-review-final-demo.mp4",
+          "sourceStartSeconds": 215,
+          "sourceEndSeconds": 230,
+          "durationSeconds": 15,
+          "dimensions": [
+            1206,
+            2622
+          ],
+          "fps": 30,
+          "speed": 1,
+          "status": "Historical light supporting clip; root requests final user demo from latest corrected dark recording."
+        },
+        "limitations": [
+          "Variable-frame-rate simulator capture: contact-sheet timecodes are approximate and time resampling can omit short events. Native-frame History boundary has an explicit capture gap.",
+          "Compact wrap defect is present in this source and needs newer recording to close.",
+          "Keyboard environment failure and live Reduce Motion changes are being validated independently by root.",
+          "Prior design screenshots are not new motion evidence. No claims about physical-device frame pacing or live speech/model behavior."
+        ]
+      }
+    },
+    {
+      "path": ".build/motion-final-temporal-review.json",
+      "sha256": "193c2aebdd27e77ea713f89e742bfc88aa89682b478db71c8e75a57588793fb6",
+      "review": {
+        "reviewedAtUTC": "2026-09-09T16:48:33.875477+00:00",
+        "source": ".build/motion-final-dark-full.mp4",
+        "sourceSHA256": "4b125b3936a53e7e24dc9ffdbc5462c46bda03e7b0289984f416d927d3cf0077",
+        "sourceProvenance": ".build/motion-final-source-provenance.json",
+        "sourceProvenanceSnapshot": {
+          "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+          "sourceSHA256": {
+            "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+            "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+            "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+            "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+            "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+            "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+            "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+            "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+            "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+            "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+            "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+            "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+            "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+            "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+            "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+            "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+            "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+            "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+            "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+            "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+            "Sayso/Views/SaysoTheme.swift": "ce77a29270507f00014d448e92ba29a511f4e17e5adbd5325542440e9c8c1217",
+            "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+            "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+            "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+            "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+            "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+            "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+            "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+            "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+          }
+        },
+        "resultBundle": ".build/Motion-Final-Dark.xcresult",
+        "verdict": "NOT CLOSED: compact transcript/meter overlap persists in this capture. Portrait staged transitions and live Reduce Motion meter behavior are clean in observed evidence. Root notified for correction.",
+        "method": "Independent visual inspection of actual simulator video and exported native PNG sequences. ffmpeg decoding/filtering/extraction used one thread. No source changes or simulator interaction. Test results locate journeys; they do not substitute for frame inspection.",
+        "findings": [
+          {
+            "flow": "Compact transcript line wrap",
+            "status": "defect persists",
+            "timeSeconds": [
+              184.3,
+              184.5
+            ],
+            "observed": "At approximately 184.367 s the new second line is already laid out while the meter remains near its previous y position. Bar tops intersect the line; the meter then settles down over the following frames. A similar lag appears when the third line arrives.",
+            "evidence": [
+              ".build/motion-review-latest-compact-wrap-close.png",
+              ".build/motion-review-latest-compact-wrap.png"
+            ],
+            "sourceInference": "WaveformView applies an energy animation directly to VoiceLevelShape below the parent nil transaction; coincident energy/layout updates may animate outer shape placement. This is a diagnosis hypothesis, not a validated fix."
+          },
+          {
+            "flow": "Portrait idle to recording",
+            "status": "clean",
+            "timeSeconds": [
+              309.45,
+              309.7
+            ],
+            "observed": "Hero fades out; both blank/near-blank state and first incoming listening text are visible in separate frames. No simultaneous hero and live paragraph reading.",
+            "evidence": ".build/motion-review-latest-portrait-start.png"
+          },
+          {
+            "flow": "Portrait finishing to result",
+            "status": "clean in sampled boundary",
+            "timeSeconds": [
+              313.95,
+              314.2
+            ],
+            "observed": "Outgoing live paragraph fades clear before incoming result text. No doubled paragraph baselines in observed boundary.",
+            "evidence": ".build/motion-review-latest-portrait-finish.png"
+          },
+          {
+            "flow": "Live system Reduce Motion off/on/off during same recording",
+            "status": "clean",
+            "observed": "Twelve native PNGs: shaped meter occupied height 172 px, reduced flat meter 12 px, restored shaped meter 172 px. All four frames within each cohort have identical meter pixel hashes. Transcript crop hash identical across all twelve. Same session state and native system setting are evidenced by test timeline.",
+            "metrics": ".build/motion-review-latest-runtime-meter-metrics.json",
+            "timeline": ".build/motion-final-dark-attachments/B8E2240E-5DD6-4AC7-B17F-A8B1AC7D733A.txt",
+            "representativeImages": [
+              ".build/motion-final-dark-attachments/1BB524D5-135D-4D09-A002-26B0ED9C262E.png",
+              ".build/motion-final-dark-attachments/624157E6-67E0-4EA7-9F7B-CADFF19696F2.png",
+              ".build/motion-final-dark-attachments/C8E92E23-C3F1-406E-979D-AA201F7569D8.png"
+            ]
+          }
+        ],
+        "demo": {
+          "status": "Pending latest compact correction/source decision; prior light clip remains supporting history only.",
+          "requestedPath": "docs/motion/2026-09-09/recording-and-copy.mp4"
+        },
+        "limitations": [
+          "Video timecodes approximate because capture is variable frame rate. Actual overlapping pixels are visible in the close-up source frames; this is not inferred from tests.",
+          "Final latest-source approval cannot be granted until compact collision is corrected and observed again.",
+          "No claim about physical-device frame pacing or live speech/model behavior.",
+          "Previous design screenshots are not new motion evidence."
+        ]
+      }
+    },
+    {
+      "path": ".build/motion-meter-temporal-review.json",
+      "sha256": "762dc7e0be9135bd2e35a8f836dbd2d0848c64ac770b9c0fd560b2c24762aecf",
+      "review": {
+        "reviewedAtUTC": "2026-09-09T16:53:47.277832+00:00",
+        "source": ".build/motion-meter-full.mp4",
+        "sourceSHA256": "53c4511652f641ec090eb87d48baabbd18775dae08b24317c416829e62d20e07",
+        "sourceProvenance": ".build/motion-meter-source-provenance.json",
+        "sourceProvenanceSnapshot": {
+          "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+          "sourceSHA256": {
+            "Sayso/ContentView.swift": "7a511d3d01d6f14239b047430a4a9af3db5e33b232815213dcaf0e3f27798bfa",
+            "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+            "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+            "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+            "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+            "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+            "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+            "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+            "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+            "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+            "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+            "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+            "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+            "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+            "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+            "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+            "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+            "Sayso/Views/HistoryView.swift": "74847e27d30a0bee4385faae2d8be42ed97b5a52ea16d265eae21678fa3e513d",
+            "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+            "Sayso/Views/ModePickerView.swift": "192d5ccb598e002b180b35437bc226f7e9ae1efce7bb244f0b3efca1e2a8c86f",
+            "Sayso/Views/SaysoTheme.swift": "281447eb6a8241619078b293f7811e5af966d01b5886779c257ceabd886fdf80",
+            "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+            "SaysoKeyboard/KeyboardViewController.swift": "1a83256f5b721c7cedf922270587d8de45e57cce1726160bf608ac40af6008ac",
+            "SaysoRecordingActivity/SaysoRecordingActivity.swift": "c984cf237a62ec6de6408f1f53371505856a989058c8432a071e095c18c8b4aa",
+            "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+            "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+            "SaysoUITests/MotionUITests.swift": "bb6b8b7e50dca4fd56870a8a6a602fc6c40cf7f60cc220e3a31e292593ca06ce",
+            "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+            "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+          }
+        },
+        "verdict": "Partial fix: compact text/meter collision eliminated, but meter briefly drops out during wrap because animated shape travels inside new clipping bounds. Recommend geometry isolation before final demo.",
+        "method": "Independent visual inspection of actual compact simulator capture. One-thread ffmpeg extraction; no source changes or simulator interaction.",
+        "findings": [
+          {
+            "flow": "Compact first-to-second line wrap",
+            "status": "text overlap fixed; meter dropout remains",
+            "timeSeconds": [
+              74.35,
+              74.75
+            ],
+            "observed": "New second line appears around 74.45 s with meter entirely absent; next sampled frame around 74.483 s contains only clipped tips; by 74.517 s meter reappears lower. Unlike previous build, no bars overlap transcript.",
+            "evidence": ".build/motion-review-meter-wrap-close.png",
+            "contactSheet": "4 columns by 3 rows, row-major, 30 fps starting 74.35 s; cells 4\u20136 show dropout/reappearance."
+          }
+        ],
+        "continuation": ".build/motion-meter-continuation.mp4",
+        "continuationStatus": "Not yet reviewed; root reports focused portrait/live system tests pass.",
+        "demoStatus": "Held pending remaining geometry-flicker decision/correction. No final demo encoded.",
+        "limitations": [
+          "Approximate VFR capture timecodes. Quantitative duration is bounded by sampled frames, not physical-device frame-time measurement.",
+          "This verdict covers the compact wrap boundary only; test passes are not used to infer motion quality."
+        ]
+      }
+    }
+  ],
+  "keyboardStartupDiagnosis": {
+    "device": "5950F29E-BEA9-4314-9B76-0698897B9395",
+    "test_log": ".build/motion-final-dark-tests.log",
+    "startup_log": ".build/motion-keyboard-startup-20260909.log",
+    "startup_log_sha256": "344b62d6d410caa8345e393ff1f462815757b6af2b3b193f588f400715435033",
+    "observation_scope": "Read-only log and installed bundle inspection while MotionUITests continued. No simulator UI, registration, permissions, or source mutations.",
+    "observations": [
+      "Next keyboard tap starts SaysoKeyboard PID 74641 at 18:35:55.266.",
+      "PlugInKit reports delayed host handshake at 18:35:58.844.",
+      "Settings switches keyboard geometry from 301 back to 328 points at 18:36:00.550 while extension startup continues.",
+      "RBS linking reports Client not authorized at 18:36:01.286, followed by successful legacy connection.",
+      "Settings receives the ready remote controller at 18:36:03.345, then immediately requests deallocation and disconnection.",
+      "No explicit keyboard timeout in the narrower 18:35:58\u201318:36:05 query; no new SaysoKeyboard crash report found in DiagnosticReports.",
+      "The extension process survives until Full Access cleanup causes the expected TCC termination at 18:36:40.",
+      "Installed and built keyboard binaries both SHA256 29ecfc92dcfe88d2a6400a684e1f2507856a93d8e4a7d863efea279fd478abe1."
+    ],
+    "inference": "The host abandoned the cold keyboard presentation before the ready controller arrived. The exact OS reason is unproven. Root reported concurrent high-resolution ffmpeg encoding during startup, a plausible contributing load, not established causation.",
+    "next_check": "After the active suite completes, rerun only the keyboard test without concurrent encoding. If needed, explicitly select Sayso through the native input-mode picker to prewarm. Preserve the original failed bundle. No production fix is indicated by this evidence.",
+    "possible_harness_followup": "Only if observed native reselection recovers: retain the 15-second readiness requirement and add one bounded native picker retry after the direct Next keyboard path fails.",
+    "cleanup_log": ".build/motion-keyboard-cleanup-20260909.log",
+    "host_disconnect_log": ".build/motion-keyboard-host-disconnect-20260909.log"
+  },
+  "landscapeFrameSheet": {
+    "path": "docs/motion/2026-09-09/landscape-wrapping-frames.png",
+    "sourceVideo": ".build/motion-geometry-full.mp4",
+    "extractedRangeSeconds": [
+      33.1,
+      35.1
+    ],
+    "transform": "Cropped contact sheet sampled at 30 frames per second; reviewed second and third line-wrap boundaries."
+  }
+}

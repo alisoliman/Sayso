@@ -1,27 +1,91 @@
 import SwiftUI
 
-// Native glass belongs to controls; the writing surface stays quiet and readable.
+/// Porcelain, ink and a single expressive accent. Keep reading surfaces opaque;
+/// system glass is reserved for navigation above the content.
 enum SaysoTheme {
-    static let accent = Color(uiColor: UIColor { trait in
-        trait.userInterfaceStyle == .dark ? UIColor(red: 0.81, green: 0.72, blue: 0.95, alpha: 1) : UIColor(red: 0.30, green: 0.22, blue: 0.43, alpha: 1)
-    })
-    static let onAccent = Color(uiColor: UIColor { trait in
-        trait.userInterfaceStyle == .dark ? UIColor(red: 0.12, green: 0.10, blue: 0.16, alpha: 1) : .white
-    })
-    static let canvas = Color(uiColor: UIColor { trait in
-        trait.userInterfaceStyle == .dark ? UIColor(red: 0.075, green: 0.075, blue: 0.09, alpha: 1) : UIColor(red: 0.975, green: 0.97, blue: 0.96, alpha: 1)
-    })
-    static let ink = Color.primary
-    static let muted = Color.secondary
+    private static func adaptive(_ light: UInt32, _ dark: UInt32) -> Color {
+        Color(uiColor: UIColor { traits in
+            let value = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: CGFloat((value >> 16) & 255) / 255,
+                           green: CGFloat((value >> 8) & 255) / 255,
+                           blue: CGFloat(value & 255) / 255, alpha: 1)
+        })
+    }
+
+    static let accent = adaptive(0x503968, 0xCEB8F2)
+    static let onAccent = adaptive(0xFFFFFF, 0x261F2F)
+    static let canvas = adaptive(0xF8F6F2, 0x141218)
+    static let surface = adaptive(0xF0EDF3, 0x211D27)
+    static let ink = adaptive(0x261F2F, 0xF5F0FA)
+    static let secondaryInk = adaptive(0x6D6674, 0xB8AEBD)
+    static let hairline = adaptive(0xDCD5E0, 0x49404F)
+    static let muted = secondaryInk
+}
+
+/// Motion follows a change of intent, never a clock. Keep it brief enough that
+/// another tap can interrupt it; recording and insertion never wait for a finish.
+enum SaysoMotion {
+    static let feedback = Animation.easeOut(duration: 0.16)
+    static let settle = Animation.spring(response: 0.30, dampingFraction: 0.88)
+    static let stateChange = Animation.easeInOut(duration: 0.26)
+
+    static func content(reduceMotion: Bool) -> AnyTransition {
+        reduceMotion ? .identity : .asymmetric(
+            // Clear the previous words before revealing the next surface.
+            // Only presentation is staged; actions and model state are immediate.
+            insertion: .opacity.combined(with: .offset(y: 8))
+                .animation(.easeOut(duration: 0.22).delay(0.10)),
+            removal: .opacity.animation(.easeOut(duration: 0.09)))
+    }
 }
 
 struct QuietBackground: View {
-    @Environment(\.colorScheme) private var scheme
-    var body: some View {
-        ZStack {
-            SaysoTheme.canvas
-            RadialGradient(colors: [SaysoTheme.accent.opacity(scheme == .dark ? 0.12 : 0.045), .clear], center: .init(x: 0.65, y: 0.46), startRadius: 10, endRadius: 360)
-        }.ignoresSafeArea()
+    var body: some View { SaysoTheme.canvas.ignoresSafeArea() }
+}
+
+struct SaysoPrimaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .fixedSize(horizontal: false, vertical: true)
+            .foregroundStyle(isEnabled ? SaysoTheme.onAccent : SaysoTheme.secondaryInk)
+            .padding(.horizontal, 20).padding(.vertical, 14)
+            .frame(minHeight: 52)
+            .background(isEnabled ? SaysoTheme.accent : SaysoTheme.surface, in: .capsule)
+            .opacity(configuration.isPressed ? 0.82 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .animation(reduceMotion ? nil : (configuration.isPressed ? SaysoMotion.feedback : SaysoMotion.settle), value: configuration.isPressed)
+    }
+}
+
+struct SaysoQuietButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(isEnabled ? SaysoTheme.accent : SaysoTheme.secondaryInk)
+            .frame(minWidth: 44, minHeight: 44)
+            .background(SaysoTheme.surface, in: .rect(cornerRadius: 14))
+            .opacity(configuration.isPressed ? 0.65 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .animation(reduceMotion ? nil : SaysoMotion.feedback, value: configuration.isPressed)
+    }
+}
+
+/// Direct feedback for plain controls; their surface and hit area stay owned
+/// by the caller. System glass, menus and navigation keep their native motion.
+struct SaysoPressButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.68 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .animation(reduceMotion ? nil : SaysoMotion.feedback, value: configuration.isPressed)
     }
 }
 
@@ -31,12 +95,12 @@ struct RoundButton: View {
     var action: () -> Void
     var body: some View {
         Button(action: action) {
-            Image(systemName: symbol).font(.system(size: 18, weight: .medium))
-                .frame(width: 46, height: 46)
+            Image(systemName: symbol).font(.system(size: 18, weight: .regular))
+                .frame(width: 44, height: 44)
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .foregroundStyle(.primary)
+        .foregroundStyle(SaysoTheme.ink)
         .accessibilityLabel(label)
     }
 }
@@ -44,7 +108,35 @@ struct RoundButton: View {
 struct Eyebrow: View {
     let text: String
     var body: some View {
-        Text(text.uppercased()).font(.system(size: 11, weight: .semibold)).tracking(2).foregroundStyle(.secondary)
+        Text(text.uppercased()).font(.caption2.weight(.semibold)).tracking(1.8)
+            .foregroundStyle(SaysoTheme.secondaryInk)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// A quiet, static voice signature. Unlike the input meter, it never implies
+/// microphone activity. Native vector geometry stays crisp at every scale.
+struct VoiceEmblem: View {
+    @Environment(\.colorSchemeContrast) private var contrast
+
+    var body: some View {
+        Canvas { context, size in
+            let heights: [CGFloat] = [0.24, 0.58, 0.88, 1, 0.72, 0.43, 0.19]
+            let step = size.width / CGFloat(heights.count)
+            let width = step * 0.57
+            for (index, proportion) in heights.enumerated() {
+                let height = size.height * proportion
+                let rect = CGRect(x: CGFloat(index) * step + (step - width) / 2,
+                                  y: (size.height - height) / 2, width: width, height: height)
+                let path = Path(roundedRect: rect, cornerRadius: width / 2)
+                let opacity = contrast == .increased ? 1 : 0.46 + 0.54 * proportion
+                context.fill(path, with: .linearGradient(
+                    Gradient(colors: [SaysoTheme.accent.opacity(opacity * 0.68), SaysoTheme.accent.opacity(opacity)]),
+                    startPoint: CGPoint(x: rect.minX, y: rect.minY),
+                    endPoint: CGPoint(x: rect.maxX, y: rect.maxY)))
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 
@@ -52,25 +144,47 @@ struct WaveformView: View {
     var recording: Bool
     var level: Double
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.colorSchemeContrast) private var contrast
+
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !recording || reduceMotion)) { timeline in
-            let time = timeline.date.timeIntervalSinceReferenceDate
-            Canvas { context, size in
-                let count = 43
-                let step = size.width / CGFloat(count)
-                for index in 0..<count {
-                    let position = Double(index) / Double(count - 1)
-                    let envelope = pow(sin(position * .pi), 1.6)
-                    let signature = 0.35 + 0.65 * abs(sin(Double(index) * 0.81))
-                    let motion = recording && !reduceMotion ? 0.45 + 0.55 * abs(sin(time * 3.1 + Double(index) * 0.43)) : 1
-                    let amplitude = recording ? 0.15 + min(level * 2.8, 1) * 0.85 : 0.65
-                    let height = max(4, envelope * signature * motion * amplitude * size.height)
-                    let rect = CGRect(x: CGFloat(index) * step + (step - 3) / 2, y: (size.height - height) / 2, width: 3, height: height)
-                    context.fill(Path(roundedRect: rect, cornerRadius: 2), with: .color(SaysoTheme.accent.opacity(0.24 + envelope * (scheme == .dark ? 0.64 : 0.66))))
-                }
+        // The input level drives the meter. Silence and Stop settle to a line;
+        // Reduce Motion keeps that line still while words and status update.
+        let energy = recording && !reduceMotion ? min(max(level * 2.8, 0), 1) : 0
+        // This outer drawing area follows layout immediately. Only its inner
+        // bars interpolate: recognition often changes level and line count in
+        // the same update, which must not animate the meter through the words.
+        Color.clear
+            .overlay {
+                VoiceLevelShape(energy: energy)
+                    .fill(SaysoTheme.accent.opacity(contrast == .increased ? 1 : 0.8))
+                    .animation(reduceMotion ? nil : .easeOut(duration: recording ? 0.16 : 0.22), value: energy)
             }
-        }
+            .geometryGroup()
+            .clipped()
         .accessibilityHidden(true)
+    }
+}
+
+private struct VoiceLevelShape: Shape {
+    var energy: Double
+    var animatableData: Double {
+        get { energy }
+        set { energy = newValue }
+    }
+
+    func path(in bounds: CGRect) -> Path {
+        var path = Path()
+        let count = 43
+        let step = bounds.width / CGFloat(count)
+        for index in 0..<count {
+            let position = Double(index) / Double(count - 1)
+            let envelope = pow(sin(position * .pi), 1.6)
+            let signature = 0.35 + 0.65 * abs(sin(Double(index) * 0.81))
+            let height = max(4, envelope * signature * energy * bounds.height)
+            let rect = CGRect(x: bounds.minX + CGFloat(index) * step + (step - 3) / 2,
+                              y: bounds.midY - height / 2, width: 3, height: height)
+            path.addRoundedRect(in: rect, cornerSize: CGSize(width: 2, height: 2))
+        }
+        return path
     }
 }

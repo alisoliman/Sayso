@@ -61,10 +61,19 @@ final class SaysoUITests: XCTestCase {
 
         app.buttons["settingsButton"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.switches["saveHistoryToggle"].exists)
         XCTAssertTrue(app.descendants(matching: .any)["speechProviderPicker"].firstMatch.exists)
         XCTAssertTrue(app.descendants(matching: .any)["languagePicker"].firstMatch.exists)
         capture("03-Settings", app: app)
+        // Form creates below-fold rows lazily. Reveal the history preference
+        // before requiring it, then confirm that it is actually usable.
+        let saveHistory = app.switches["saveHistoryToggle"]
+        for _ in 0..<8 {
+            if saveHistory.exists && saveHistory.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(saveHistory.exists)
+        XCTAssertTrue(saveHistory.isHittable)
+        capture("03b-Settings-History-Preference", app: app)
         app.navigationBars.buttons["Done"].tap()
 
         app.buttons["historyButton"].tap()
