@@ -9,6 +9,7 @@ struct SettingsView: View {
     @Bindable var speechModels: ParakeetModelStore
     var isDictationBusy = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("speechLocale") private var locale = SpeechLanguage.defaultIdentifier
     @AppStorage(SpeechProvider.preferenceKey) private var providerRaw = SpeechProvider.defaultProvider.rawValue
     @AppStorage("saveHistory") private var saveHistory = true
@@ -25,11 +26,17 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Picker("Speech model", selection: $providerRaw) {
-                        ForEach(SpeechProvider.allCases) { option in
-                            Text(option.name).tag(option.rawValue)
+                    if dynamicTypeSize.isAccessibilitySize {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Speech model").font(.headline)
+                            Menu { providerPicker } label: {
+                                selectionLabel(provider.name)
+                            }
+                            .accessibilityLabel("Speech model")
+                            .accessibilityValue(provider.name)
+                            .accessibilityIdentifier("speechProviderPicker")
                         }
-                    }.accessibilityIdentifier("speechProviderPicker")
+                    } else { providerPicker }
                     if provider == .parakeet {
                         LabeledContent("Parakeet TDT v3", value: speechModels.status)
                             .accessibilityIdentifier("parakeetModelStatus")
@@ -68,36 +75,55 @@ struct SettingsView: View {
                     }
                 }
                 .disabled(isDictationBusy)
+                .listRowBackground(SaysoTheme.surface)
                 Section {
                     HStack(alignment: .top, spacing: 13) {
-                        Image(systemName: "sparkles").foregroundStyle(SaysoTheme.accent).font(.system(size: 23)).padding(.top, 3)
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(SaysoTheme.accent).font(.title3)
+                            .frame(width: 30).padding(.top, 3).accessibilityHidden(true)
                         VStack(alignment: .leading, spacing: 6) {
-                            Text("Apple Intelligence").font(.headline.weight(.medium))
-                            Text(intelligence.availabilityMessage).font(.footnote).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                            Text("Apple Intelligence").font(.headline.weight(.medium)).foregroundStyle(SaysoTheme.ink)
+                            Text(intelligence.availabilityMessage)
+                                .font(.footnote).foregroundStyle(SaysoTheme.secondaryInk)
+                                .lineSpacing(3).fixedSize(horizontal: false, vertical: true)
                         }
-                    }.padding(.vertical, 5)
+                    }.padding(.vertical, 8)
                 } header: { Text("On this iPhone") } footer: {
                     Text("Optional writing styles use Apple Intelligence. Original needs only the selected speech model. Sayso doesn’t send your audio or text to a server.")
                 }
+                .listRowBackground(SaysoTheme.surface)
                 Section {
                     if provider == .apple {
-                    Picker("Language", selection: $locale) {
-                        ForEach(SpeechLanguage.choices, id: \.id) { choice in
-                            Text(choice.name + (loadedLanguages && !isSupported(choice.id) ? " · unavailable" : "")).tag(choice.id)
+                    if dynamicTypeSize.isAccessibilitySize {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Language").font(.headline)
+                            Menu { languagePicker } label: {
+                                selectionLabel(selectedLanguageName)
+                            }
+                            .accessibilityLabel("Language")
+                            .accessibilityValue(selectedLanguageName)
+                            .accessibilityIdentifier("languagePicker")
                         }
-                    }.accessibilityIdentifier("languagePicker")
+                    } else { languagePicker }
                     }
                     NavigationLink {
                         Form {
                             Section {
-                                TextEditor(text: $vocabulary).frame(minHeight: 220).autocorrectionDisabled()
+                                TextEditor(text: $vocabulary)
+                                    .font(.body).lineSpacing(4).frame(minHeight: 260).autocorrectionDisabled()
+                                    .scrollContentBackground(.hidden)
                                     .accessibilityLabel("Vocabulary, one word or phrase per line")
-                            } footer: { Text("Add names, places, and words you use often, one per line. These give Apple Speech and rewriting a little context. Parakeet transcription does not use this vocabulary. Spelling is still worth checking.") }
+                            } header: { Text("One word or phrase per line") } footer: {
+                                Text("Add names, places, and words you use often, one per line. These give Apple Speech and rewriting a little context. Parakeet transcription does not use this vocabulary. Spelling is still worth checking.")
+                            }
+                            .listRowBackground(SaysoTheme.surface)
                         }
+                        .scrollContentBackground(.hidden).background(SaysoTheme.canvas)
                         .navigationTitle("Vocabulary").navigationBarTitleDisplayMode(.inline)
                     } label: { LabeledContent("Vocabulary", value: "\(vocabulary.split(separator: "\n").count) words") }
                     Toggle("Haptic feedback", isOn: $haptics)
                 } header: { Text("Dictation") }
+                .listRowBackground(SaysoTheme.surface)
                 Section {
                     NavigationLink { WritingModesSettingsView(styles: styles) } label: {
                         Label("Writing modes", systemImage: "slider.horizontal.3")
@@ -105,6 +131,7 @@ struct SettingsView: View {
                 } header: { Text("Rewriting") } footer: {
                     Text("Customize rewrite prompts and save your own modes.")
                 }
+                .listRowBackground(SaysoTheme.surface)
                 Section {
                     Toggle("Save history", isOn: $saveHistory).accessibilityIdentifier("saveHistoryToggle")
                     if !store.entries.isEmpty {
@@ -113,6 +140,7 @@ struct SettingsView: View {
                 } header: { Text("Your words") } footer: {
                     Text("History is stored in Sayso on this iPhone and may be included in your device backup. Turning this off affects new dictations. Existing history stays until you delete it. Audio is not saved.")
                 }
+                .listRowBackground(SaysoTheme.surface)
                 Section {
                     NavigationLink { KeyboardSetupView() } label: {
                         Label("Sayso keyboard", systemImage: "keyboard")
@@ -121,10 +149,20 @@ struct SettingsView: View {
                     Text("In Shortcuts, add Sayso’s Start Dictation action. Assign that shortcut to your Action button for quick access.")
                         .font(.footnote).foregroundStyle(.secondary)
                 } header: { Text("One press away") }
+                .listRowBackground(SaysoTheme.surface)
                 Section {
-                    HStack { Text("Sayso").font(.system(size: 19, weight: .semibold, design: .rounded)); Spacer(); Text("1.0").foregroundStyle(.secondary) }
+                    LabeledContent {
+                        Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0")
+                            .foregroundStyle(SaysoTheme.secondaryInk)
+                    } label: {
+                        Text("Sayso").font(.headline.weight(.medium)).foregroundStyle(SaysoTheme.ink)
+                    }
                 } footer: { Text("Made for a little less typing.") }
+                .listRowBackground(SaysoTheme.surface)
             }
+            .accessibilityIdentifier("settingsForm")
+            .scrollContentBackground(.hidden).background(SaysoTheme.canvas)
+            .tint(SaysoTheme.accent)
             .navigationTitle("Settings")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .fileImporter(isPresented: $importingModel, allowedContentTypes: [.folder]) { result in
@@ -156,5 +194,43 @@ struct SettingsView: View {
             }
         }
     }
+    private var providerPicker: some View {
+        Picker("Speech model", selection: $providerRaw) {
+            ForEach(SpeechProvider.allCases) { option in
+                Text(option.name).tag(option.rawValue)
+            }
+        }
+        .accessibilityIdentifier("speechProviderPicker")
+    }
+
+    private func selectionLabel(_ value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(value)
+                .multilineTextAlignment(.leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.body).accessibilityHidden(true)
+        }
+        .foregroundStyle(SaysoTheme.accent)
+        .frame(minHeight: 44)
+        .contentShape(.rect)
+    }
+
+    private var selectedLanguageName: String {
+        let name = SpeechLanguage.choices.first { $0.id == locale }?.name ?? locale
+        return name + (loadedLanguages && !isSupported(locale) ? " · unavailable" : "")
+    }
+
+    private var languagePicker: some View {
+        Picker("Language", selection: $locale) {
+            ForEach(SpeechLanguage.choices, id: \.id) { choice in
+                Text(choice.name + (loadedLanguages && !isSupported(choice.id) ? " · unavailable" : "")).tag(choice.id)
+            }
+        }
+        .accessibilityIdentifier("languagePicker")
+    }
+
     private func isSupported(_ id: String) -> Bool { supportedLocales.contains(id) }
 }

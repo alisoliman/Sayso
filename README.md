@@ -4,7 +4,7 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 
 **iOS 27.0 or later · SwiftUI · Parakeet / Apple Speech · Foundation Models**
 
-[Current normal-launch Home](docs/screenshots/ios27/final-visual/home-light-normal-final.png)
+[Current design](docs/DESIGN_LANGUAGE.md) · [Design verification](docs/DESIGN_VERIFICATION.md) · [Motion design](docs/MOTION_DESIGN.md)
 
 ## What it does
 
@@ -68,7 +68,7 @@ The remaining acceptance boundaries are explicit:
 - **Physical iPhone:** the user reported no detected speech with both internal input and AirPods, then suspected Mac screen sharing and requested a retry. The cause is unconfirmed. Successful real microphone recognition, continued background capture, offline asset readiness, Bluetooth/interruptions, haptics, battery, thermal behavior and latency remain acceptance work on the intended iPhone 17 Pro running iOS 27. Follow the [device acceptance checklist](docs/DEVICE_ACCEPTANCE.md).
 - **Writing quality:** real iOS 27 model quality is unverified. Historical macOS 26.x evaluations contain known Notes ownership, segmentation and correction failures; their separate cohorts are not an iOS 27 accuracy claim. This host is macOS 26.6.2, and current model runners require macOS 27. [Writing evaluations](docs/INTELLIGENCE_EVALUATION.md), [Notes challenge](docs/NOTES_CHALLENGE_EVALUATION.md), [structured Notes comparison](docs/STRUCTURED_NOTES_EVALUATION.md).
 - **Runtime:** simulator boot and app tests work, but native runtime signature verification still reports `-67054` and AMFI cache-signature diagnostics remain unresolved. Passing app tests do not certify runtime integrity. [Environment and diagnostics](docs/IOS27_MIGRATION.md).
-- **Presentation:** 25 consecutive AX portrait timer captures retained their leading zero; persistent clipping was not reproduced. The earlier isolated frame remains qualified in the record. Native captures cover the recorded layouts and four icon styles. Dense samples of a historical interaction video show brief transition text/status overlap; current-source motion and real-device performance remain unverified. [Visual evidence](docs/VERIFICATION.md), [icon design](docs/ICON_DESIGN.md).
+- **Presentation:** 25 consecutive AX portrait timer captures retained their leading zero; persistent clipping was not reproduced. The earlier isolated frame remains qualified in the record. Native captures cover the recorded layouts and four icon styles. The subsequent [motion pass](docs/MOTION_DESIGN.md) addresses transition overlap, isolates meter geometry, and records actual system Reduce Motion and native keyboard checks. Physical-device motion performance remains unmeasured. [Visual evidence](docs/VERIFICATION.md), [icon design](docs/ICON_DESIGN.md).
 
 ## Data and development
 

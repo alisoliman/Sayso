@@ -31,10 +31,19 @@ final class KeyboardViewController: UIInputViewController {
     private var lastCompactHeight: Bool?
     private var lastContentSize: UIContentSizeCategory?
     private let consumedKey = "lastInsertedHandoff"
+    private var renderedHandoffState: HandoffVisualState?
+    private var handoffIsVisible = false
+    private let handoffRevealKey = "sayso.handoffReveal"
+
+    private enum HandoffVisualState: Equatable {
+        case empty, unavailable
+        case session(UUID, KeyboardRecordingSessionStore.Phase)
+        case result(String, consumed: Bool)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = KeyboardPalette.canvas
         stack.axis = .vertical
         stack.spacing = 10
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -65,6 +74,8 @@ final class KeyboardViewController: UIInputViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(reduceMotionSettingChanged),
+                                               name: UIAccessibility.reduceMotionStatusDidChangeNotification, object: nil)
         refreshHandoff()
         refreshTimer?.invalidate()
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -72,8 +83,17 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        handoffIsVisible = true
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        handoffIsVisible = false
+        renderedHandoffState = nil
+        stopHandoffMotion()
+        NotificationCenter.default.removeObserver(self, name: UIAccessibility.reduceMotionStatusDidChangeNotification, object: nil)
         refreshTimer?.invalidate()
         refreshTimer = nil
         stopRepeatedDeletion()
@@ -107,13 +127,16 @@ final class KeyboardViewController: UIInputViewController {
         text.spacing = 3
         let title = brand
         title.text = "SAYSO"
-        title.font = .systemFont(ofSize: 10, weight: .bold)
-        title.textColor = .secondaryLabel
+        title.font = UIFontMetrics(forTextStyle: .caption2)
+            .scaledFont(for: .systemFont(ofSize: 10, weight: .semibold), maximumPointSize: 14)
+        title.adjustsFontForContentSizeCategory = true
+        title.textColor = KeyboardPalette.secondaryInk
         title.accessibilityTraits = .header
         text.addArrangedSubview(title)
         preview.font = UIFontMetrics(forTextStyle: .subheadline)
             .scaledFont(for: .systemFont(ofSize: 15), maximumPointSize: 24)
         preview.adjustsFontForContentSizeCategory = true
+        preview.textColor = KeyboardPalette.ink
         preview.numberOfLines = 2
         preview.lineBreakMode = .byTruncatingTail
         preview.accessibilityIdentifier = "keyboardPreview"
@@ -132,15 +155,8 @@ final class KeyboardViewController: UIInputViewController {
         configuration.image = UIImage(systemName: "arrow.up.doc")
         configuration.imagePadding = 5
         configuration.cornerStyle = .capsule
-        configuration.baseBackgroundColor = UIColor { traits in
-            traits.userInterfaceStyle == .dark
-                ? UIColor(red: 0.81, green: 0.72, blue: 0.95, alpha: 1)
-                : UIColor(red: 0.30, green: 0.22, blue: 0.43, alpha: 1)
-        }
-        configuration.baseForegroundColor = UIColor { traits in
-            traits.userInterfaceStyle == .dark
-                ? UIColor(red: 0.12, green: 0.10, blue: 0.16, alpha: 1) : .white
-        }
+        configuration.baseBackgroundColor = KeyboardPalette.accent
+        configuration.baseForegroundColor = KeyboardPalette.onAccent
         configuration.contentInsets = .init(top: 12, leading: 13, bottom: 12, trailing: 13)
         insertButton.configuration = configuration
         insertButton.accessibilityIdentifier = "keyboardInsertButton"
@@ -153,7 +169,7 @@ final class KeyboardViewController: UIInputViewController {
         var discard = UIButton.Configuration.plain()
         discard.image = UIImage(systemName: "xmark")
         discard.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
-        discard.baseForegroundColor = .secondaryLabel
+        discard.baseForegroundColor = KeyboardPalette.secondaryInk
         discard.contentInsets = .init(top: 14, leading: 16, bottom: 14, trailing: 16)
         discardButton.configuration = discard
         discardButton.setContentHuggingPriority(.required, for: .horizontal)
@@ -172,9 +188,7 @@ final class KeyboardViewController: UIInputViewController {
         instruction.font = UIFontMetrics(forTextStyle: .caption2)
             .scaledFont(for: .systemFont(ofSize: 11), maximumPointSize: 17)
         instruction.adjustsFontForContentSizeCategory = true
-        instruction.textColor = UIColor { traits in
-            UIColor.label.resolvedColor(with: traits).withAlphaComponent(0.7)
-        }
+        instruction.textColor = KeyboardPalette.secondaryInk
         instruction.numberOfLines = 2
         instruction.textAlignment = .center
         instruction.accessibilityIdentifier = "keyboardInstruction"
@@ -246,14 +260,21 @@ final class KeyboardViewController: UIInputViewController {
     }
 
     private func refreshHandoff() {
+        var nextState = HandoffVisualState.unavailable
+        defer { revealHandoffChange(to: nextState) }
         visibleSession = nil
         discardButton.isHidden = true
+        preview.font = UIFontMetrics(forTextStyle: .subheadline)
+            .scaledFont(for: .systemFont(ofSize: 15), maximumPointSize: 24)
         insertButton.configuration?.image = UIImage(systemName: "arrow.up.doc")
         insertButton.accessibilityHint = "Inserts the shared result at the current cursor."
         do {
             if let session = try recordingSessions.latest() {
+                nextState = .session(session.id, session.phase)
                 visibleSession = session
                 visiblePayload = nil
+                preview.font = UIFontMetrics(forTextStyle: .subheadline)
+                    .scaledFont(for: .monospacedDigitSystemFont(ofSize: 15, weight: .medium), maximumPointSize: 24)
                 let elapsed = Int(max(0, min(Date().timeIntervalSince(session.startedAt), KeyboardRecordingSessionStore.recordingLimit)))
                 switch session.phase {
                 case .recording: preview.text = String(format: "Recording · %d:%02d", elapsed / 60, elapsed % 60)
@@ -265,11 +286,16 @@ final class KeyboardViewController: UIInputViewController {
                 insertButton.isEnabled = hasFullAccess && session.phase == .recording
                 insertButton.accessibilityHint = "Stops this recording and prepares text to insert."
                 discardButton.isHidden = !hasFullAccess
-                instruction.text = hasFullAccess ? "Stop when you’re done. Your text will be ready to insert."
-                    : "Stop in Sayso or the Live Activity. Full Access enables keyboard controls."
+                if session.phase == .recording {
+                    instruction.text = hasFullAccess ? "Stop when you’re done. Your text will be ready to insert."
+                        : "Stop in Sayso or the Live Activity. Full Access enables keyboard controls."
+                } else {
+                    instruction.text = "Your microphone is off. Preparing your text to insert."
+                }
                 return
             }
             guard let payload = try handoff.latest() else {
+                nextState = .empty
                 visiblePayload = nil
                 preview.text = "Your words, ready here."
                 instruction.text = "Start Dictate in another app in Sayso, or send a finished result."
@@ -279,17 +305,52 @@ final class KeyboardViewController: UIInputViewController {
             }
             visiblePayload = payload
             let consumed = UserDefaults.standard.string(forKey: consumedKey) == payload.consumptionIdentifier
+            nextState = .result(payload.consumptionIdentifier, consumed: consumed)
             preview.text = payload.text
             instruction.text = consumed ? "Inserted. Send another result from Sayso when you’re ready."
                 : "Shared from Sayso · available for 10 minutes"
             insertButton.isEnabled = !consumed
             insertButton.configuration?.title = consumed ? "Inserted" : "Insert"
+            insertButton.configuration?.image = UIImage(systemName: consumed ? "checkmark" : "arrow.up.doc")
         } catch {
             visiblePayload = nil
             preview.text = "Send a result from Sayso."
             instruction.text = "Keyboard sharing isn’t available. Your typing still works."
             insertButton.isEnabled = false
             insertButton.configuration?.title = "Insert"
+        }
+    }
+
+    private func revealHandoffChange(to state: HandoffVisualState) {
+        let previous = renderedHandoffState
+        renderedHandoffState = state
+        guard let previous, previous != state else { return }
+        revealHandoffContent([preview, instruction, insertButton])
+    }
+
+    private func revealHandoffContent(_ views: [UIView]) {
+        guard handoffIsVisible, !UIAccessibility.isReduceMotionEnabled else { return }
+        // Content and enabled states have already changed. Reveal the new
+        // information without retaining an old recording snapshot, moving keys,
+        // or waiting for an animation before an insertion/control action runs.
+        for target in views {
+            let reveal = CABasicAnimation(keyPath: "opacity")
+            reveal.fromValue = target.layer.animation(forKey: handoffRevealKey) == nil
+                ? 0.65 : (target.layer.presentation()?.opacity ?? 0.65)
+            reveal.toValue = 1
+            reveal.duration = 0.18
+            reveal.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            target.layer.add(reveal, forKey: handoffRevealKey)
+        }
+    }
+
+    @objc private func reduceMotionSettingChanged() {
+        if UIAccessibility.isReduceMotionEnabled { stopHandoffMotion() }
+    }
+
+    private func stopHandoffMotion() {
+        for target in [preview, instruction, insertButton] as [UIView] {
+            target.layer.removeAnimation(forKey: handoffRevealKey)
         }
     }
 
@@ -324,6 +385,7 @@ final class KeyboardViewController: UIInputViewController {
             try recordingSessions.send(action, sessionID: sessionID)
             insertButton.isEnabled = false
             instruction.text = action == .stop ? "Finishing your words…" : "Discarding recording…"
+            revealHandoffContent([instruction])
         } catch {
             refreshHandoff()
             instruction.text = error.localizedDescription
@@ -346,12 +408,13 @@ final class KeyboardViewController: UIInputViewController {
             let row = makeRow()
             if index == 2 && !usesNumbers {
                 let shift = key(title: "⇧", label: "Shift", identifier: "keyboardShiftButton")
-                shift.backgroundColor = isShifted ? .systemGray3 : .tertiarySystemFill
+                shift.backgroundColor = isShifted ? KeyboardPalette.accent : KeyboardPalette.utilityKey
+                shift.setTitleColor(isShifted ? KeyboardPalette.onAccent : KeyboardPalette.ink, for: .normal)
                 shift.addTarget(self, action: #selector(toggleShift), for: .touchUpInside)
                 row.addArrangedSubview(shift)
             } else if index == 2 {
                 let symbols = key(title: usesSymbols ? "123" : "#+=", label: usesSymbols ? "Numbers" : "More symbols", identifier: "keyboardSymbolsButton")
-                symbols.backgroundColor = .tertiarySystemFill
+                symbols.backgroundColor = KeyboardPalette.utilityKey
                 symbols.addTarget(self, action: #selector(toggleSymbols), for: .touchUpInside)
                 row.addArrangedSubview(symbols)
             }
@@ -364,7 +427,7 @@ final class KeyboardViewController: UIInputViewController {
             }
             if index == 2 {
                 let delete = key(title: "⌫", label: "Delete", identifier: "keyboardDeleteButton")
-                delete.backgroundColor = .tertiarySystemFill
+                delete.backgroundColor = KeyboardPalette.utilityKey
                 delete.addTarget(self, action: #selector(deleteOnce), for: .touchUpInside)
                 delete.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(repeatDelete(_:))))
                 row.addArrangedSubview(delete)
@@ -375,6 +438,7 @@ final class KeyboardViewController: UIInputViewController {
         let bottom = makeRow()
         bottom.distribution = .fill
         let numbers = key(title: usesNumbers ? "ABC" : "123", label: usesNumbers ? "Letters" : "Numbers and punctuation", identifier: "keyboardNumbersButton")
+        numbers.backgroundColor = KeyboardPalette.utilityKey
         numbers.addTarget(self, action: #selector(toggleNumbers), for: .touchUpInside)
         numbers.widthAnchor.constraint(equalToConstant: 47).isActive = true
         bottom.addArrangedSubview(numbers)
@@ -382,8 +446,8 @@ final class KeyboardViewController: UIInputViewController {
         var nextConfiguration = UIButton.Configuration.plain()
         nextConfiguration.image = UIImage(systemName: "globe")
         nextButton.configuration = nextConfiguration
-        nextButton.backgroundColor = .tertiarySystemFill
-        nextButton.tintColor = .label
+        nextButton.backgroundColor = KeyboardPalette.utilityKey
+        nextButton.tintColor = KeyboardPalette.ink
         nextButton.layer.cornerRadius = 6
         nextButton.accessibilityLabel = "Next keyboard"
         nextButton.accessibilityIdentifier = "keyboardNextButton"
@@ -398,7 +462,7 @@ final class KeyboardViewController: UIInputViewController {
         space.addAction(UIAction { [weak self] _ in self?.type(" ") }, for: .touchUpInside)
         bottom.addArrangedSubview(space)
         let enter = key(title: "return", label: "Return", identifier: "keyboardReturnButton")
-        enter.backgroundColor = .tertiarySystemFill
+        enter.backgroundColor = KeyboardPalette.utilityKey
         enter.widthAnchor.constraint(equalToConstant: 78).isActive = true
         enter.addAction(UIAction { [weak self] _ in self?.type("\n") }, for: .touchUpInside)
         bottom.addArrangedSubview(enter)
@@ -434,12 +498,12 @@ final class KeyboardViewController: UIInputViewController {
     private func key(title: String, label: String, identifier: String) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
-        button.setTitleColor(.label, for: .normal)
+        button.setTitleColor(KeyboardPalette.ink, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: title.count == 1 ? 21 : 15)
-        button.backgroundColor = .tertiarySystemBackground
+        button.backgroundColor = KeyboardPalette.key
         button.layer.cornerRadius = 6
         button.layer.shadowColor = UIColor.black.cgColor
-        button.layer.shadowOpacity = 0.14
+        button.layer.shadowOpacity = 0.10
         button.layer.shadowRadius = 0
         button.layer.shadowOffset = .init(width: 0, height: 1)
         button.accessibilityLabel = label
@@ -467,4 +531,25 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
     private func stopRepeatedDeletion() { deleteTimer?.invalidate(); deleteTimer = nil }
+}
+
+// The keyboard is a separate process, so keep these appearance tokens aligned
+// with SaysoTheme and ActivityPalette without importing app-only views.
+private enum KeyboardPalette {
+    static let canvas = dynamic(light: 0xF8F6F2, dark: 0x141218)
+    static let ink = dynamic(light: 0x261F2F, dark: 0xF5F0FA)
+    static let secondaryInk = dynamic(light: 0x6D6674, dark: 0xB8AEBD)
+    static let accent = dynamic(light: 0x503968, dark: 0xCEB8F2)
+    static let onAccent = dynamic(light: 0xFFFFFF, dark: 0x261F2F)
+    static let key = dynamic(light: 0xFFFFFF, dark: 0x343039)
+    static let utilityKey = dynamic(light: 0xE6E1E8, dark: 0x25212B)
+
+    private static func dynamic(light: UInt32, dark: UInt32) -> UIColor {
+        UIColor { traits in
+            let value = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: CGFloat((value >> 16) & 0xFF) / 255,
+                           green: CGFloat((value >> 8) & 0xFF) / 255,
+                           blue: CGFloat(value & 0xFF) / 255, alpha: 1)
+        }
+    }
 }
