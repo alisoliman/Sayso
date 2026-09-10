@@ -15,7 +15,7 @@ Run on an iPhone 17 Pro or Pro Max with iOS 27 after installing Xcode 27. Record
 - Stop mid-sentence, pause before stop, and record silence. No duplicated or lost finalized segments.
 - Cancel preparation; cancel an active recording with confirmation; cancel refinement. New recording remains usable.
 - In ordinary dictation, receive a call, disconnect wired/Bluetooth audio, switch apps, and lock the phone. Recording should stop; captured text is preserved. Only the explicitly chosen cross-app flow should continue on app switch/lock.
-- Import short M4A, WAV, and MP3 files; empty/corrupt audio should give a recoverable error. Cancel a long import.
+- Confirm Home and results offer live recording only, with no audio-import action.
 - Background immediately after stopping. Verify history contains the captured original even when refinement cannot finish.
 - Turn off history, dictate, and relaunch. New dictation is absent; previously stored entries stay until deleted.
 - Edit a history entry, relaunch, and verify original and edited text. Rewrite it from History and from Home after a manual correction; the correction must remain. Original explicitly restores the archive. Test deletion and cancellation of deletion.

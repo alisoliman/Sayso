@@ -66,10 +66,6 @@ final class ScriptedSpeechPreview: SpeechTranscribing {
         level = 0
     }
 
-    func transcribeFile(at url: URL, localeIdentifier: String, contextualStrings: [String]) async throws -> String {
-        throw CocoaError(.featureUnsupported)
-    }
-
     static func transform(_ text: String, mode: WritingMode, instructions: String, vocabulary: [String]) async throws -> String {
         // The explicit slow path lets native accessibility tests inspect and
         // cancel refinement without racing the ordinary preview's completion.

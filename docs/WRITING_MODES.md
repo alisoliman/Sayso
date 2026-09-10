@@ -4,7 +4,7 @@ Open **Modes** from Home. Tap the pencil beside a rewrite mode to edit its promp
 
 Changes are drafts until Save. Cancel or dismiss the editor to discard them. Built-in rewrite modes offer **Restore default prompt**, which also requires Save. Named modes can be renamed or deleted; deleting the selected mode switches the next recording to Original. Names must be unique, and both a name and prompt are required.
 
-The saved library is shared by new recordings, imported audio, Home rewrites and History rewrites. Existing Custom instructions migrate automatically. Original remains an exact transcription mode. Editing an Email or Notes prompt uses the custom rewrite path so the original mode’s fixed layout cannot override the new instructions. Restoring its default prompt restores the original processing path.
+The saved library is shared by new recordings, Home rewrites and History rewrites. Existing Custom instructions migrate automatically. Original remains an exact transcription mode. Editing an Email or Notes prompt uses the custom rewrite path so the original mode’s fixed layout cannot override the new instructions. Restoring its default prompt restores the original processing path.
 
 Each operation captures its mode and prompt when it starts. Saved results retain that name and prompt even if the mode is later renamed or deleted. Existing history without this metadata continues to load. Rewrite failures or cancellation retain the prior result, and selecting Original restores its archival transcript.
 

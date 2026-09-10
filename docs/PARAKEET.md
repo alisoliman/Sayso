@@ -7,7 +7,7 @@ Sayso’s first non-Apple speech backend is **NVIDIA Parakeet TDT 0.6B v3**, usi
 1. Tap the speech model label on Home, or open Settings.
 2. Change Speech model from Apple Speech to **Parakeet · local**.
 3. Choose **Download Parakeet** (about 500 MB, from Hugging Face), or **Import model folder** to copy an existing Core ML export from Files.
-4. Choose Original and record, then Stop; or import an audio file. The transcript appears after processing.
+4. Choose Original and record, then Stop. The transcript appears after processing.
 
 The import folder must contain these items directly, not inside a second repository folder:
 
@@ -27,8 +27,8 @@ Models are kept in the app’s Application Support/Sayso/Models directory, exclu
 
 - Recognition runs on the device. The normal load path constructs Core ML models from local files directly and never calls FluidAudio’s download/recovery loader. Only the explicit download control accesses the model host.
 - Parakeet automatically detects its 25 supported European languages. English and Dutch are supported; Arabic, Chinese, Japanese and Korean are not. Sayso’s language preference applies to Apple Speech. Vocabulary hints currently apply to Apple Speech and writing styles, not Parakeet.
-- This first version uses batch transcription after Stop. There is no live Parakeet transcript. Audio is converted to mono Float32 at 16 kHz in memory; microphone audio is never written to disk. Recordings stop at ten minutes; longer audio imports are rejected before model inference.
-- Stop, Discard, interruptions, audio import and keyboard dictation use the same controller flows. There is no partial Parakeet text to recover before inference finishes. Real background finalization and locked-device behavior need acceptance on the intended iPhone.
+- This first version uses batch transcription after Stop. There is no live Parakeet transcript. Audio is converted to mono Float32 at 16 kHz in memory; microphone audio is never written to disk. Recordings stop at ten minutes.
+- Stop, Discard, interruptions and keyboard dictation use the same controller flows. There is no partial Parakeet text to recover before inference finishes. Real background finalization and locked-device behavior need acceptance on the intended iPhone.
 - On an iPhone, Core ML is configured for CPU and Neural Engine. Simulator inference uses CPU only. A new runtime/decoder state is created for each operation, and the router releases it after completion/cancellation. Core ML work already in flight may finish unwinding after cancellation; its stale result cannot replace a newer recording.
 
 ## Dependencies and attribution
@@ -39,7 +39,9 @@ Parakeet was created by NVIDIA; the Core ML export is provided by Fluid Inferenc
 
 ## Verification
 
-Focused automated coverage checks provider routing, missing models without fallback, cancellation and stale results, safe model replacement, audio conversion and tails, duration bounds and file transcription through an injected runtime. UI coverage checks that Apple Speech is the default and that Parakeet can be selected and set up explicitly.
+Focused automated coverage checks provider routing, missing models without fallback, cancellation and stale results, safe model replacement, audio conversion and tails, duration bounds. UI coverage checks that Apple Speech is the default and that Parakeet can be selected and set up explicitly.
+
+The following historical checks predate the removal of audio import on 10 September 2026. Import-specific checks and the production file converter are no longer part of the app.
 
 Verified on 8 September 2026 with Xcode 27 beta 6 (`27A5252f`):
 

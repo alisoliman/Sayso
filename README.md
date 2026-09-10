@@ -9,16 +9,16 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 ## What it does
 
 - **Apple Speech**, the default, provides live transcription with a waveform, timer and explicit Start, Stop and Discard controls. Long transcripts follow the newest words; scrolling back lets you review without losing your place.
-- **Parakeet TDT v3** is an optional local speech model in Settings. Download it once (about 500 MB) or import its Core ML model folder. It detects 25 European languages, including English and Dutch, automatically and transcribes after Stop. Parakeet recordings and imports are limited to ten minutes.
+- **Parakeet TDT v3** is an optional local speech model in Settings. Download it once (about 500 MB) or import its Core ML model folder. It detects 25 European languages, including English and Dutch, automatically and transcribes after Stop. Parakeet recordings are limited to ten minutes.
 - **Original**, the default, keeps your words. **Clean, Message, Email, Notes and Custom** optionally refine them with Apple Intelligence. The original remains available when rewriting is cancelled or fails.
-- Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap the pencil or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording, imports and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
+- Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap the pencil or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
 - Editable results, original/refined comparison, local searchable history, vocabulary spellings and a choice of supported speech languages. Saving history is optional.
-- Copy, native Share and audio-file import. The embedded keyboard is a compact recording panel: choose a writing mode, stop and insert at the cursor. Its globe switches to the normal keyboard for typing.
+- Record live, then copy or use native Share. The embedded keyboard is a compact recording panel: choose a writing mode, stop and insert at the cursor. Its globe switches to the normal keyboard for typing.
 - **Dictate in another app** starts recording in Sayso and provides a Live Activity, Dynamic Island and Stop/Discard controls while you return to your destination. Recording is limited to ten minutes.
 - Shortcuts for ordinary and keyboard dictation, suitable for Siri or the Action button.
 - Native Liquid Glass controls and a layered app icon, light/dark appearances, compact landscape layouts, Dynamic Type, VoiceOver labels and Reduce Motion support.
 
-Language/model downloads need internet access initially; Parakeet is fetched only through the explicit download control. A missing local model never silently switches providers. Apple Intelligence must be available for rewriting; **Original works with Parakeet without Apple Intelligence**. Rewrites can still omit or change meaning, so keep the original available and review important details. [Parakeet setup, supported files and verification](docs/PARAKEET.md).
+Language/model downloads need internet access initially; Parakeet is fetched only through the explicit download control. A missing local model never silently switches providers. Apple Intelligence must be available for rewriting; **Original works with Parakeet without Apple Intelligence**. Rewrites can still omit or change meaning, so keep the original available and review important details. [Parakeet setup, model files and verification](docs/PARAKEET.md).
 
 ## Build and run
 

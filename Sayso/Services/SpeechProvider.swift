@@ -125,19 +125,6 @@ final class SpeechProviderService: SpeechTranscribing {
         await finish(service, token: token)
     }
 
-    func transcribeFile(at url: URL, localeIdentifier: String, contextualStrings: [String]) async throws -> String {
-        let (service, token) = try begin()
-        do {
-            let text = try await service.transcribeFile(at: url, localeIdentifier: localeIdentifier, contextualStrings: contextualStrings)
-            try check(token)
-            await finish(service, token: token, retain: true)
-            return text
-        } catch {
-            await finish(service, token: token)
-            throw error
-        }
-    }
-
     private func begin() throws -> (any SpeechTranscribing, UUID) {
         guard active == nil else { throw SpeechServiceError.busy }
         lastText = ""

@@ -28,7 +28,6 @@ final class ParakeetSpeechService: SpeechTranscribing {
     var usesAutomaticLanguageDetection: Bool { true }
 
     @ObservationIgnored private let runtime: any ParakeetRecognizing
-    @ObservationIgnored private let fileLoader: @Sendable (URL) throws -> [Float]
     @ObservationIgnored private let requestMicrophonePermission: () async -> Bool
     @ObservationIgnored private var session: ParakeetSession?
     @ObservationIgnored private var warmup: (id: UUID, task: Task<Void, Error>)?
@@ -36,10 +35,8 @@ final class ParakeetSpeechService: SpeechTranscribing {
     @ObservationIgnored private var warmupGeneration = UUID()
 
     init(runtime: any ParakeetRecognizing,
-         fileLoader: @escaping @Sendable (URL) throws -> [Float] = ParakeetAudioConverter.readFile,
          requestMicrophonePermission: @escaping () async -> Bool = { await AVAudioApplication.requestRecordPermission() }) {
         self.runtime = runtime
-        self.fileLoader = fileLoader
         self.requestMicrophonePermission = requestMicrophonePermission
     }
 
@@ -85,7 +82,7 @@ final class ParakeetSpeechService: SpeechTranscribing {
     }
 
     func start(localeIdentifier: String, contextualStrings: [String] = []) async throws {
-        let session = try beginSession(kind: .microphone, localeIdentifier: localeIdentifier)
+        let session = try beginSession()
         do {
             // Batch recognition only needs the model after Stop. Start its
             // preparation now while the microphone begins capturing the user.
@@ -170,7 +167,7 @@ final class ParakeetSpeechService: SpeechTranscribing {
     }
 
     func stop() async throws -> String {
-        guard let session, session.kind == .microphone, session.conversionTask != nil,
+        guard let session, session.conversionTask != nil,
               !session.isStopping, !session.isCancelled else { throw SpeechServiceError.notRecording }
         session.isStopping = true
         if session.diagnostics.stopReason == "unknown" { session.diagnostics.stopReason = "stop requested" }
@@ -179,29 +176,6 @@ final class ParakeetSpeechService: SpeechTranscribing {
         do {
             let samples = try await session.conversionTask!.value
             try checkActive(session)
-            try await prepare(session)
-            return try await recognize(samples, session: session)
-        } catch {
-            finishFailedSession(session, error: error)
-            throw error
-        }
-    }
-
-    func transcribeFile(at url: URL, localeIdentifier: String,
-                        contextualStrings: [String] = []) async throws -> String {
-        let session = try beginSession(kind: .file, localeIdentifier: localeIdentifier)
-        let scoped = url.startAccessingSecurityScopedResource()
-        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-        do {
-            status = "Reading audio file"
-            session.diagnostics.stopReason = "end of file"
-            let loader = fileLoader
-            session.conversionTask = Task.detached(priority: .userInitiated) { try loader(url) }
-            let samples = try await session.conversionTask!.value
-            try checkActive(session)
-            guard !samples.isEmpty else { throw SpeechServiceError.emptyFile }
-            try ParakeetAudioSamples.validate(count: samples.count)
-            session.diagnostics.observeConverted(duration: Double(samples.count) / ParakeetAudioSamples.sampleRate)
             try await prepare(session)
             return try await recognize(samples, session: session)
         } catch {
@@ -219,9 +193,9 @@ final class ParakeetSpeechService: SpeechTranscribing {
         status = "Ready"
     }
 
-    private func beginSession(kind: ParakeetSession.Kind, localeIdentifier: String) throws -> ParakeetSession {
+    private func beginSession() throws -> ParakeetSession {
         guard session == nil else { throw SpeechServiceError.busy }
-        let next = ParakeetSession(kind: kind)
+        let next = ParakeetSession()
         next.diagnostics = SpeechDiagnostics(
             localeIdentifier: "und",
             appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown",
@@ -344,7 +318,7 @@ final class ParakeetSpeechService: SpeechTranscribing {
 
     private func interrupt(_ candidate: ParakeetSession, reason: String,
                            status: String = "Recording interrupted") {
-        guard session === candidate, candidate.kind == .microphone, !candidate.isCancelled,
+        guard session === candidate, !candidate.isCancelled,
               !candidate.isStopping, !candidate.didInterrupt else { return }
         candidate.didInterrupt = true
         candidate.diagnostics.stopReason = reason
@@ -407,9 +381,7 @@ final class ParakeetSpeechService: SpeechTranscribing {
 
 @MainActor
 private final class ParakeetSession {
-    enum Kind { case microphone, file }
     let id = UUID()
-    let kind: Kind
     var engine: AVAudioEngine?
     var captureContinuation: AsyncThrowingStream<AVReadOnlyAudioPCMBuffer, Error>.Continuation?
     var prepareTask: Task<Void, Error>?
@@ -424,8 +396,6 @@ private final class ParakeetSession {
     var isStopping = false
     var isCancelled = false
     var didInterrupt = false
-
-    init(kind: Kind) { self.kind = kind }
 }
 
 nonisolated enum ParakeetSpeechError: LocalizedError {
@@ -435,7 +405,7 @@ nonisolated enum ParakeetSpeechError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .audioTooLong: "Local Parakeet supports audio up to 10 minutes. Choose a shorter recording."
+        case .audioTooLong: "Local Parakeet supports audio up to 10 minutes. Record for a shorter time."
         case .audioTooShort: "Parakeet needs at least 0.3 seconds of audio. Record a little longer and try again."
         case .noWordsRecognized: "Parakeet didn’t recognize any words in this audio. Try a clearer recording."
         }
@@ -513,7 +483,7 @@ nonisolated final class ParakeetAudioConverter: @unchecked Sendable {
 
         // AVAudioConverter can select only the first input channel even with
         // downmix enabled. Average every channel explicitly before resampling,
-        // including interleaved PCM from imported recordings.
+        // including interleaved PCM from audio input devices.
         switch source.commonFormat {
         case .pcmFormatFloat32: try mix(buffer, into: output, sample: Float.self) { $0 }
         case .pcmFormatFloat64: try mix(buffer, into: output, sample: Double.self) { Float($0) }
@@ -603,29 +573,6 @@ nonisolated final class ParakeetAudioConverter: @unchecked Sendable {
             @unknown default: throw SpeechServiceError.incompatibleAudio
             }
         }
-    }
-
-    static func readFile(at url: URL) throws -> [Float] {
-        let file = try AVAudioFile(forReading: url)
-        guard file.length > 0 else { throw SpeechServiceError.emptyFile }
-        guard file.processingFormat.sampleRate > 0 else { throw SpeechServiceError.incompatibleAudio }
-        let duration = Double(file.length) / file.processingFormat.sampleRate
-        guard duration.isFinite, duration <= ParakeetAudioSamples.maximumDuration else {
-            throw ParakeetSpeechError.audioTooLong
-        }
-        let converter = try ParakeetAudioConverter(source: file.processingFormat)
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: 8_192) else {
-            throw SpeechServiceError.incompatibleAudio
-        }
-        var samples = ParakeetAudioSamples()
-        while file.framePosition < file.length {
-            try Task.checkCancellation()
-            try file.read(into: buffer)
-            guard buffer.frameLength > 0 else { break }
-            try samples.append(converter.convert(buffer))
-        }
-        try samples.append(converter.flush())
-        return samples.values
     }
 
     static func normalizedLevel(_ buffer: AVAudioPCMBuffer) -> Double {

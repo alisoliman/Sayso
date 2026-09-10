@@ -47,7 +47,6 @@ final class DictationController {
     // history policy belongs to that result, not the attempt's current settings.
     private var currentKeepsHistory = true
     private var finishedDuration: TimeInterval?
-    private var isImporting = false
     private var isCancelling = false
     private var keyboardResultCommitted = false
     var isBusy: Bool { phase != .idle }
@@ -73,7 +72,7 @@ final class DictationController {
         }
         resolvedSpeech.onInterruption = { [weak self] in
             guard let self else { return }
-            if self.phase == .preparing, !self.isImporting {
+            if self.phase == .preparing {
                 // Audio may already be active while ActivityKit finishes setup.
                 // Invalidate that pending start before it can display Listening.
                 self.notice = "Recording was interrupted before it was ready. Try again."
@@ -170,7 +169,6 @@ final class DictationController {
                 $0.id.utf8.count <= 128
             }.prefix(24))
         }
-        isImporting = false
         phase = .preparing
         notice = nil
         resultNote = nil
@@ -261,29 +259,6 @@ final class DictationController {
         }
     }
 
-    func importAudio(_ url: URL, mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle? = nil) {
-        guard phase == .idle else { return }
-        configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: writingStyle)
-        isImporting = true
-        phase = .preparing
-        notice = nil
-        resultNote = nil
-        let token = UUID(); generation = token
-        let phrases = activeVocabulary
-        operation = Task {
-            defer { completeOperation(token: token) }
-            do {
-                try Task.checkCancellation()
-                let raw = try await speech.transcribeFile(at: url, localeIdentifier: locale, contextualStrings: phrases)
-                guard generation == token, !Task.isCancelled else { return }
-                await accept(raw, duration: 0, token: token)
-            } catch {
-                guard generation == token else { return }
-                recoverPartial(duration: 0, note: "The import ended early. The text transcribed so far is here.", error: error)
-            }
-        }
-    }
-
     func rework(mode: WritingMode, instructions: String, vocabulary: String, writingStyle: WritingStyle? = nil) {
         guard phase == .idle, let original = current else { return }
         configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
@@ -351,13 +326,6 @@ final class DictationController {
                 beginBackgroundFinalization()
             }
         case .preparing:
-            if isImporting {
-                let partial = speech.partialText.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !partial.isEmpty {
-                    saveOriginal(partial, duration: 0)
-                    resultNote = "The import paused when Sayso moved to the background. The text captured so far is here."
-                }
-            }
             cancel()
         case .refining:
             if destination == .keyboard, keyboardRecording.sessionID != nil {
@@ -377,7 +345,7 @@ final class DictationController {
 
     private func configure(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle?) {
         // Reset synchronously before the task can yield to an app-background
-        // callback. A previous transcript must never become this import's checkpoint.
+        // callback. A previous transcript must never become a new recording's checkpoint.
         speech.resetTranscript()
         destination = .app
         configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
@@ -392,7 +360,7 @@ final class DictationController {
     }
 
     private func configureWriting(mode: WritingMode, instructions: String, writingStyle: WritingStyle?) {
-        // Copy the complete style before recording, importing, or rewriting can yield.
+        // Copy the complete style before recording or rewriting can yield.
         // Changes to the mode library apply only to the next operation.
         activeWritingStyle = writingStyle
         activeMode = writingStyle?.mode ?? mode
@@ -415,7 +383,6 @@ final class DictationController {
         startedAt = nil
         phase = .idle
         operation = nil
-        isImporting = false
         isCancelling = false
         keyboardResultCommitted = false
         destination = .app

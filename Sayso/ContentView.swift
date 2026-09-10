@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct ContentView: View {
     @Bindable var model: DictationController
@@ -16,7 +15,6 @@ struct ContentView: View {
     @ScaledMetric(relativeTo: .largeTitle) private var idleTitleSize = 44.0
     @ScaledMetric(relativeTo: .title) private var writingSize = 23.0
     @State private var sheet: HomeSheet?
-    @State private var importing = false
     @State private var showOriginal = false
     @State private var editText = ""
     @State private var discardRecording = false
@@ -153,13 +151,6 @@ struct ContentView: View {
                 }
             }
         }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.audio], allowsMultipleSelection: false) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first { model.importAudio(url, mode: mode.mode, locale: locale, instructions: mode.prompt, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: mode) }
-            case .failure(let error): model.notice = error.localizedDescription
-            }
-        }
         .alert("Couldn’t complete dictation", isPresented: Binding(get: { model.notice != nil }, set: { if !$0 { model.notice = nil } })) {
             Button("OK") { model.notice = nil }
             if let report = model.speech.diagnosticsReport {
@@ -239,16 +230,6 @@ struct ContentView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
             Spacer(minLength: compactHeight || dynamicTypeSize.isAccessibilitySize ? 12 : 32)
-            Button { importing = true } label: {
-                Label("Import audio", systemImage: "arrow.down.doc")
-                    .font(.subheadline.weight(.medium))
-                    .padding(.horizontal, 16).frame(minHeight: 44)
-                    .contentShape(.rect)
-            }
-            .foregroundStyle(SaysoTheme.secondaryInk).buttonStyle(SaysoPressButtonStyle())
-            .accessibilityIdentifier("importButton")
-            .disabled(model.isBusy)
-            .padding(.bottom, compactHeight ? 0 : 8)
         }
         .frame(maxWidth: .infinity)
     }
@@ -369,12 +350,6 @@ struct ContentView: View {
                 }
                     .accessibilityIdentifier("rewriteButton")
             }.font(.subheadline.weight(.medium)).foregroundStyle(SaysoTheme.accent).frame(minHeight: 44).disabled(model.isBusy)
-            Button { importing = true } label: {
-                Label("Import audio", systemImage: "arrow.down.doc")
-                    .font(.subheadline.weight(.medium)).frame(minHeight: 44)
-            }
-            .foregroundStyle(SaysoTheme.secondaryInk).buttonStyle(SaysoPressButtonStyle())
-            .accessibilityIdentifier("importButton").disabled(model.isBusy)
         }
     }
 
