@@ -7,7 +7,12 @@ import UIKit
 /// Implementations must not download assets as part of preparing or recognizing.
 nonisolated protocol ParakeetRecognizing: Sendable {
     func prepare() async throws
+    func releasePreparedResources() async
     func transcribe(_ samples: [Float]) async throws -> String
+}
+
+extension ParakeetRecognizing {
+    func releasePreparedResources() async {}
 }
 
 /// First-version Parakeet recognition is deliberately batch based. Microphone
@@ -24,12 +29,18 @@ final class ParakeetSpeechService: SpeechTranscribing {
 
     @ObservationIgnored private let runtime: any ParakeetRecognizing
     @ObservationIgnored private let fileLoader: @Sendable (URL) throws -> [Float]
+    @ObservationIgnored private let requestMicrophonePermission: () async -> Bool
     @ObservationIgnored private var session: ParakeetSession?
+    @ObservationIgnored private var warmup: (id: UUID, task: Task<Void, Error>)?
+    @ObservationIgnored private var isPrepared = false
+    @ObservationIgnored private var warmupGeneration = UUID()
 
     init(runtime: any ParakeetRecognizing,
-         fileLoader: @escaping @Sendable (URL) throws -> [Float] = ParakeetAudioConverter.readFile) {
+         fileLoader: @escaping @Sendable (URL) throws -> [Float] = ParakeetAudioConverter.readFile,
+         requestMicrophonePermission: @escaping () async -> Bool = { await AVAudioApplication.requestRecordPermission() }) {
         self.runtime = runtime
         self.fileLoader = fileLoader
+        self.requestMicrophonePermission = requestMicrophonePermission
     }
 
     func resetTranscript() {
@@ -38,12 +49,49 @@ final class ParakeetSpeechService: SpeechTranscribing {
         level = 0
     }
 
+    func prewarm(localeIdentifier: String, contextualStrings: [String] = []) async throws {
+        try Task.checkCancellation()
+        if isPrepared { return }
+        if let warmup {
+            try await warmup.task.value
+            guard warmupGeneration == warmup.id else { throw CancellationError() }
+            try Task.checkCancellation()
+            return
+        }
+        let id = UUID()
+        warmupGeneration = id
+        let runtime = runtime
+        let task = Task { try await runtime.prepare() }
+        warmup = (id, task)
+        do {
+            try await task.value
+            guard warmupGeneration == id else { throw CancellationError() }
+            if warmup?.id == id { isPrepared = true; warmup = nil }
+            try Task.checkCancellation()
+        } catch {
+            if warmup?.id == id { warmup = nil }
+            throw error
+        }
+    }
+
+    func releasePreparedResources() async {
+        guard session == nil else { return }
+        let pending = warmup
+        warmupGeneration = UUID()
+        warmup = nil
+        isPrepared = false
+        pending?.task.cancel()
+        await runtime.releasePreparedResources()
+    }
+
     func start(localeIdentifier: String, contextualStrings: [String] = []) async throws {
         let session = try beginSession(kind: .microphone, localeIdentifier: localeIdentifier)
         do {
-            try await prepare(session)
+            // Batch recognition only needs the model after Stop. Start its
+            // preparation now while the microphone begins capturing the user.
+            beginPreparation(session)
             status = "Allow microphone access"
-            guard await AVAudioApplication.requestRecordPermission() else {
+            guard await requestMicrophonePermission() else {
                 throw SpeechServiceError.microphonePermissionDenied
             }
             try checkActive(session)
@@ -131,6 +179,7 @@ final class ParakeetSpeechService: SpeechTranscribing {
         do {
             let samples = try await session.conversionTask!.value
             try checkActive(session)
+            try await prepare(session)
             return try await recognize(samples, session: session)
         } catch {
             finishFailedSession(session, error: error)
@@ -187,11 +236,28 @@ final class ParakeetSpeechService: SpeechTranscribing {
     }
 
     private func prepare(_ session: ParakeetSession) async throws {
-        status = "Loading local Parakeet model"
-        let runtime = runtime
-        session.prepareTask = Task { try await runtime.prepare() }
+        if !isPrepared { status = "Getting ready…" }
+        beginPreparation(session)
         try await session.prepareTask!.value
         try checkActive(session)
+    }
+
+    private func beginPreparation(_ session: ParakeetSession) {
+        guard session.prepareTask == nil else { return }
+        session.prepareTask = Task { [weak self] in
+            guard let self else { throw CancellationError() }
+            do {
+                try await self.prewarm(localeIdentifier: "und")
+            } catch {
+                // A cold load can finish while capture is underway. Stop a
+                // failed recording immediately rather than waiting for Stop.
+                // Intentional cancellation and retired sessions remain silent.
+                if !Task.isCancelled, !(error is CancellationError) {
+                    self.processingFailed(error, sessionID: session.id)
+                }
+                throw error
+            }
+        }
     }
 
     private func recognize(_ samples: [Float], session: ParakeetSession) async throws -> String {

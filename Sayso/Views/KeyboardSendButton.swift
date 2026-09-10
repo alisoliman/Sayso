@@ -38,20 +38,20 @@ struct KeyboardSetupView: View {
                 Text("Your words, wherever you write.")
                     .font(.title2.weight(.medium)).fontDesign(.serif).padding(.vertical, 10)
                 Text("Add Sayso in Settings → General → Keyboard → Keyboards → Add New Keyboard.")
-                Text("Full Access can stay off for inserting finished text. Turn it on if you also want Stop and Discard in the keyboard.").foregroundStyle(.secondary)
+                Text("Enable Full Access for recording controls. You can insert shared text without it.").foregroundStyle(.secondary)
             } header: { Text("Set up once") }
             Section {
-                Label("Record in Sayso, or start with your Action button shortcut.", systemImage: "mic")
-                Label("Tap Send to keyboard beside your finished text.", systemImage: "keyboard")
-                Label("Return to your app. Hold the globe key, choose Sayso, then tap Insert.", systemImage: "arrow.turn.down.left")
-            } header: { Text("When an idea comes") } footer: {
-                Text("Only text you send is available in the keyboard, for 10 minutes. Sayso removes expired shared text when reopened. Password fields and some apps use the system keyboard.")
+                Label("Start Dictate in another app in Sayso, or use your Keyboard Dictation shortcut.", systemImage: "mic")
+                Label("Return to your text field and choose Sayso from the globe menu.", systemImage: "keyboard")
+                Label("Choose a mode, then tap Stop & insert. Your words appear at the cursor.", systemImage: "arrow.turn.down.left")
+            } header: { Text("Dictate into another app") } footer: {
+                Text("Each recording starts in Sayso and ends after 10 minutes. Keep the same text field open while your words finish. If you leave the field, tap Insert when you return. You can also stop from the Live Activity and tap Insert.")
             }
             Section {
-                Label("Choose Dictate in another app in Sayso, or use the Keyboard Dictation shortcut on your Action button.", systemImage: "mic")
-                Label("Return to your text field while recording. Tap Stop in the Sayso keyboard or Live Activity, then Insert.", systemImage: "keyboard")
-            } header: { Text("Keep writing in your app") } footer: {
-                Text("Each recording starts in Sayso and ends after 10 minutes. Live Activities must be allowed. Full Access enables keyboard controls; Sayso doesn’t read your clipboard or surrounding text, and sends no audio or text to a server.")
+                Label("Tap Send to keyboard beside any finished text in Sayso. Return to your app and tap Insert.", systemImage: "text.bubble")
+                Label("Use the globe button to switch back to your usual keyboard whenever you need to type.", systemImage: "globe")
+            } header: { Text("Your words, your keyboard") } footer: {
+                Text("Shared text is available for 10 minutes. Sayso doesn’t read your clipboard or surrounding text, and sends no audio or text to a server. Password fields and some apps use the system keyboard.")
             }
             Section {
                 Button("Clear shared text", role: .destructive) {

@@ -160,11 +160,26 @@ final class IntelligenceService {
     private(set) var availabilityMessage = "Checking Apple Intelligence…"
 
     @ObservationIgnored private let model = SystemLanguageModel.default
+    @ObservationIgnored private var preparedSession: LanguageModelSession?
     /// Useful to the real-model evaluation harness; no rejected text is retained.
     @ObservationIgnored private(set) var lastGenerationAttempts = 0
 
     init() {
         refreshAvailability()
+    }
+
+    /// A recording in a writing mode is a strong signal that generation follows
+    /// shortly. Warm the shared model without retaining any dictation context.
+    func prewarm() {
+        refreshAvailability()
+        guard isAvailable, preparedSession == nil else { return }
+        let session = LanguageModelSession(model: model)
+        session.prewarm()
+        preparedSession = session
+    }
+
+    func releasePreparedResources() {
+        preparedSession = nil
     }
 
     func refreshAvailability() {

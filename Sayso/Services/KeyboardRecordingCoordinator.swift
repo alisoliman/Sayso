@@ -5,6 +5,7 @@ import Foundation
 @MainActor
 final class KeyboardRecordingCoordinator {
     var onStop: (() -> Void)?
+    var onSelectMode: ((String) -> Void)?
     var onCancel: (() -> Void)?
     var onExpiration: (() -> Void)?
     var onFailure: ((Error) -> Void)?
@@ -42,7 +43,8 @@ final class KeyboardRecordingCoordinator {
         }
     }
 
-    func start(sessionID id: UUID, now: Date = Date()) async throws {
+    func start(sessionID id: UUID, availableModes: [KeyboardRecordingSessionStore.Mode]? = nil,
+               selectedModeID: String? = nil, now: Date = Date()) async throws {
         guard sessionID == nil else { throw KeyboardRecordingSessionStore.SessionError.noActiveSession }
         sessionID = id
         publicationCommitted = false
@@ -62,7 +64,7 @@ final class KeyboardRecordingCoordinator {
             guard sessionID == id else { throw CancellationError() }
             // Choosing this destination explicitly replaces the previously shared result.
             try handoff.clear()
-            try sessions.begin(sessionID: id, now: now)
+            try sessions.begin(sessionID: id, availableModes: availableModes, selectedModeID: selectedModeID, now: now)
             lastHeartbeat = now
             lastCheckpoint = now
             if automaticallyPolls {
@@ -99,7 +101,9 @@ final class KeyboardRecordingCoordinator {
             if let command = try sessions.command(sessionID: id, after: lastCommandID, now: now) {
                 lastCommandID = command.id
                 switch command.action {
-                case .stop: requestStop()
+                case .stop:
+                    if phase == .recording, !requestedStop, let modeID = command.modeID { onSelectMode?(modeID) }
+                    requestStop()
                 case .cancel: onCancel?(); return
                 }
             }
@@ -136,7 +140,7 @@ final class KeyboardRecordingCoordinator {
     func publish(_ entry: Dictation) throws -> Bool {
         guard sessionID == entry.id else { throw KeyboardRecordingSessionStore.SessionError.noActiveSession }
         return try sessions.complete(sessionID: entry.id) {
-            try handoff.publish(text: entry.text, id: entry.id)
+            try handoff.publish(text: entry.text, id: entry.id, recordingSessionID: entry.id)
             publicationCommitted = true
         }
     }

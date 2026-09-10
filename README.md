@@ -13,7 +13,7 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 - **Original**, the default, keeps your words. **Clean, Message, Email, Notes and Custom** optionally refine them with Apple Intelligence. The original remains available when rewriting is cancelled or fails.
 - Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap the pencil or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording, imports and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
 - Editable results, original/refined comparison, local searchable history, vocabulary spellings and a choice of supported speech languages. Saving history is optional.
-- Copy, native Share and audio-file import. The embedded keyboard supports ordinary typing and explicit insertion of a result sent from Sayso.
+- Copy, native Share and audio-file import. The embedded keyboard is a compact recording panel: choose a writing mode, stop and insert at the cursor. Its globe switches to the normal keyboard for typing.
 - **Dictate in another app** starts recording in Sayso and provides a Live Activity, Dynamic Island and Stop/Discard controls while you return to your destination. Recording is limited to ten minutes.
 - Shortcuts for ordinary and keyboard dictation, suitable for Siri or the Action button.
 - Native Liquid Glass controls and a layered app icon, light/dark appearances, compact landscape layouts, Dynamic Type, VoiceOver labels and Reduce Motion support.
@@ -49,9 +49,11 @@ For a physical iPhone, choose **your Apple Developer signing team** in Signing &
 
 ## Use the keyboard
 
-Enable Sayso through **Settings → General → Keyboard → Keyboards** using the in-app setup guide. For a finished result, select **Send to keyboard**, return to your destination, choose Sayso with the globe and tap **Insert**. Insertion works with Full Access off and never happens automatically.
+Enable Sayso through **Settings → General → Keyboard → Keyboards** using the in-app setup guide. For a finished result, select **Send to keyboard**, return to your destination, choose Sayso with the globe and tap **Insert**. Manual result insertion works with Full Access off.
 
-For ongoing dictation, choose **Dictate in another app** or its Keyboard Dictation shortcut, then manually return to the destination. Stop through the Live Activity, or enable Full Access to use keyboard Stop/Discard. Insert the finished result explicitly. The keyboard does not launch Sayso or capture audio. Ordinary dictation finishes when Sayso goes into the background. [Keyboard behavior and platform boundaries](docs/KEYBOARD_DESIGN.md).
+For ongoing dictation, choose **Dictate in another app** or its Keyboard Dictation shortcut, then manually return to the destination. Stop through the Live Activity, or enable Full Access to use keyboard Stop/Discard. With Full Access on, choose a mode and tap **Stop & insert**: the result appears automatically while the same field stays open. Leaving the field or stopping elsewhere keeps an explicit **Insert** button. The keyboard does not launch Sayso or capture audio. Ordinary dictation finishes when Sayso goes into the background. [Keyboard behavior and platform boundaries](docs/KEYBOARD_DESIGN.md).
+
+Speech resources now prepare quietly on foreground entry and reuse the selected backend across completed recordings. Passive preparation does not request permissions, download missing assets, or activate the microphone. Idle resources release on memory pressure and after a best-effort background grace period. Speech model and language details stay in Settings. [Recording flow and current validation](docs/SMOOTH_RECORDING.md).
 
 ## Verification and iPhone acceptance
 

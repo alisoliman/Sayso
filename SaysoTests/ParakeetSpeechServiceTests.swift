@@ -4,6 +4,102 @@ import XCTest
 
 @MainActor
 final class ParakeetSpeechServiceTests: XCTestCase {
+    func testPassivePreparationIsSharedWithImportAndKeptForFollowingRecordings() async throws {
+        let runtime = ControlledParakeetRuntime(suspendFirstPrepare: true)
+        let speech = ParakeetSpeechService(runtime: runtime, fileLoader: { _ in Array(repeating: 0.1, count: 4_800) })
+        let prewarming = Task { try await speech.prewarm(localeIdentifier: "en-US") }
+        await waitUntil { await runtime.isPreparing }
+        XCTAssertFalse(speech.isRecording)
+        XCTAssertEqual(speech.status, "Ready")
+        XCTAssertEqual(speech.partialText, "")
+        let initialInputs = await runtime.inputs
+        XCTAssertTrue(initialInputs.isEmpty, "Passive preparation must not recognize or capture audio.")
+
+        let importing = Task { try await speech.transcribeFile(at: URL(filePath: "/first.wav"), localeIdentifier: "en-US") }
+        await Task.yield()
+        await runtime.resumePreparation()
+        try await prewarming.value
+        let first = try await importing.value
+        let second = try await speech.transcribeFile(at: URL(filePath: "/second.wav"), localeIdentifier: "nl-NL")
+        XCTAssertEqual(first, "result 1")
+        XCTAssertEqual(second, "result 2")
+        let preparationCount = await runtime.prepareCalls
+        XCTAssertEqual(preparationCount, 1, "One model preparation must serve repeated recordings and language choices.")
+    }
+
+    func testReleasingIdleModelRequiresPreparationAgain() async throws {
+        let runtime = ControlledParakeetRuntime()
+        let speech = ParakeetSpeechService(runtime: runtime)
+        try await speech.prewarm(localeIdentifier: "en-US")
+        await speech.releasePreparedResources()
+        try await speech.prewarm(localeIdentifier: "nl-NL")
+        let preparationCount = await runtime.prepareCalls
+        let releaseCount = await runtime.releaseCalls
+        XCTAssertEqual(preparationCount, 2)
+        XCTAssertEqual(releaseCount, 1)
+        XCTAssertFalse(speech.isRecording)
+    }
+
+    func testReleasedWarmupCannotMarkReplacementPreparationReady() async throws {
+        let runtime = ControlledParakeetRuntime(suspendFirstPrepare: true)
+        let speech = ParakeetSpeechService(runtime: runtime)
+        let obsolete = Task { try await speech.prewarm(localeIdentifier: "en-US") }
+        await waitUntil { await runtime.isPreparing }
+        await speech.releasePreparedResources()
+        try await speech.prewarm(localeIdentifier: "en-US")
+        await runtime.resumePreparation()
+        do {
+            try await obsolete.value
+            XCTFail("A released load must reject its late completion.")
+        } catch { XCTAssertTrue(error is CancellationError) }
+        try await speech.prewarm(localeIdentifier: "nl-NL")
+        let preparationCount = await runtime.prepareCalls
+        XCTAssertEqual(preparationCount, 2, "The late canceled completion must not invalidate the replacement model.")
+    }
+
+    func testModelLoadFailureInterruptsPendingRecordingBeforeMicrophoneActivation() async throws {
+        let runtime = ControlledParakeetRuntime(suspendFirstPrepare: true, failFirstPreparation: true)
+        let permission = ParakeetPermissionGate()
+        let speech = ParakeetSpeechService(runtime: runtime, requestMicrophonePermission: { await permission.wait() })
+        var interruptions = 0
+        speech.onInterruption = { interruptions += 1 }
+        let starting = Task { try await speech.start(localeIdentifier: "en-US") }
+        await waitUntil { await runtime.isPreparing }
+        await runtime.resumePreparation()
+        await waitUntil { await speech.status == "Recording interrupted" }
+        XCTAssertFalse(speech.isRecording)
+        XCTAssertEqual(speech.status, "Recording interrupted")
+        permission.resume()
+        do {
+            try await starting.value
+            XCTFail("A failed model load must prevent capture and reach the caller.")
+        } catch { XCTAssertTrue(error is ParakeetPreparationFailure) }
+        XCTAssertEqual(interruptions, 1)
+        XCTAssertEqual(speech.status, "Couldn’t transcribe")
+        let inputs = await runtime.inputs
+        XCTAssertTrue(inputs.isEmpty)
+    }
+
+    func testLateModelLoadFailureFromCancelledRecordingDoesNotInterruptAgain() async throws {
+        let runtime = ControlledParakeetRuntime(suspendFirstPrepare: true, failFirstPreparation: true)
+        let permission = ParakeetPermissionGate()
+        let speech = ParakeetSpeechService(runtime: runtime, requestMicrophonePermission: { await permission.wait() })
+        var interruptions = 0
+        speech.onInterruption = { interruptions += 1 }
+        let starting = Task { try await speech.start(localeIdentifier: "en-US") }
+        await waitUntil { await runtime.isPreparing }
+        await speech.cancel()
+        await runtime.resumePreparation()
+        permission.resume()
+        do {
+            try await starting.value
+            XCTFail("A canceled start must not activate the microphone.")
+        } catch { XCTAssertTrue(error is CancellationError) }
+        XCTAssertEqual(interruptions, 0)
+        XCTAssertEqual(speech.status, "Ready")
+        XCTAssertFalse(speech.isRecording)
+    }
+
     func testSameFormatConversionRetainsEverySampleAndShortTailOnce() throws {
         let format = try XCTUnwrap(AVAudioFormat(commonFormat: .pcmFormatFloat32,
             sampleRate: 16_000, channels: 1, interleaved: false))
@@ -265,9 +361,10 @@ final class ParakeetSpeechServiceTests: XCTestCase {
         }
         await speech.cancel()
         XCTAssertEqual(speech.status, "Ready")
-        let latest = try await speech.transcribeFile(at: URL(filePath: "/second.wav"), localeIdentifier: "nl-NL")
-        let latestDiagnostics = speech.diagnosticsReport
+        let replacement = Task { try await speech.transcribeFile(at: URL(filePath: "/second.wav"), localeIdentifier: "nl-NL") }
         await runtime.resumePreparation()
+        let latest = try await replacement.value
+        let latestDiagnostics = speech.diagnosticsReport
         do {
             _ = try await first.value
             XCTFail("A cancelled prepare must not proceed to recognition.")
@@ -339,21 +436,25 @@ final class ParakeetSpeechServiceTests: XCTestCase {
 private actor ControlledParakeetRuntime: ParakeetRecognizing {
     private let suspendFirstPrepare: Bool
     private let suspendFirstRecognition: Bool
+    private let failFirstPreparation: Bool
     private var preparation: CheckedContinuation<Void, Never>?
     private var recognition: CheckedContinuation<String, Never>?
     private(set) var prepareCalls = 0
+    private(set) var releaseCalls = 0
     private(set) var inputs: [[Float]] = []
     var isPreparing: Bool { preparation != nil }
     var isRecognizing: Bool { recognition != nil }
 
-    init(suspendFirstPrepare: Bool = false, suspendFirstRecognition: Bool = false) {
+    init(suspendFirstPrepare: Bool = false, suspendFirstRecognition: Bool = false, failFirstPreparation: Bool = false) {
         self.suspendFirstPrepare = suspendFirstPrepare
         self.suspendFirstRecognition = suspendFirstRecognition
+        self.failFirstPreparation = failFirstPreparation
     }
 
     func prepare() async throws {
         prepareCalls += 1
         if suspendFirstPrepare, prepareCalls == 1 { await withCheckedContinuation { preparation = $0 } }
+        if failFirstPreparation, prepareCalls == 1 { throw ParakeetPreparationFailure.unavailable }
     }
 
     func transcribe(_ samples: [Float]) async throws -> String {
@@ -364,6 +465,20 @@ private actor ControlledParakeetRuntime: ParakeetRecognizing {
         return "  result \(inputs.count)\n"
     }
 
+    func releasePreparedResources() async { releaseCalls += 1 }
+
     func resumePreparation() { preparation?.resume(); preparation = nil }
     func resumeRecognition() { recognition?.resume(returning: "stale words"); recognition = nil }
+}
+
+private enum ParakeetPreparationFailure: Error { case unavailable }
+
+@MainActor
+private final class ParakeetPermissionGate {
+    private var continuation: CheckedContinuation<Bool, Never>?
+    func wait() async -> Bool { await withCheckedContinuation { continuation = $0 } }
+    func resume() {
+        continuation?.resume(returning: true)
+        continuation = nil
+    }
 }

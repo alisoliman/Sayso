@@ -110,13 +110,57 @@ nonisolated enum ParakeetModelFiles {
 actor ParakeetRuntime: ParakeetRecognizing {
     private let directory: URL
     private var manager: AsrManager?
+    private var preparation: (id: UUID, task: Task<AsrManager, Error>)?
+    private var generation = UUID()
+    private var transcriptionUsers: [ObjectIdentifier: Int] = [:]
 
     init(directory: URL) {
         self.directory = directory
     }
 
     func prepare() async throws {
+        try Task.checkCancellation()
         guard manager == nil else { return }
+        let pending: (id: UUID, task: Task<AsrManager, Error>)
+        if let preparation { pending = preparation }
+        else {
+            let id = UUID()
+            generation = id
+            let directory = directory
+            let task = Task { try await Self.loadManager(at: directory) }
+            pending = (id, task)
+            preparation = pending
+        }
+        do {
+            let loaded = try await pending.task.value
+            guard generation == pending.id else {
+                if transcriptionUsers[ObjectIdentifier(loaded), default: 0] == 0 {
+                    await loaded.cleanup()
+                }
+                throw CancellationError()
+            }
+            manager = loaded
+            preparation = nil
+            try Task.checkCancellation()
+        } catch {
+            if preparation?.id == pending.id { preparation = nil }
+            throw error
+        }
+    }
+
+    func releasePreparedResources() async {
+        generation = UUID()
+        let pending = preparation
+        preparation = nil
+        pending?.task.cancel()
+        let previous = manager
+        manager = nil
+        if let previous, transcriptionUsers[ObjectIdentifier(previous), default: 0] == 0 {
+            await previous.cleanup()
+        }
+    }
+
+    private static func loadManager(at directory: URL) async throws -> AsrManager {
         try Task.checkCancellation()
         try ParakeetModelFiles.validate(at: directory)
         let vocabulary = try ParakeetModelFiles.vocabulary(at: directory)
@@ -127,10 +171,10 @@ actor ParakeetRuntime: ParakeetRecognizing {
         configuration.computeUnits = .cpuAndNeuralEngine
         #endif
         let computeUnits = configuration.computeUnits
-        let preprocessor = try await load("Preprocessor.mlmodelc", computeUnits: .cpuOnly)
-        let encoder = try await load("Encoder.mlmodelc", computeUnits: computeUnits)
-        let decoder = try await load("Decoder.mlmodelc", computeUnits: computeUnits)
-        let joint = try await load("JointDecisionv3.mlmodelc", computeUnits: computeUnits)
+        let preprocessor = try await load(at: directory, "Preprocessor.mlmodelc", computeUnits: .cpuOnly)
+        let encoder = try await load(at: directory, "Encoder.mlmodelc", computeUnits: computeUnits)
+        let decoder = try await load(at: directory, "Decoder.mlmodelc", computeUnits: computeUnits)
+        let joint = try await load(at: directory, "JointDecisionv3.mlmodelc", computeUnits: computeUnits)
         let models = AsrModels(
             encoder: encoder,
             preprocessor: preprocessor,
@@ -141,9 +185,14 @@ actor ParakeetRuntime: ParakeetRecognizing {
             version: .v3
         )
         let preparedManager = AsrManager(config: .default)
-        try await preparedManager.loadModels(models)
-        try Task.checkCancellation()
-        manager = preparedManager
+        do {
+            try await preparedManager.loadModels(models)
+            try Task.checkCancellation()
+            return preparedManager
+        } catch {
+            await preparedManager.cleanup()
+            throw error
+        }
     }
 
     /// `samples` must be mono, 16 kHz, Float32 PCM, normalized to [-1, 1].
@@ -154,14 +203,32 @@ actor ParakeetRuntime: ParakeetRecognizing {
         }
         try await prepare()
         guard let manager else { throw ParakeetRuntimeError.modelNotLoaded }
+        let identity = ObjectIdentifier(manager)
+        transcriptionUsers[identity, default: 0] += 1
         // A fresh decoder state prevents independent recordings influencing each other.
-        var state = try TdtDecoderState()
-        let result = try await manager.transcribe(samples, decoderState: &state)
-        try Task.checkCancellation()
-        return result.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        do {
+            var state = try TdtDecoderState()
+            let result = try await manager.transcribe(samples, decoderState: &state)
+            try Task.checkCancellation()
+            await finishedUsing(manager)
+            return result.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        } catch {
+            await finishedUsing(manager)
+            throw error
+        }
     }
 
-    private func load(_ name: String, computeUnits: MLComputeUnits) async throws -> MLModel {
+    private func finishedUsing(_ candidate: AsrManager) async {
+        let identity = ObjectIdentifier(candidate)
+        let remaining = transcriptionUsers[identity, default: 1] - 1
+        if remaining > 0 { transcriptionUsers[identity] = remaining }
+        else {
+            transcriptionUsers.removeValue(forKey: identity)
+            if manager !== candidate { await candidate.cleanup() }
+        }
+    }
+
+    private static func load(at directory: URL, _ name: String, computeUnits: MLComputeUnits) async throws -> MLModel {
         try Task.checkCancellation()
         // Transfer a fresh configuration to Core ML for each asynchronous load.
         // MLModelConfiguration is mutable and must not be shared across actor boundaries.

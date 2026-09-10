@@ -48,6 +48,9 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["importButton"].exists)
         XCTAssertTrue(app.buttons["importButton"].isHittable)
         XCTAssertTrue(app.staticTexts["Speak freely."].isHittable)
+        XCTAssertFalse(app.buttons["speechModelButton"].exists)
+        XCTAssertFalse(app.staticTexts["Dictation mode"].exists)
+        XCTAssertFalse(app.staticTexts["A thought, a message, a whole idea."].exists)
         capture("01-Home", app: app)
 
         app.buttons["modeButton"].tap()
@@ -72,6 +75,7 @@ final class SaysoUITests: XCTestCase {
             app.swipeUp()
         }
         XCTAssertTrue(saveHistory.exists)
+        XCTAssertTrue(saveHistory.isEnabled)
         XCTAssertTrue(saveHistory.isHittable)
         capture("03b-Settings-History-Preference", app: app)
         app.navigationBars.buttons["Done"].tap()
@@ -84,13 +88,18 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 5))
     }
 
-    func testAppleSpeechIsDefaultAndLocalParakeetIsOptional() {
+    func testSpeechModelAndLanguageStayInSettings() {
         let app = launch()
-        let modelButton = app.buttons["speechModelButton"]
-        XCTAssertTrue(modelButton.waitForExistence(timeout: 10))
-        XCTAssertTrue(modelButton.label.contains("Apple Speech"))
-        modelButton.tap()
-        app.descendants(matching: .any)["speechProviderPicker"].firstMatch.tap()
+        let settings = app.buttons["settingsButton"]
+        XCTAssertTrue(settings.waitForExistence(timeout: 10))
+        XCTAssertFalse(app.buttons["speechModelButton"].exists)
+        XCTAssertFalse(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Apple Speech")).firstMatch.exists)
+        XCTAssertFalse(app.descendants(matching: .any)["languagePicker"].firstMatch.exists)
+        settings.tap()
+        let provider = app.descendants(matching: .any)["speechProviderPicker"].firstMatch
+        XCTAssertTrue(provider.waitForExistence(timeout: 5))
+        XCTAssertTrue(provider.label.contains("Apple Speech") || (provider.value as? String)?.contains("Apple Speech") == true)
+        provider.tap()
         app.buttons["Parakeet · local"].tap()
         XCTAssertTrue(app.buttons["downloadParakeetButton"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["importParakeetButton"].exists)
@@ -102,7 +111,9 @@ final class SaysoUITests: XCTestCase {
         if !language.isHittable { app.swipeUp() }
         XCTAssertTrue(language.waitForExistence(timeout: 5))
         app.navigationBars.buttons["Done"].tap()
-        XCTAssertTrue(modelButton.label.contains("Apple Speech"))
+        XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["recordButton"].isEnabled)
+        XCTAssertFalse(app.buttons["speechModelButton"].exists)
     }
 
     func testCustomModeCommitsOnlyValidDoneAndSwipeDismissPreservesSavedStyle() throws {
@@ -307,10 +318,19 @@ final class SaysoUITests: XCTestCase {
             for _ in 0..<16 {
                 let viewport = scroll.frame.insetBy(dx: 0, dy: 4)
                 if viewport.contains(action.frame) && action.isHittable { break }
-                let aboveViewport = action.frame.minY < viewport.minY
-                let start = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: aboveViewport ? 0.35 : 0.70))
-                let end = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.92, dy: aboveViewport ? 0.60 : 0.45))
-                start.press(forDuration: 0.05, thenDragTo: end)
+                // Center nearby actions without fixed drags overshooting
+                // them or a release flick carrying them beneath the header.
+                let offset = action.frame.midY - viewport.midY
+                let distance = min(viewport.height * 0.6, max(12, abs(offset) * 0.5))
+                let startY = offset > 0 ? viewport.maxY - 12 : viewport.minY + 12
+                let endY = startY + (offset > 0 ? -distance : distance)
+                let origin = scroll.coordinate(withNormalizedOffset: .zero)
+                let x = viewport.maxX - scroll.frame.minX - 24
+                let start = origin.withOffset(CGVector(dx: x, dy: startY - scroll.frame.minY))
+                let end = origin.withOffset(CGVector(dx: x, dy: endY - scroll.frame.minY))
+                start.press(forDuration: 0.05, thenDragTo: end,
+                            withVelocity: abs(offset) < viewport.height ? .slow : .default,
+                            thenHoldForDuration: 0.25)
             }
             let viewport = scroll.frame.insetBy(dx: 0, dy: 4)
             XCTAssertTrue(viewport.contains(action.frame), "Accessibility action is clipped after bounded scrolling: \(identifier), frame \(action.frame), viewport \(viewport)")
@@ -743,7 +763,7 @@ final class SaysoUITests: XCTestCase {
         }
         XCTAssertTrue(setup.isHittable)
         setup.tap()
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Full Access can stay off for inserting")).firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Enable Full Access for recording controls")).firstMatch.waitForExistence(timeout: 5))
         capture("17-Keyboard-Setup", app: app)
         let clear = app.buttons["Clear shared text"]
         for _ in 0..<3 {
@@ -764,7 +784,7 @@ final class SaysoUITests: XCTestCase {
         start.tap()
         let live = app.staticTexts["liveTranscript"]
         XCTAssertTrue(live.waitForExistence(timeout: 8), "Keyboard recording must successfully start a real Live Activity.")
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Stop from the Live Activity")).firstMatch.exists)
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Stop & insert")).firstMatch.exists)
         capture("18-Cross-App-Recording", app: app)
         XCUIDevice.shared.press(.home)
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
