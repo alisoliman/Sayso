@@ -11,6 +11,11 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
         case recording, finishing, refining
     }
     enum Action: String, Codable, Sendable { case stop, cancel }
+    struct Mode: Codable, Equatable, Sendable {
+        let id: String
+        let title: String
+        let symbol: String
+    }
     struct Session: Codable, Equatable, Sendable {
         let version: Int
         let id: UUID
@@ -18,6 +23,8 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
         let recordingEndsAt: Date
         var updatedAt: Date
         var phase: Phase
+        var availableModes: [Mode]? = nil
+        var selectedModeID: String? = nil
     }
     struct Command: Codable, Equatable, Sendable {
         let version: Int
@@ -25,6 +32,7 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
         let sessionID: UUID
         let action: Action
         let createdAt: Date
+        var modeID: String? = nil
     }
     enum SessionError: LocalizedError {
         case unavailable, noActiveSession, invalidData
@@ -44,10 +52,12 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
     init(containerURL: URL?) { directory = containerURL?.appending(path: "Recording", directoryHint: .isDirectory) }
 
     @discardableResult
-    func begin(sessionID: UUID, now: Date = Date()) throws -> Session {
+    func begin(sessionID: UUID, availableModes: [Mode]? = nil, selectedModeID: String? = nil, now: Date = Date()) throws -> Session {
         guard now.timeIntervalSince1970.isFinite else { throw SessionError.invalidData }
         let session = Session(version: 1, id: sessionID, startedAt: now,
-                              recordingEndsAt: now.addingTimeInterval(Self.recordingLimit), updatedAt: now, phase: .recording)
+                              recordingEndsAt: now.addingTimeInterval(Self.recordingLimit), updatedAt: now, phase: .recording,
+                              availableModes: availableModes, selectedModeID: selectedModeID)
+        try validate(session)
         return try withMutation {
             // Clear before publishing, while excluding senders. A Stop issued as
             // soon as the new session becomes visible must never be erased.
@@ -83,16 +93,20 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
 
     /// Called only after an explicit keyboard/Live Activity action. The keyboard
     /// must have Full Access before invoking this write; the widget uses its group entitlement.
-    func send(_ action: Action, sessionID: UUID, now: Date = Date()) throws {
+    func send(_ action: Action, sessionID: UUID, modeID: String? = nil, now: Date = Date()) throws {
         try withMutation {
             guard let session = try latest(now: now), session.id == sessionID else { throw SessionError.noActiveSession }
             if action == .stop {
                 guard session.phase == .recording else { return }
+                if let modeID, session.availableModes?.contains(where: { $0.id == modeID }) != true {
+                    throw SessionError.invalidData
+                }
                 // Discard wins over a nearly simultaneous Stop from another surface.
                 if let pending: Command = try read(name: "command.json"),
                    isValid(pending, for: session, now: now), pending.action == .cancel { return }
             }
-            try write(Command(version: 1, id: UUID(), sessionID: sessionID, action: action, createdAt: now), name: "command.json")
+            try write(Command(version: 1, id: UUID(), sessionID: sessionID, action: action, createdAt: now,
+                              modeID: action == .stop ? modeID : nil), name: "command.json")
         }
     }
 
@@ -155,6 +169,14 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
               session.updatedAt <= session.recordingEndsAt.addingTimeInterval(Self.completionAllowance) else {
             throw SessionError.invalidData
         }
+        if let modes = session.availableModes {
+            guard modes.count <= 24, Set(modes.map(\.id)).count == modes.count,
+                  modes.allSatisfy({ !$0.id.isEmpty && $0.id.utf8.count <= 128 &&
+                      !$0.title.isEmpty && $0.title.utf8.count <= 120 && $0.symbol.utf8.count <= 80 }),
+                  session.selectedModeID == nil || modes.contains(where: { $0.id == session.selectedModeID }) else {
+                throw SessionError.invalidData
+            }
+        } else if session.selectedModeID != nil { throw SessionError.invalidData }
     }
 
     private func isLive(_ session: Session, now: Date) -> Bool {
@@ -165,6 +187,7 @@ nonisolated struct KeyboardRecordingSessionStore: Sendable {
 
     private func isValid(_ command: Command, for session: Session, now: Date) -> Bool {
         command.version == 1 && command.createdAt.timeIntervalSince1970.isFinite &&
+        (command.modeID == nil || (command.action == .stop && session.availableModes?.contains(where: { $0.id == command.modeID }) == true)) &&
         command.sessionID == session.id && command.createdAt >= session.startedAt &&
         command.createdAt <= now &&
         // An accepted cancellation is terminal for its recording, even when the

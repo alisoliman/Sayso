@@ -31,6 +31,24 @@ final class KeyboardRecordingSessionTests: XCTestCase {
         XCTAssertEqual(try directory.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup, true)
     }
 
+    func testOnlyPublishedModeIDsCanAccompanyStopAndCancelStillWins() throws {
+        let id = UUID()
+        let modes = [KeyboardRecordingSessionStore.Mode(id: "original", title: "Original", symbol: "waveform"),
+                     .init(id: "notes", title: "Notes", symbol: "list.bullet")]
+        let session = try store.begin(sessionID: id, availableModes: modes, selectedModeID: "original", now: date)
+        XCTAssertEqual(try store.latest(now: date), session)
+        XCTAssertThrowsError(try store.send(.stop, sessionID: id, modeID: "unpublished", now: date))
+        try store.send(.stop, sessionID: id, modeID: "notes", now: date)
+        XCTAssertEqual(try store.command(sessionID: id, after: nil, now: date)?.modeID, "notes")
+        try store.send(.cancel, sessionID: id, modeID: "notes", now: date)
+        try store.send(.stop, sessionID: id, modeID: "original", now: date)
+        let command = try XCTUnwrap(store.command(sessionID: id, after: nil, now: date))
+        XCTAssertEqual(command.action, .cancel)
+        XCTAssertNil(command.modeID)
+        XCTAssertThrowsError(try store.begin(sessionID: UUID(), availableModes: modes,
+                                            selectedModeID: "not-in-catalog", now: date))
+    }
+
     func testLeaseRejectsFutureAndExpiredStatusWithoutDeletingOrResurrectingIt() throws {
         let id = UUID()
         let session = try store.begin(sessionID: id, now: date)

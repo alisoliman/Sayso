@@ -21,8 +21,16 @@ final class DictationController {
     private(set) var destination = Destination.app
     @ObservationIgnored private let keyboardRecording: KeyboardRecordingCoordinator
     @ObservationIgnored private let transformation: Transformation
+    @ObservationIgnored private let usesSystemWritingModel: Bool
     @ObservationIgnored private var operation: Task<Void, Never>?
     @ObservationIgnored private var copyFeedbackTask: Task<Void, Never>?
+    @ObservationIgnored private var preparationTask: Task<Void, Never>?
+    @ObservationIgnored private var resourceReleaseTask: Task<Void, Never>?
+    @ObservationIgnored private let preferences: UserDefaults
+    private var isInBackground = false
+    private var releaseWhenIdle = false
+    private var preparationSuppressedForMemoryPressure = false
+    private var keyboardStyles: [WritingStyle] = []
     @ObservationIgnored private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     @ObservationIgnored private var backgroundGeneration: UUID?
     private var generation = UUID()
@@ -52,12 +60,14 @@ final class DictationController {
          preferences: UserDefaults = .standard, speechModels: ParakeetModelStore? = nil) {
         let models = speechModels ?? ParakeetModelStore()
         self.speechModels = models
+        self.preferences = preferences
         let resolvedSpeech = speech ?? SpeechProviderService(preferences: preferences, models: models)
         let resolvedIntelligence = intelligence ?? IntelligenceService()
         self.store = store
         self.speech = resolvedSpeech
         self.intelligence = resolvedIntelligence
         self.keyboardRecording = keyboardRecording ?? KeyboardRecordingCoordinator()
+        usesSystemWritingModel = transformation == nil
         self.transformation = transformation ?? { text, mode, instructions, vocabulary in
             try await resolvedIntelligence.transform(text, mode: mode, customInstructions: instructions, vocabulary: vocabulary)
         }
@@ -76,6 +86,14 @@ final class DictationController {
             guard let self else { return }
             if self.phase == .preparing { self.cancel() } else { self.finish() }
         }
+        self.keyboardRecording.onSelectMode = { [weak self] id in
+            guard let self, self.destination == .keyboard, self.phase == .recording,
+                  let style = self.keyboardStyles.first(where: { $0.id == id }) else { return }
+            self.configureWriting(mode: style.mode, instructions: style.prompt, writingStyle: style)
+            // The keyboard can choose a writing mode after recording began in
+            // Original. Give its model lead time while speech finishes.
+            if self.usesSystemWritingModel, self.activeTransformationMode != .transcript { self.intelligence.prewarm() }
+        }
         self.keyboardRecording.onCancel = { [weak self] in self?.cancel() }
         self.keyboardRecording.onExpiration = { [weak self] in self?.keyboardCompletionExpired() }
         self.keyboardRecording.onFailure = { [weak self] error in
@@ -92,10 +110,66 @@ final class DictationController {
         }
     }
 
+    /// Prepare only model resources. Permission prompts and microphone activation
+    /// still belong to the person's Record action.
+    func prepareForRecording(locale: String, vocabulary: String, mode: WritingMode = .transcript) {
+        if isInBackground { preparationSuppressedForMemoryPressure = false }
+        isInBackground = false
+        guard phase == .idle, !preparationSuppressedForMemoryPressure else { return }
+        resourceReleaseTask?.cancel()
+        resourceReleaseTask = nil
+        releaseWhenIdle = false
+        preparationTask?.cancel()
+        let phrases = vocabulary.split(separator: "\n").map(String.init)
+        preparationTask = Task { [weak self] in
+            guard let self, !Task.isCancelled, self.phase == .idle, !self.isInBackground else { return }
+            // Passive readiness failures must not turn the quiet home screen into
+            // an error. Record remains the authoritative, actionable retry.
+            try? await self.speech.prewarm(localeIdentifier: locale, contextualStrings: phrases)
+        }
+    }
+
+    func appDidReceiveMemoryWarning() {
+        preparationTask?.cancel()
+        preparationTask = nil
+        releaseWhenIdle = true
+        preparationSuppressedForMemoryPressure = true
+        scheduleResourceRelease(immediately: true)
+    }
+
+    private func scheduleResourceRelease(immediately: Bool = false) {
+        resourceReleaseTask?.cancel()
+        guard phase == .idle else { return }
+        resourceReleaseTask = Task { [weak self] in
+            if !immediately {
+                do { try await Task.sleep(for: .seconds(60)) } catch { return }
+            }
+            guard let self, !Task.isCancelled, self.phase == .idle,
+                  self.isInBackground || self.releaseWhenIdle else { return }
+            self.releaseWhenIdle = false
+            self.intelligence.releasePreparedResources()
+            await self.speech.releasePreparedResources()
+        }
+    }
+
     func start(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, destination: Destination = .app, writingStyle: WritingStyle? = nil) {
         guard phase == .idle else { return }
+        resourceReleaseTask?.cancel()
         configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: writingStyle)
         self.destination = destination
+        if destination == .keyboard {
+            // Snapshot complete prompts in the app. Only display metadata crosses
+            // into the keyboard, and a mid-recording library edit cannot change it.
+            var catalog = WritingStyleStore(defaults: preferences).styles
+            if let writingStyle {
+                catalog.removeAll { $0.id == writingStyle.id }
+                catalog.insert(writingStyle, at: 0)
+            }
+            keyboardStyles = Array(catalog.filter {
+                ($0.isOriginal || !$0.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) &&
+                $0.id.utf8.count <= 128
+            }.prefix(24))
+        }
         isImporting = false
         phase = .preparing
         notice = nil
@@ -111,12 +185,19 @@ final class DictationController {
                 guard generation == token, !Task.isCancelled else { return }
                 startedAt = Date()
                 if destination == .keyboard {
-                    try await keyboardRecording.start(sessionID: activeDictationID, now: startedAt ?? Date())
+                    let modes = keyboardStyles.map {
+                        KeyboardRecordingSessionStore.Mode(id: $0.id, title: Self.keyboardTitle($0.title), symbol: $0.symbol)
+                    }
+                    let selectedID = activeWritingStyle?.id ?? activeMode.rawValue
+                    try await keyboardRecording.start(sessionID: activeDictationID, availableModes: modes,
+                        selectedModeID: modes.contains(where: { $0.id == selectedID }) ? selectedID : nil,
+                        now: startedAt ?? Date())
                     guard generation == token, !Task.isCancelled else { return }
                 }
                 current = nil
                 activeCreatedAt = startedAt ?? Date()
                 phase = .recording
+                if usesSystemWritingModel, activeMode != .transcript { intelligence.prewarm() }
                 operation = nil
                 feedback(.medium)
             } catch {
@@ -251,6 +332,9 @@ final class DictationController {
     }
 
     func appDidEnterBackground() {
+        isInBackground = true
+        preparationTask?.cancel()
+        preparationTask = nil
         if keyboardResultCommitted {
             beginBackgroundFinalization()
             return
@@ -283,7 +367,7 @@ final class DictationController {
             resultNote = "Writing paused when Sayso moved to the background. Your current text is unchanged, and the original is still available."
             cancel()
         case .idle:
-            break
+            scheduleResourceRelease()
         }
     }
 
@@ -316,6 +400,16 @@ final class DictationController {
         activeInstructions = writingStyle?.prompt ?? instructions
     }
 
+    private static func keyboardTitle(_ title: String) -> String {
+        guard title.utf8.count > 120 else { return title }
+        var shortened = ""
+        for character in title {
+            guard shortened.utf8.count + String(character).utf8.count <= 117 else { break }
+            shortened.append(character)
+        }
+        return shortened.isEmpty ? "Custom" : shortened + "…"
+    }
+
     private func completeOperation(token: UUID) {
         guard generation == token else { return }
         startedAt = nil
@@ -325,6 +419,8 @@ final class DictationController {
         isCancelling = false
         keyboardResultCommitted = false
         destination = .app
+        keyboardStyles = []
+        if isInBackground || releaseWhenIdle { scheduleResourceRelease(immediately: releaseWhenIdle) }
         endBackgroundFinalization()
     }
 
@@ -434,7 +530,7 @@ final class DictationController {
                 }
                 keyboardResultCommitted = true
                 completed = true
-                let ready = "Ready in the Sayso keyboard. Return to your text field and tap Insert."
+                let ready = "Ready in the Sayso keyboard. If it hasn’t appeared in your text field, tap Insert."
                 resultNote = resultNote.map { $0 + " " + ready } ?? ready
             } catch {
                 // Publication is already final if only metadata cleanup failed.

@@ -15,6 +15,9 @@ protocol SpeechTranscribing: AnyObject {
     var usesAutomaticLanguageDetection: Bool { get }
     var onInterruption: (() -> Void)? { get set }
     func resetTranscript()
+    /// Prepares installed speech resources without capturing audio or requesting permissions.
+    func prewarm(localeIdentifier: String, contextualStrings: [String]) async throws
+    func releasePreparedResources() async
     func start(localeIdentifier: String, contextualStrings: [String]) async throws
     func stop() async throws -> String
     func cancel() async
@@ -24,6 +27,8 @@ protocol SpeechTranscribing: AnyObject {
 extension SpeechTranscribing {
     var diagnosticsReport: String? { nil }
     var usesAutomaticLanguageDetection: Bool { false }
+    func prewarm(localeIdentifier: String, contextualStrings: [String]) async throws {}
+    func releasePreparedResources() async {}
 }
 
 /// Owns one on-device transcription at a time. Speech assets may be downloaded
@@ -42,6 +47,24 @@ final class SpeechService: SpeechTranscribing {
     var onInterruption: (() -> Void)?
 
     @ObservationIgnored private var session: SpeechSession?
+    @ObservationIgnored private var prepared: PreparedSpeechResources?
+    @ObservationIgnored private var preparation: (id: UUID, locale: String, task: Task<PreparedSpeechResources, Error>)?
+
+    func prewarm(localeIdentifier: String, contextualStrings: [String] = []) async throws {
+        _ = try await preparedResources(localeIdentifier: localeIdentifier, allowDownload: false)
+    }
+
+    func releasePreparedResources() async {
+        guard session == nil else { return }
+        let pending = preparation
+        preparation = nil
+        pending?.task.cancel()
+        let resources = prepared
+        prepared = nil
+        if let resources { await resources.release() }
+        // A canceled load owns its own cleanup, including a reservation acquired late.
+        _ = try? await pending?.task.value
+    }
 
     func resetTranscript() {
         guard session == nil else { return }
@@ -283,54 +306,14 @@ final class SpeechService: SpeechTranscribing {
 
     private func prepare(_ session: SpeechSession, localeIdentifier: String,
                          contextualStrings: [String]) async throws -> SpeechAnalyzer {
-        status = "Checking speech language"
-        guard let locale = await SpeechTranscriber.supportedLocale(
-            equivalentTo: Locale(identifier: localeIdentifier)
-        ) else {
-            throw SpeechServiceError.unsupportedLanguage(localeIdentifier)
-        }
+        status = "Getting ready…"
+        let resources = try await preparedResources(localeIdentifier: localeIdentifier, allowDownload: true)
         try checkActive(session)
-        session.diagnostics.localeIdentifier = locale.identifier
-        let transcriber = SpeechTranscriber(locale: locale, preset: .timeIndexedProgressiveTranscription)
+        session.diagnostics.localeIdentifier = resources.locale.identifier
+        let transcriber = SpeechTranscriber(locale: resources.locale, preset: .timeIndexedProgressiveTranscription)
         session.transcriber = transcriber
-        // Never release another component's existing reservation. `reserve`
-        // returns true only when this call actually adds the reservation.
-        let ownsReservation = try await AssetInventory.reserve(locale: locale)
-        if ownsReservation {
-            // Cancellation can finish while the reservation request is in flight.
-            // A late reservation still belongs to us and must be released here.
-            if self.session !== session || session.isCancelled {
-                await AssetInventory.release(reservedLocale: locale)
-                throw CancellationError()
-            }
-            session.reservedLocale = locale
-        }
-        try checkActive(session)
-
-        let assetStatus = await AssetInventory.status(forModules: [transcriber])
-        try checkActive(session)
-        guard assetStatus != .unsupported else {
-            throw SpeechServiceError.unsupportedLanguage(localeIdentifier)
-        }
-        if let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
-            try checkActive(session)
-            session.downloadProgress = request.progress
-            status = "Downloading speech language · 0%"
-            session.downloadMonitor = Task { [weak self] in
-                while !Task.isCancelled {
-                    guard let self, self.session === session, !session.isCancelled else { return }
-                    let percent = Int((request.progress.fractionCompleted * 100).clamped(to: 0...100))
-                    self.status = "Downloading speech language · \(percent)%"
-                    do { try await Task.sleep(for: .milliseconds(250)) } catch { return }
-                }
-            }
-            try await request.downloadAndInstall()
-            session.downloadMonitor?.cancel()
-            session.downloadMonitor = nil
-            session.downloadProgress = nil
-            try checkActive(session)
-        }
-
+        // Each recording gets a new result stream. The idle analyzer retains the
+        // shared speech resources, so finalizing this stream does not reload models.
         let analyzer = SpeechAnalyzer(modules: [transcriber],
                                       options: .init(priority: .userInitiated, modelRetention: .whileInUse))
         session.analyzer = analyzer
@@ -358,6 +341,88 @@ final class SpeechService: SpeechTranscribing {
             }
         }
         return analyzer
+    }
+
+    private func preparedResources(localeIdentifier: String, allowDownload: Bool) async throws -> PreparedSpeechResources {
+        try Task.checkCancellation()
+        if let prepared, prepared.requestedLocale == localeIdentifier { return prepared }
+        if let pending = preparation, pending.locale == localeIdentifier {
+            do {
+                let resources = try await pending.task.value
+                try Task.checkCancellation()
+                return resources
+            } catch SpeechServiceError.languageNotInstalled where allowDownload {
+                // Record may arrive during a passive check. Only this explicit
+                // operation is allowed to install a missing Apple language.
+                if preparation?.id == pending.id { preparation = nil }
+            }
+        }
+        let obsolete = preparation
+        preparation = nil
+        obsolete?.task.cancel()
+        let previous = prepared
+        prepared = nil
+        let id = UUID()
+        let task = Task { @MainActor [weak self] in
+            if let previous { await previous.release() }
+            _ = try? await obsolete?.task.value
+            try Task.checkCancellation()
+            let resources = try await Self.loadResources(localeIdentifier: localeIdentifier, allowDownload: allowDownload)
+            do {
+                try Task.checkCancellation()
+                guard let self, self.preparation?.id == id else { throw CancellationError() }
+                self.prepared = resources
+                return resources
+            } catch {
+                await resources.release()
+                throw error
+            }
+        }
+        preparation = (id, localeIdentifier, task)
+        do {
+            let resources = try await task.value
+            try Task.checkCancellation()
+            return resources
+        } catch {
+            if preparation?.id == id { preparation = nil }
+            throw error
+        }
+    }
+
+    private static func loadResources(localeIdentifier: String, allowDownload: Bool) async throws -> PreparedSpeechResources {
+        guard SpeechTranscriber.isAvailable else { throw SpeechServiceError.unavailable }
+        guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: localeIdentifier)) else {
+            throw SpeechServiceError.unsupportedLanguage(localeIdentifier)
+        }
+        try Task.checkCancellation()
+        let transcriber = SpeechTranscriber(locale: locale, preset: .timeIndexedProgressiveTranscription)
+        let state = await AssetInventory.status(forModules: [transcriber])
+        try Task.checkCancellation()
+        guard state != .unsupported else { throw SpeechServiceError.unsupportedLanguage(localeIdentifier) }
+        guard allowDownload || state == .installed else { throw SpeechServiceError.languageNotInstalled }
+        let resources = PreparedSpeechResources(requestedLocale: localeIdentifier, locale: locale,
+            analyzer: SpeechAnalyzer(modules: [transcriber],
+                options: .init(priority: .userInitiated, modelRetention: .whileInUse)))
+        do {
+            // A false result means another component owns the reservation.
+            resources.ownsReservation = try await AssetInventory.reserve(locale: locale)
+            try Task.checkCancellation()
+            if allowDownload,
+               let request = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+                try await withTaskCancellationHandler {
+                    try await request.downloadAndInstall()
+                } onCancel: { request.progress.cancel() }
+                try Task.checkCancellation()
+            }
+            // nil preheats the models without activating an audio session or
+            // querying the microphone. Capture chooses its actual format later.
+            try await resources.analyzer.prepareToAnalyze(in: nil)
+            try Task.checkCancellation()
+            return resources
+        } catch {
+            await resources.release()
+            throw error
+        }
     }
 
     private func updateLevel(_ amplitude: Double, for sessionID: UUID) {
@@ -469,10 +534,6 @@ final class SpeechService: SpeechTranscribing {
     private func cleanUp(_ session: SpeechSession) async {
         if let cleanup = session.cleanupTask { await cleanup.value; return }
         let cleanup = Task { @MainActor [weak self] in
-            session.downloadMonitor?.cancel()
-            session.downloadMonitor = nil
-            session.downloadProgress?.cancel()
-            session.downloadProgress = nil
             self?.stopCapture(session)
             for observer in session.observers { NotificationCenter.default.removeObserver(observer) }
             session.observers.removeAll()
@@ -486,10 +547,6 @@ final class SpeechService: SpeechTranscribing {
                 session.hasAudioSession = false
             }
             await session.analyzer?.cancelAndFinishNow()
-            if let locale = session.reservedLocale {
-                await AssetInventory.release(reservedLocale: locale)
-                session.reservedLocale = nil
-            }
             session.engine = nil
             session.analyzer = nil
             session.transcriber = nil
@@ -510,6 +567,33 @@ final class SpeechService: SpeechTranscribing {
     }
 }
 
+/// A resource-only analyzer keeps Apple's shared models resident between
+/// independent recording analyzers. It never receives audio or produces words.
+@MainActor
+private final class PreparedSpeechResources {
+    let requestedLocale: String
+    let locale: Locale
+    let analyzer: SpeechAnalyzer
+    var ownsReservation = false
+    private var isReleased = false
+
+    init(requestedLocale: String, locale: Locale, analyzer: SpeechAnalyzer) {
+        self.requestedLocale = requestedLocale
+        self.locale = locale
+        self.analyzer = analyzer
+    }
+
+    func release() async {
+        guard !isReleased else { return }
+        isReleased = true
+        await analyzer.cancelAndFinishNow()
+        if ownsReservation {
+            await AssetInventory.release(reservedLocale: locale)
+            ownsReservation = false
+        }
+    }
+}
+
 @MainActor
 private final class SpeechSession {
     enum Kind { case microphone, file }
@@ -523,10 +607,7 @@ private final class SpeechSession {
     var conversionTask: Task<Void, Error>?
     var analysisTask: Task<CMTime?, Error>?
     var resultsTask: Task<Void, Error>?
-    var downloadMonitor: Task<Void, Never>?
-    var downloadProgress: Progress?
     var cleanupTask: Task<Void, Never>?
-    var reservedLocale: Locale?
     var observers: [NSObjectProtocol] = []
     var transcript = SpeechTranscriptAccumulator()
     var diagnostics = SpeechDiagnostics()
@@ -573,6 +654,7 @@ nonisolated struct SpeechTranscriptAccumulator {
 nonisolated enum SpeechServiceError: LocalizedError {
     case unavailable
     case microphonePermissionDenied
+    case languageNotInstalled
     case foregroundRequired
     case unsupportedLanguage(String)
     case noMicrophone
@@ -596,6 +678,8 @@ nonisolated enum SpeechServiceError: LocalizedError {
             #endif
         case .foregroundRequired:
             "Open Sayso to begin recording, then return to the app you’re writing in."
+        case .languageNotInstalled:
+            "Tap Record to prepare this speech language."
         case .microphonePermissionDenied:
             "Allow microphone access for Sayso in Settings to start recording."
         case .unsupportedLanguage(let identifier):

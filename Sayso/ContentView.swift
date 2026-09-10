@@ -22,9 +22,35 @@ struct ContentView: View {
     @State private var discardRecording = false
     @State private var followingLiveTranscript = true
     private var mode: WritingStyle { styles.style(for: modeRaw) }
-    private var provider: SpeechProvider { SpeechProvider(rawValue: providerRaw) ?? .defaultProvider }
     private var recording: Bool { model.phase == .recording }
     private var compactHeight: Bool { verticalSizeClass == .compact }
+
+    private struct PreparationKey: Equatable {
+        let isActive: Bool
+        let isIdle: Bool
+        let provider: String
+        let locale: String
+        let vocabulary: String
+        let mode: String
+        let modelInstalled: Bool
+        let modelInstalling: Bool
+        let modelRevision: UUID
+    }
+
+    private var preparationKey: PreparationKey {
+        PreparationKey(isActive: scenePhase == .active, isIdle: !model.isBusy,
+                       provider: providerRaw, locale: locale, vocabulary: vocabulary,
+                       mode: mode.mode.rawValue, modelInstalled: model.speechModels.isInstalled,
+                       modelInstalling: model.speechModels.isWorking, modelRevision: model.speechModels.installationRevision)
+    }
+
+    private var progressMessage: String {
+        switch model.phase {
+        case .refining: "A little polish…"
+        case .finishing: "Finishing your thought…"
+        default: "Getting ready…"
+        }
+    }
 
     enum HomeSheet: String, Identifiable {
         case history, settings, modes, edit
@@ -127,7 +153,9 @@ struct ContentView: View {
                     UIPasteboard.general.setItems([[UIPasteboard.typeAutomatic: report]], options: [.localOnly: true])
                 }
             }
-            if model.notice?.localizedCaseInsensitiveContains("settings") == true {
+            if model.notice == ParakeetModelStore.ModelError.notInstalled.errorDescription {
+                Button("Set up speech") { model.notice = nil; sheet = .settings }
+            } else if model.notice?.localizedCaseInsensitiveContains("settings") == true {
                 Button("Open Settings") { if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) } }
             }
         } message: { Text(model.notice ?? "") }
@@ -142,6 +170,9 @@ struct ContentView: View {
                 try? KeyboardHandoff().purgeExpired()
                 consumeRoute()
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
+            model.appDidReceiveMemoryWarning()
         }
         .onChange(of: AppRoute.shared.recordRequest) { _, _ in consumeRoute() }
         .onOpenURL { url in
@@ -160,6 +191,10 @@ struct ContentView: View {
             if ProcessInfo.processInfo.arguments.contains("--preview-result") { model.loadPreviewResult() }
             #endif
             consumeRoute()
+        }
+        .task(id: preparationKey) {
+            guard scenePhase == .active, !model.isBusy else { return }
+            model.prepareForRecording(locale: locale, vocabulary: vocabulary, mode: mode.mode)
         }
     }
 
@@ -189,11 +224,6 @@ struct ContentView: View {
                         .font(.system(size: idleTitleSize, weight: .medium, design: .serif)).tracking(-1.3)
                         .multilineTextAlignment(.center)
                 }
-                if !dynamicTypeSize.isAccessibilitySize {
-                    Text("A thought, a message, a whole idea.")
-                        .font(.system(size: 15)).foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
                 Button { importing = true } label: {
                     Label("Import audio", systemImage: "arrow.down.doc")
                         .font(.subheadline.weight(.medium))
@@ -218,9 +248,6 @@ struct ContentView: View {
                 Text("Speak freely.")
                     .font(.system(size: idleTitleSize, weight: .medium, design: .serif)).tracking(-1.3)
                     .multilineTextAlignment(.center)
-                Text("A thought, a message, a whole idea.")
-                    .font(.system(size: 15)).foregroundStyle(.secondary)
-                    .padding(.top, 12).multilineTextAlignment(.center)
                 Spacer(minLength: 46)
                 Button { importing = true } label: {
                     Label("Import audio", systemImage: "arrow.down.doc")
@@ -255,12 +282,10 @@ struct ContentView: View {
                 }
             }
             if model.destination == .keyboard {
-                information("Return to the app you’re writing in. Stop from the Live Activity or Sayso keyboard, then tap Insert. Recording ends after 10 minutes.", symbol: "keyboard")
+                information("Return to your app and choose Sayso. Tap Stop & insert to add your words at the cursor.", symbol: "keyboard")
             }
             Text(model.speech.partialText.isEmpty
-                 ? (provider == .parakeet
-                    ? (recording ? "I’m listening. Your transcript appears after you stop." : "Transcribing with Parakeet on this iPhone…")
-                    : "Go ahead. I’m listening.")
+                 ? (recording ? "I’m listening…" : "Finishing your words…")
                  : model.speech.partialText)
                 .font(.system(size: writingSize, weight: .regular, design: .serif)).lineSpacing(8)
                 .foregroundStyle(model.speech.partialText.isEmpty ? .secondary : .primary)
@@ -348,7 +373,7 @@ struct ContentView: View {
             if model.phase == .preparing || model.phase == .finishing || model.phase == .refining {
                 HStack(spacing: 10) {
                     ProgressView().controlSize(.small)
-                    Text(model.phase == .refining ? "A little polish…" : model.phase == .finishing ? "Finishing your thought…" : (model.speech.status.isEmpty ? "Getting ready…" : model.speech.status))
+                    Text(progressMessage)
                         .font(.system(size: 13)).foregroundStyle(.secondary)
                         .lineLimit(3)
                     Button("Cancel") { model.cancel() }.font(.system(size: 13, weight: .medium)).disabled(!model.canCancel)
@@ -372,16 +397,12 @@ struct ContentView: View {
                 }
             }
             .frame(maxWidth: 410)
-            HStack(spacing: 6) {
-                if recording {
-                    Button("Discard recording") { discardRecording = true }.foregroundStyle(.secondary)
-                        .accessibilityIdentifier("discardRecordingButton")
-                } else {
-                    speechModelButton
-                }
+            if recording {
+                Button("Discard recording") { discardRecording = true }.foregroundStyle(.secondary)
+                    .accessibilityIdentifier("discardRecordingButton")
+                    .font(.system(size: 11, weight: .medium))
+                    .frame(minHeight: 24)
             }
-            .font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
-            .frame(minHeight: 20)
         }
         .padding(.horizontal, 24).padding(.top, 15).padding(.bottom, 16)
         .background { LinearGradient(colors: [.clear, SaysoTheme.canvas, SaysoTheme.canvas], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .bottom) }
@@ -389,11 +410,10 @@ struct ContentView: View {
 
     private var compactControls: some View {
         VStack(spacing: 6) {
-            if !model.isBusy { speechModelButton }
             if model.phase == .preparing || model.phase == .finishing || model.phase == .refining {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text(model.phase == .refining ? "A little polish…" : model.phase == .finishing ? "Finishing your thought…" : (model.speech.status.isEmpty ? "Getting ready…" : model.speech.status))
+                    Text(progressMessage)
                         .font(.footnote).foregroundStyle(.secondary).lineLimit(2)
                 }
             }
@@ -432,31 +452,13 @@ struct ContentView: View {
         .background { LinearGradient(colors: [.clear, SaysoTheme.canvas, SaysoTheme.canvas], startPoint: .top, endPoint: .bottom).ignoresSafeArea(edges: .bottom) }
     }
 
-    private var speechModelButton: some View {
-        Button { sheet = .settings } label: {
-            Label(provider == .parakeet
-                  ? "Parakeet · \(model.speechModels.isInstalled ? "on device" : "setup required")"
-                  : "Apple Speech · \(SpeechLanguage.shortName(for: locale))", systemImage: "lock")
-                .font(.footnote).foregroundStyle(.secondary)
-                .padding(.vertical, 6).contentShape(.rect)
-        }
-        .buttonStyle(.plain).disabled(model.isBusy)
-        .accessibilityIdentifier("speechModelButton")
-    }
-
     private var modeControl: some View {
         Button { sheet = .modes } label: {
             HStack(spacing: 9) {
                 Image(systemName: mode.symbol).font(.system(size: 16))
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(mode.title)
-                        .font(dynamicTypeSize.isAccessibilitySize ? .headline : .subheadline.weight(.semibold))
-                        .fixedSize(horizontal: false, vertical: true)
-                    if !dynamicTypeSize.isAccessibilitySize && !compactHeight {
-                        Text(recording ? "Tap stop when you’re done" : "Dictation mode")
-                            .font(.caption2).foregroundStyle(.secondary)
-                    }
-                }
+                Text(mode.title)
+                    .font(dynamicTypeSize.isAccessibilitySize ? .headline : .subheadline.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 4)
                 Image(systemName: "chevron.up.chevron.down").font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
             }
@@ -476,19 +478,20 @@ struct ContentView: View {
                 Image(systemName: recording ? "stop.fill" : "mic.fill")
                     .font(.system(size: recording ? 23 : 26, weight: .medium))
                     .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
-                if dynamicTypeSize.isAccessibilitySize && !compactHeight {
-                    Text(recording ? "Stop" : "Dictate").font(.headline)
+                if !compactHeight {
+                    Text(recording ? "Stop" : "Record").font(.headline)
                 }
             }
             .foregroundStyle(SaysoTheme.onAccent)
-            .frame(width: compactHeight ? 56 : (dynamicTypeSize.isAccessibilitySize ? nil : 64), height: compactHeight ? 56 : (dynamicTypeSize.isAccessibilitySize ? nil : 64))
+            .padding(.horizontal, compactHeight ? 0 : 18)
+            .frame(width: compactHeight ? 56 : nil, height: compactHeight ? 56 : nil)
             .frame(maxWidth: dynamicTypeSize.isAccessibilitySize && !compactHeight ? .infinity : nil, minHeight: compactHeight ? 56 : 64)
         }
         .buttonStyle(.glassProminent)
-        .buttonBorderShape(dynamicTypeSize.isAccessibilitySize && !compactHeight ? .capsule : .circle)
+        .buttonBorderShape(compactHeight ? .circle : .capsule)
         .disabled(model.isBusy && !recording)
         .accessibilityLabel(recording ? "Stop recording" : "Start recording")
-        .accessibilityHint(recording ? "Finish and prepare your text" : (provider == .parakeet ? "Record with the local Parakeet model" : "Dictate in \(SpeechLanguage.name(for: locale))"))
+        .accessibilityHint(recording ? "Finish and prepare your text" : "Turn your voice into text")
         .accessibilityIdentifier("recordButton")
     }
 

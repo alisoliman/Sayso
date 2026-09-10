@@ -21,6 +21,47 @@ final class DictationControllerTests: XCTestCase {
         controller.start(mode: mode, locale: "en-US", instructions: "", vocabulary: "", saveHistory: history)
     }
 
+    func testPassivePreparationKeepsResultAndNeverStartsRecordingOrShowsFailure() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let speech = StubSpeech()
+        speech.prewarmFailure = StubFailure.interrupted
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: speech)
+        let previous = Dictation(text: "Keep this result.", original: "Keep this result.", mode: .transcript,
+                                 duration: 1, localeIdentifier: "en-US")
+        controller.current = previous
+        controller.prepareForRecording(locale: "nl-NL", vocabulary: "Sayso\nAmsterdam")
+        await waitUntil("Preparation runs") { speech.prewarmCalls == 1 }
+        XCTAssertEqual(speech.preparedLocale, "nl-NL")
+        XCTAssertEqual(speech.preparedVocabulary, ["Sayso", "Amsterdam"])
+        XCTAssertFalse(speech.isRecording)
+        XCTAssertEqual(controller.phase, .idle)
+        XCTAssertEqual(controller.current, previous)
+        XCTAssertNil(controller.notice)
+        start(controller)
+        await waitUntil("Record remains available after readiness failure") { controller.phase == .recording }
+        controller.cancel()
+        await waitUntil("Cleanup finishes") { controller.phase == .idle }
+    }
+
+    func testMemoryPressureReleasesIdleModelsAndDefersReleaseDuringCapture() async {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let speech = StubSpeech()
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: speech)
+        controller.appDidReceiveMemoryWarning()
+        await waitUntil("Idle models release") { speech.releaseCalls == 1 }
+        start(controller)
+        await waitUntil("Recording starts") { controller.phase == .recording }
+        controller.appDidReceiveMemoryWarning()
+        controller.prepareForRecording(locale: "en-US", vocabulary: "")
+        XCTAssertEqual(speech.releaseCalls, 1)
+        XCTAssertEqual(speech.prewarmCalls, 0)
+        XCTAssertTrue(speech.isRecording)
+        controller.cancel()
+        await waitUntil("Models release after capture cleanup") { speech.releaseCalls == 2 }
+    }
+
     func testCancelledOldFinishCannotOverwriteNewRecording() async throws {
         let url = storeURL()
         defer { try? FileManager.default.removeItem(at: url) }
@@ -532,6 +573,11 @@ private final class StubSpeech: SpeechTranscribing {
     var startResult: Result<Void, Error> = .success(())
     var stopOverride: (() async throws -> String)?
     var stopCalls = 0
+    var prewarmCalls = 0
+    var releaseCalls = 0
+    var preparedLocale: String?
+    var preparedVocabulary: [String] = []
+    var prewarmFailure: Error?
     var fileResult: Result<String, Error> = .success("")
     var filePartialText: String?
     var suspendCancellation = false
@@ -540,6 +586,13 @@ private final class StubSpeech: SpeechTranscribing {
     var pendingCancellationCount: Int { cancellations.count }
 
     func resetTranscript() { partialText = ""; level = 0 }
+    func prewarm(localeIdentifier: String, contextualStrings: [String]) async throws {
+        prewarmCalls += 1
+        preparedLocale = localeIdentifier
+        preparedVocabulary = contextualStrings
+        if let prewarmFailure { throw prewarmFailure }
+    }
+    func releasePreparedResources() async { releaseCalls += 1 }
     func start(localeIdentifier: String, contextualStrings: [String]) async throws { try startResult.get(); isRecording = true }
     func stop() async throws -> String {
         stopCalls += 1

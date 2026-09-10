@@ -4,6 +4,64 @@ import XCTest
 
 @MainActor
 final class SpeechProviderTests: XCTestCase {
+    func testPassivePreparationAndRepeatedRecordingsReuseOneBackendUntilReleased() async throws {
+        var factories = 0
+        var backends: [ProviderTestSpeech] = []
+        let service = SpeechProviderService(selection: { .parakeet }, factory: { _ in
+            factories += 1
+            let backend = ProviderTestSpeech()
+            backend.stopResult = "A finished recording"
+            backends.append(backend)
+            return backend
+        })
+        try await service.prewarm(localeIdentifier: "en-US", contextualStrings: ["Sayso"])
+        XCTAssertEqual(factories, 1)
+        XCTAssertEqual(backends[0].warmups, [.init(locale: "en-US", vocabulary: ["Sayso"])])
+        XCTAssertTrue(backends[0].starts.isEmpty)
+        XCTAssertFalse(service.isRecording)
+        XCTAssertEqual(service.status, "Ready")
+        for _ in 0..<2 {
+            try await service.start(localeIdentifier: "en-US", contextualStrings: [])
+            _ = try await service.stop()
+        }
+        XCTAssertEqual(factories, 1, "Finishing a recording must preserve the loaded speech backend.")
+        XCTAssertEqual(backends[0].starts.count, 2)
+        await service.releasePreparedResources()
+        XCTAssertEqual(backends[0].releaseCalls, 1)
+        XCTAssertEqual(service.partialText, "A finished recording", "Reclaiming models must preserve the user's result.")
+        try await service.prewarm(localeIdentifier: "en-US", contextualStrings: [])
+        XCTAssertEqual(factories, 2)
+    }
+
+    func testWarmModelIdentityChangeReplacesBackendBeforeNextRecording() async throws {
+        var identity = "installed-model-a"
+        var backends: [ProviderTestSpeech] = []
+        let service = SpeechProviderService(selection: { .parakeet }, cacheIdentity: { _ in identity }, factory: { _ in
+            let backend = ProviderTestSpeech()
+            backends.append(backend)
+            return backend
+        })
+        try await service.prewarm(localeIdentifier: "en-US", contextualStrings: [])
+        identity = "installed-model-b"
+        try await service.start(localeIdentifier: "en-US", contextualStrings: [])
+        XCTAssertEqual(backends.count, 2)
+        XCTAssertTrue(backends[0].starts.isEmpty, "A removed or replaced model must not be used from memory.")
+        XCTAssertEqual(backends[1].starts.count, 1)
+        await service.cancel()
+    }
+
+    func testIdleResourceReleaseCannotInterruptActiveRecording() async throws {
+        let backend = ProviderTestSpeech()
+        let service = SpeechProviderService(selection: { .apple }, factory: { _ in backend })
+        try await service.start(localeIdentifier: "en-US", contextualStrings: [])
+        await service.releasePreparedResources()
+        try await service.prewarm(localeIdentifier: "nl-NL", contextualStrings: [])
+        XCTAssertTrue(service.isRecording)
+        XCTAssertEqual(backend.releaseCalls, 0)
+        XCTAssertTrue(backend.warmups.isEmpty)
+        await service.cancel()
+    }
+
     func testRecordingPinsProviderAndPreservesResultAfterBackendCleanup() async throws {
         var selected = SpeechProvider.parakeet
         let local = ProviderTestSpeech()
@@ -207,7 +265,8 @@ final class SpeechProviderTests: XCTestCase {
         try await service.start(localeIdentifier: "en-US", contextualStrings: [])
         delayedInterruption?()
         XCTAssertEqual(interruptions, 1)
-        next.onInterruption?()
+        XCTAssertEqual(factories, 1, "A successful stop keeps the backend warm.")
+        old.onInterruption?()
         XCTAssertEqual(interruptions, 2)
         await service.cancel()
     }
@@ -553,6 +612,8 @@ private final class ProviderTestSpeech: SpeechTranscribing {
     var diagnosticsReport: String?
     var onInterruption: (() -> Void)?
     var starts: [Request] = []
+    var warmups: [Request] = []
+    var releaseCalls = 0
     var files: [Request] = []
     var stopCalls = 0
     var cancelCalls = 0
@@ -564,6 +625,10 @@ private final class ProviderTestSpeech: SpeechTranscribing {
     var fileOverride: (() async throws -> String)?
 
     func resetTranscript() { partialText = "" }
+    func prewarm(localeIdentifier: String, contextualStrings: [String]) async throws {
+        warmups.append(.init(locale: localeIdentifier, vocabulary: contextualStrings))
+    }
+    func releasePreparedResources() async { releaseCalls += 1 }
     func start(localeIdentifier: String, contextualStrings: [String]) async throws {
         starts.append(.init(locale: localeIdentifier, vocabulary: contextualStrings))
         try await startOverride?()

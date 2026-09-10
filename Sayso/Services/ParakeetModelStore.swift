@@ -7,6 +7,7 @@ import Observation
 final class ParakeetModelStore {
     let directory: URL
     private(set) var isInstalled = false
+    private(set) var installationRevision = UUID()
     private(set) var isWorking = false
     private(set) var status = "Model not installed"
     var error: String?
@@ -47,6 +48,7 @@ final class ParakeetModelStore {
             if FileManager.default.fileExists(atPath: directory.path) {
                 try FileManager.default.removeItem(at: directory)
             }
+            installationRevision = UUID()
             error = nil
         } catch { self.error = error.localizedDescription }
         refresh()
@@ -74,6 +76,7 @@ final class ParakeetModelStore {
                 try await withTaskCancellationHandler {
                     try await worker.value
                 } onCancel: { worker.cancel() }
+                installationRevision = UUID()
             } catch {
                 if !Task.isCancelled { self.error = error.localizedDescription }
             }
@@ -116,7 +119,7 @@ final class ParakeetModelStore {
         var errorDescription: String? {
             switch self {
             case .installInProgress: "Wait for the Parakeet model installation to finish before recording."
-            case .notInstalled: "Parakeet isn’t installed yet. Tap the speech model label on Home to download or import it."
+            case .notInstalled: "Parakeet isn’t installed yet. Open Settings to download or import it."
             }
         }
     }

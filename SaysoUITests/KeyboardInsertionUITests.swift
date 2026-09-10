@@ -8,6 +8,7 @@ final class KeyboardInsertionUITests: XCTestCase {
     private var sayso: XCUIApplication!
     private var settings: XCUIApplication!
     private var usesControlFixture = false
+    private var usesPanelFixture = false
     private var launchedScriptedFixture = false
     private var ownsSharedFixture = false
     private var ownsSettingsSearch = false
@@ -17,6 +18,7 @@ final class KeyboardInsertionUITests: XCTestCase {
     private var restoresLandscapeEnvironment = false
     private var landscapeAppearanceAtStart = XCUIDevice.shared.appearance
     private var safariControlHost: XCUIApplication?
+    private var safariSyntheticText: String?
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -34,11 +36,116 @@ final class KeyboardInsertionUITests: XCTestCase {
             diagnose("System-Keyboard-Failure", app: XCUIApplication(bundleIdentifier: "com.apple.springboard"))
             if let safariControlHost { diagnose("Safari-Keyboard-Control-Failure", app: safariControlHost) }
         }
+        if usesPanelFixture {
+            sayso.activate()
+            let reset = sayso.buttons["keyboardFixtureReset"]
+            if reset.exists && reset.isHittable { reset.tap() }
+            if needsFullAccessRestoration {
+                settings.activate()
+                try dismissPendingFullAccessConfirmation()
+                try enableSayso(fullAccess: false)
+            }
+        }
         if usesControlFixture, !cleanupAttempted {
             // Every cleanup stage is attempted and its failures remain XCTest
             // failures. A failed command assertion is never replaced by a retry.
             try cleanupControlFixture()
         }
+    }
+
+    /// Uses the real extension and real App Group while Sayso's isolated editor
+    /// stays foreground. The source and rewrite are deterministic test fixtures.
+    func testStopAndInsertIntoVisibleFieldExactlyOnce() throws {
+        let field = try preparePanelFixture()
+        let expectedText = sayso.staticTexts["keyboardFixtureTranscript"].label
+        let clean = sayso.buttons["keyboardMode-clean"]
+        try require(clean.waitForExistence(timeout: 5) && clean.isHittable,
+                    "The recording panel did not expose its Clean mode.", app: sayso)
+        clean.tap()
+        XCTAssertTrue(clean.isSelected, "Choosing a recording mode must visibly select it.")
+        XCTAssertFalse(sayso.buttons["keyboardKey-q"].exists)
+        let stop = sayso.buttons["keyboardInsertButton"]
+        try require(stop.label == "Stop & insert" && stop.isEnabled && stop.isHittable,
+                    "The recording panel has no usable Stop & insert control.", app: sayso)
+        diagnose("Recording-Panel-Mode-Selected", app: sayso)
+        stop.tap()
+        try require(waitFor(field, predicate: "value == %@", arguments: [expectedText], timeout: 12),
+                    "Stop & insert did not place the complete result at the visible cursor.", app: sayso)
+        try require(waitFor(stop, predicate: "enabled == false AND label == 'Inserted'", timeout: 5),
+                    "The automatic insertion was not marked consumed.", app: sayso)
+        XCTAssertEqual(sayso.staticTexts["keyboardFixtureResultMode"].label, "clean",
+                       "The keyboard's selected mode did not reach the recording controller.")
+        XCTAssertEqual(contents(of: sayso.textViews["keyboardOtherHostField"]), "")
+        diagnose("Recording-Panel-Automatic-Insertion", app: sayso)
+        try switchToSystemKeyboard(in: sayso)
+        try selectSaysoKeyboard(in: sayso)
+        try expectValue(expectedText, in: field, app: sayso)
+        try require(waitFor(stop, predicate: "enabled == false AND label == 'Inserted'", timeout: 5),
+                    "Switching keyboards made the completed result insertable again.", app: sayso)
+    }
+
+    func testChangingFieldAfterStopRequiresExplicitInsertion() throws {
+        let originalField = try preparePanelFixture()
+        let expectedText = sayso.staticTexts["keyboardFixtureTranscript"].label
+        let stop = sayso.buttons["keyboardInsertButton"]
+        stop.tap()
+        let otherField = sayso.textViews["keyboardOtherHostField"]
+        try require(otherField.isHittable, "The second isolated text field is not reachable.", app: sayso)
+        otherField.tap()
+        try require(waitFor(stop, predicate: "enabled == true AND label == 'Insert'", timeout: 12),
+                    "Changing text fields did not revoke automatic insertion.", app: sayso)
+        XCTAssertEqual(contents(of: originalField), "")
+        XCTAssertEqual(contents(of: otherField), "", "An unfinished dictation must not follow the user into another field.")
+        stop.tap()
+        try expectValue(expectedText, in: otherField, app: sayso)
+        XCTAssertEqual(contents(of: originalField), "")
+        diagnose("Recording-Panel-Changed-Field-Explicit-Insertion", app: sayso)
+    }
+
+    private func preparePanelFixture() throws -> XCUIElement {
+        // First-launch extension registration must precede Settings discovery
+        // on a fresh simulator. Configure the isolated fixture before launch.
+        sayso.launchArguments = ["--uitesting", "--scripted-speech", "--keyboard-panel-host"]
+        sayso.launchEnvironment["TEST_STORAGE_ID"] = UUID().uuidString
+        sayso.launch()
+        let field = sayso.textViews["keyboardHostField"]
+        try require(field.waitForExistence(timeout: 10) && field.isHittable,
+                    "The isolated keyboard host did not open.", app: sayso)
+        usesPanelFixture = true
+        settings.launch()
+        try enableSayso(fullAccess: true)
+        sayso.activate()
+        try require(field.waitForExistence(timeout: 5) && field.isHittable,
+                    "The prepared keyboard fixture did not return after Settings setup.", app: sayso)
+        field.tap()
+        try dismissKeyboardIntroduction(in: sayso)
+        if !hostInputModeButtonBecameReachable(in: sayso) {
+            // Observed on iOS 27: the first field is Keyboard Focused but the
+            // complete system keyboard sits below the window. Establish one
+            // fresh responder transition before recording or insertion begins.
+            diagnose("Recording-Panel-Host-Focused-Keyboard-Offscreen", app: sayso)
+            let otherField = sayso.textViews["keyboardOtherHostField"]
+            try require(otherField.exists && otherField.isHittable,
+                        "The isolated fixture has no second field to refresh keyboard focus.", app: sayso)
+            otherField.tap()
+            field.tap()
+            try dismissKeyboardIntroduction(in: sayso)
+            try require(hostInputModeButtonBecameReachable(in: sayso),
+                        "The system keyboard stayed offscreen after one fixture focus refresh.", app: sayso)
+        }
+        try selectSaysoKeyboard(in: sayso)
+        try require(sayso.staticTexts["keyboardPreview"].waitForExistence(timeout: 15),
+                    "The actual recording panel did not appear in its isolated host.", app: sayso)
+        let record = sayso.buttons["keyboardFixtureRecord"]
+        try require(record.isHittable && record.isEnabled, "The host's fixture recording action is unavailable.", app: sayso)
+        record.tap()
+        let transcript = sayso.staticTexts["keyboardFixtureTranscript"]
+        try require(waitFor(transcript, predicate: "label ENDSWITH %@", arguments: ["next project."], timeout: 10),
+                    "The complete synthetic utterance was not captured.", app: sayso)
+        try require(waitFor(sayso.buttons["keyboardInsertButton"], predicate: "enabled == true AND label == 'Stop & insert'", timeout: 5),
+                    "The actual recording controls did not become ready.", app: sayso)
+        XCTAssertEqual(contents(of: field), "")
+        return field
     }
 
     func testExplicitInsertionInSettingsWithFullAccessOff() throws {
@@ -78,16 +185,9 @@ final class KeyboardInsertionUITests: XCTestCase {
         XCTAssertEqual(insert.label, "Insert")
         diagnose("Keyboard-Ready-Full-Access-Off", app: settings)
 
-        // Use the extension's actual buttons, not typeText's synthesized input.
-        settings.buttons["keyboardKey-q"].tap()
-        try expectValue("q", in: search)
-        settings.buttons["keyboardSpaceButton"].tap()
-        try expectValue("q ", in: search)
-        settings.buttons["keyboardDeleteButton"].tap()
-        try expectValue("q", in: search)
-        settings.buttons["keyboardDeleteButton"].tap()
-        XCTAssertEqual(contents(of: search), "")
-        XCTAssertTrue(insert.isEnabled, "Ordinary typing must not consume a shared dictation.")
+        XCTAssertFalse(settings.buttons["keyboardKey-q"].exists, "Sayso is a recording panel, not a character keyboard.")
+        XCTAssertFalse(settings.buttons["keyboardDeleteButton"].exists)
+        XCTAssertTrue(settings.buttons["keyboardNextButton"].isHittable, "Apple's keyboard must stay one switch away.")
 
         insert.tap()
         try expectValue(expectedText, in: search)
@@ -157,9 +257,7 @@ final class KeyboardInsertionUITests: XCTestCase {
             let usesCustomGlobe = customGlobe.exists && customGlobe.isHittable
             let globe = usesCustomGlobe ? customGlobe : inputModeButton(in: sayso)
             let controls = [
-                ("Q", sayso.buttons["keyboardKey-q"]),
-                ("Delete", sayso.buttons["keyboardDeleteButton"]),
-                ("Return", sayso.buttons["keyboardReturnButton"]),
+                ("Keyboard switch", sayso.buttons["keyboardNextButton"]),
                 ("Insert", sayso.buttons["keyboardInsertButton"]),
                 ("Globe", globe),
                 ("Save", sayso.buttons["saveEditButton"]),
@@ -219,18 +317,9 @@ final class KeyboardInsertionUITests: XCTestCase {
                         "The landscape keyboard did not retain a Ready publication.", app: sayso)
             XCTAssertEqual(sayso.staticTexts["keyboardPreview"].label, expectedText)
             try expectValue("", in: editor, app: sayso)
-            sayso.buttons["keyboardKey-q"].tap()
-            try expectValue("q", in: editor, app: sayso)
-            sayso.buttons["keyboardSpaceButton"].tap()
-            try expectValue("q ", in: editor, app: sayso)
-            sayso.buttons["keyboardDeleteButton"].tap()
-            try expectValue("q", in: editor, app: sayso)
-            sayso.buttons["keyboardReturnButton"].tap()
-            try expectValue("q\n", in: editor, app: sayso)
-            sayso.buttons["keyboardDeleteButton"].tap()
-            sayso.buttons["keyboardDeleteButton"].tap()
-            try expectValue("", in: editor, app: sayso)
-            XCTAssertTrue(insert.isEnabled, "Ordinary typing must not consume the publication.")
+            XCTAssertFalse(sayso.buttons["keyboardKey-q"].exists)
+            XCTAssertFalse(sayso.buttons["keyboardReturnButton"].exists)
+
             insert.tap()
             try expectValue(expectedText, in: editor, app: sayso)
             try require(waitFor(insert, predicate: "enabled == false AND label == 'Inserted'", timeout: 5),
@@ -343,7 +432,7 @@ final class KeyboardInsertionUITests: XCTestCase {
     private func hostInputModeButtonBecameReachable(in host: XCUIApplication) -> Bool {
         let ready = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             let globe = self.inputModeButton(in: host)
-            return globe.exists && globe.isHittable
+            return self.hasVisibleCenter(globe, in: host) && globe.isHittable
         }, object: host)
         return XCTWaiter.wait(for: [ready], timeout: 5) == .completed
     }
@@ -373,15 +462,15 @@ final class KeyboardInsertionUITests: XCTestCase {
         try returnToPreparedSearch(search)
         let insert = settings.buttons["keyboardInsertButton"]
         try require(waitFor(insert, predicate: "enabled == true AND label == 'Insert'", timeout: 5),
-                    "The keyboard did not receive the result of its Stop command.", app: settings)
-        XCTAssertEqual(settings.staticTexts["keyboardPreview"].label, expectedText)
-        XCTAssertFalse(settings.buttons["keyboardDiscardButton"].exists)
-        XCTAssertEqual(contents(of: search), "", "Finishing a recording must not insert its result automatically.")
-        diagnose("Keyboard-Stopped-Result-Ready", app: settings)
+                    "Returning after leaving the field should offer explicit Insert.", app: settings)
+        XCTAssertEqual(contents(of: search), "", "Leaving the keyboard must revoke automatic insertion.")
         insert.tap()
         try expectValue(expectedText, in: search)
         try require(waitFor(insert, predicate: "enabled == false AND label == 'Inserted'", timeout: 5),
-                    "The stopped recording was not marked as consumed after exact insertion.", app: settings)
+                    "The stopped result was not marked consumed.", app: settings)
+        try switchToSystemKeyboard()
+        try selectSaysoKeyboard()
+        try expectValue(expectedText, in: search)
         diagnose("Keyboard-Stopped-Result-Inserted", app: settings)
         try cleanupControlFixture()
     }
@@ -411,10 +500,10 @@ final class KeyboardInsertionUITests: XCTestCase {
 
         try returnToPreparedSearch(search)
         let insert = settings.buttons["keyboardInsertButton"]
-        try require(waitFor(insert, predicate: "enabled == false AND label == 'Insert'", timeout: 5),
-                    "Discarded recording remained insertable or its session remained active.", app: settings)
+        try require(waitFor(insert, predicate: "exists == false", timeout: 5),
+                    "Discarded recording retained a recording or insertion action.", app: settings)
         try require(waitFor(settings.staticTexts["keyboardPreview"], predicate: "label == %@",
-                            arguments: ["Your words, ready here."], timeout: 5),
+                            arguments: ["Ready for your voice"], timeout: 5),
                     "The keyboard did not return to its ordinary empty state after Discard.", app: settings)
         XCTAssertFalse(settings.buttons["keyboardDiscardButton"].exists)
         XCTAssertEqual(contents(of: search), "", "Discard must never insert or publish the recording.")
@@ -425,8 +514,14 @@ final class KeyboardInsertionUITests: XCTestCase {
     /// Real external host and extension commands, with four fresh audio-free
     /// sessions. Foreground resumption processes the command; this does not
     /// claim continuous background execution, microphone capture, or model use.
-    /// Safari's address stays empty: never type, insert, press Return, or search.
+    /// Leaving the keyboard to resume the source revokes automatic insertion.
+    /// Safari's address stays empty and no search is submitted.
     func testKeyboardStopAndDiscardInSafariBothLandscapeOrientations() throws {
+        // Register the installed extension before Settings discovery on a fresh
+        // simulator, as in the isolated panel fixture. This starts no recording.
+        sayso.launchArguments = ["--uitesting", "--scripted-speech"]
+        sayso.launchEnvironment["TEST_STORAGE_ID"] = UUID().uuidString
+        sayso.launch()
         usesControlFixture = true
         restoresLandscapeEnvironment = true
         needsFullAccessRestoration = true
@@ -454,6 +549,7 @@ final class KeyboardInsertionUITests: XCTestCase {
                 diagnose("\(captureName)-Prewarmed", app: safari)
                 XCUIDevice.shared.orientation = .portrait
                 let expectedText = try startScriptedCrossAppFixture()
+                safariSyntheticText = expectedText
                 XCUIDevice.shared.orientation = orientation
                 safari.activate()
                 try waitForSafariLandscape(safari)
@@ -461,11 +557,12 @@ final class KeyboardInsertionUITests: XCTestCase {
 
                 let stop = safari.buttons["keyboardInsertButton"]
                 let discard = safari.buttons["keyboardDiscardButton"]
-                try require(waitFor(stop, predicate: "enabled == true AND label == 'Stop'", timeout: 5),
+                try require(waitFor(stop, predicate: "enabled == true AND label == 'Stop & insert'", timeout: 5),
                             "The fresh Safari recording did not expose Stop with Full Access on.", app: safari)
                 diagnose("\(captureName)-Recording-Controls", app: safari)
                 try requireSafariControlGeometry(safari, address: address)
                 XCTAssertEqual(contents(of: address), "", "Recording must never populate Safari's address.")
+                try requireEmptyFocusedSafariAddress(safari)
                 (shouldStop ? stop : discard).tap()
 
                 // Only the real keyboard sends Stop/Discard. The scripted
@@ -496,18 +593,20 @@ final class KeyboardInsertionUITests: XCTestCase {
                 safari.activate()
                 try waitForSafariLandscape(safari)
                 try returnToSafariKeyboard(safari, address: address)
-                let predicate = shouldStop ? "enabled == true AND label == 'Insert'" : "enabled == false AND label == 'Insert'"
+                let predicate = shouldStop ? "enabled == true AND label == 'Insert'" : "exists == false"
                 try require(waitFor(stop, predicate: predicate, timeout: 5),
                             "Safari keyboard did not settle after \(command).", app: safari)
-                let expectedPreview = shouldStop ? expectedText : "Your words, ready here."
+                let expectedPreview = shouldStop ? expectedText : "Ready for your voice"
                 try require(waitFor(safari.staticTexts["keyboardPreview"], predicate: "label == %@",
                                     arguments: [expectedPreview], timeout: 5),
                             "Safari keyboard's \(command) outcome did not match the complete expected text/state.", app: safari)
                 XCTAssertFalse(discard.exists)
-                XCTAssertEqual(contents(of: address), "", "Stop/Discard must not insert or submit text in Safari.")
+                XCTAssertEqual(contents(of: address), "", "Leaving the keyboard must revoke automatic insertion.")
+                try requireEmptyFocusedSafariAddress(safari)
                 diagnose("\(captureName)-Settled-Without-Insertion", app: safari)
                 try switchToSystemKeyboard(in: safari)
                 XCTAssertEqual(contents(of: address), "", "Switching to English must preserve the empty address.")
+                try requireEmptyFocusedSafariAddress(safari)
             }
         }
         try cleanupControlFixture()
@@ -537,19 +636,80 @@ final class KeyboardInsertionUITests: XCTestCase {
         try require(hostInputModeButtonBecameReachable(in: safari),
                     "Safari's address editor did not expose a visible native input-mode control.", app: safari)
         try selectSaysoKeyboard(in: safari)
-        try require(safari.buttons["keyboardInsertButton"].waitForExistence(timeout: 15),
+        try require(safari.staticTexts["keyboardPreview"].waitForExistence(timeout: 15),
                     "Sayso's keyboard did not prewarm in Safari before recording.", app: safari)
         XCTAssertEqual(contents(of: address), "")
+        try requireEmptyFocusedSafariAddress(safari)
         return address
+    }
+
+    private func requireEmptyFocusedSafariAddress(_ safari: XCUIApplication) throws {
+        // Safari retains an empty TabBarItemTitleContainer proxy even when the
+        // actual focused editor contains inserted text. Check the native editor
+        // exposed in the captured AX hierarchy, alongside the proxy assertions.
+        let focusedAddress = focusedSafariAddress(in: safari)
+        try require(focusedAddress.waitForExistence(timeout: 5),
+                    "Safari's actual focused Address editor is missing from its observed native hierarchy.", app: safari)
+        let state = try safariAddressState(of: focusedAddress)
+        let attachment = XCTAttachment(string: state.details)
+        attachment.name = "Safari-Actual-Address-Value"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        try require(state.text.isEmpty,
+                    "The actual focused Safari Address contains unexpected text after recording or switching apps. \(state.details)", app: safari)
+    }
+
+    private func focusedSafariAddress(in safari: XCUIApplication) -> XCUIElement {
+        safari.textFields.matching(NSPredicate(
+            format: "label == %@ AND identifier BEGINSWITH %@", "Address", "SearchFieldItemView?"
+        )).firstMatch
+    }
+
+    private func safariAddressState(of address: XCUIElement) throws -> (text: String, details: String) {
+        // Read both attributes from one public snapshot. Separate live getters
+        // can disagree while Safari refreshes its native address presentation.
+        let snapshot = try address.snapshot()
+        let value = snapshot.value as? String ?? ""
+        let placeholder = snapshot.placeholderValue
+        let text = value == placeholder ? "" : value
+        let details = "Identifier: \(snapshot.identifier)\nValue: \(String(reflecting: snapshot.value))\nPlaceholder: \(String(reflecting: placeholder))"
+        return (text, details)
+    }
+
+    private func clearOwnedSafariAddressIfNeeded(_ safari: XCUIApplication) throws {
+        safari.activate()
+        let focusedAddress = focusedSafariAddress(in: safari)
+        try require(focusedAddress.waitForExistence(timeout: 5),
+                    "Safari's actual Address editor is unavailable for fixture cleanup.", app: safari)
+        let text = try safariAddressState(of: focusedAddress).text
+        guard !text.isEmpty else { return }
+        try require(text == safariSyntheticText,
+                    "Safari Address contains text not owned by this test; leaving it unchanged.", app: safari)
+        let proxy = safari.textFields["TabBarItemTitleContainer"]
+        try require(proxy.exists, "Safari's visible Address field is unavailable for cleanup.", app: safari)
+        let addressFrame = proxy.frame.intersection(safari.windows.firstMatch.frame)
+        let clear = safari.buttons.matching(NSPredicate(format: "label IN[c] %@", ["Clear", "Clear text"]))
+            .allElementsBoundByIndex.first { button in
+                guard hasVisibleCenter(button, in: safari) else { return false }
+                let frame = button.frame
+                return addressFrame.contains(CGPoint(x: frame.midX, y: frame.midY)) && button.isHittable
+            }
+        try require(clear != nil, "Safari has no visible native Clear control for the owned synthetic text.", app: safari)
+        clear?.tap()
+        let emptied = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
+            (try? self.safariAddressState(of: focusedAddress).text.isEmpty) == true
+        }, object: focusedAddress)
+        try require(XCTWaiter.wait(for: [emptied], timeout: 5) == .completed,
+                    "Safari did not clear this test's synthetic text.", app: safari)
     }
 
     private func returnToSafariKeyboard(_ safari: XCUIApplication, address: XCUIElement) throws {
         try require(address.waitForExistence(timeout: 5) && address.label == "Address",
                     "The previously observed Safari address editor did not remain available.", app: safari)
-        let insert = safari.buttons["keyboardInsertButton"]
+        let panel = safari.staticTexts["keyboardPreview"]
         // Activation/rotation can precede the retained extension's AX tree.
         // Give that native view time to return before touching the address.
-        if !insert.waitForExistence(timeout: 5) {
+        if !panel.waitForExistence(timeout: 5) {
             diagnose("Safari-Retained-Keyboard-Not-Yet-Visible", app: safari)
             let globe = inputModeButton(in: safari)
             if !(globe.exists && globe.isHittable) {
@@ -570,15 +730,14 @@ final class KeyboardInsertionUITests: XCTestCase {
             }
             try selectSaysoKeyboard(in: safari)
         }
-        try require(insert.waitForExistence(timeout: 15),
+        try require(panel.waitForExistence(timeout: 15),
                     "The prewarmed Sayso keyboard did not return to Safari.", app: safari)
-        XCTAssertEqual(contents(of: address), "")
     }
 
     private func requireSafariControlGeometry(_ safari: XCUIApplication, address: XCUIElement) throws {
         let window = safari.windows.firstMatch.frame
         var failures: [String] = []
-        for identifier in ["keyboardInsertButton", "keyboardDiscardButton", "keyboardKey-q", "keyboardDeleteButton", "keyboardReturnButton"] {
+        for identifier in ["keyboardInsertButton", "keyboardDiscardButton", "keyboardNextButton"] {
             let control = safari.buttons[identifier]
             guard control.exists else { failures.append("Missing \(identifier)"); continue }
             let frame = control.frame
@@ -618,7 +777,7 @@ final class KeyboardInsertionUITests: XCTestCase {
         try selectSaysoKeyboard()
         // Prewarm before recording: navigation/extension cold startup must not
         // consume the finite background execution of an audio-free fixture.
-        try require(settings.buttons["keyboardInsertButton"].waitForExistence(timeout: 15),
+        try require(settings.staticTexts["keyboardPreview"].waitForExistence(timeout: 15),
                     "The Sayso extension did not appear before starting the control fixture.", app: settings)
         return search
     }
@@ -651,19 +810,19 @@ final class KeyboardInsertionUITests: XCTestCase {
                     "The previously prepared Settings search was not retained.", app: settings)
         // Returning to an already focused field retains the real extension.
         // Tapping it again opens Settings' Paste/AutoFill editing menu.
-        if !settings.buttons["keyboardInsertButton"].exists {
+        if !settings.staticTexts["keyboardPreview"].exists {
             try require(search.isHittable, "The prepared Settings search is not reachable.", app: settings)
             search.tap()
         }
         try selectSaysoKeyboard()
-        try require(settings.buttons["keyboardInsertButton"].waitForExistence(timeout: 15),
+        try require(settings.staticTexts["keyboardPreview"].waitForExistence(timeout: 15),
                     "The Sayso keyboard did not return to the prepared Settings field.", app: settings)
     }
 
     private func returnToRecordingKeyboard(_ search: XCUIElement) throws {
         try returnToPreparedSearch(search)
         let stop = settings.buttons["keyboardInsertButton"]
-        try require(waitFor(stop, predicate: "enabled == true AND label == 'Stop'", timeout: 5) && stop.isHittable,
+        try require(waitFor(stop, predicate: "enabled == true AND label == 'Stop & insert'", timeout: 5) && stop.isHittable,
                     "The real keyboard did not expose an enabled Stop control with Full Access on.", app: settings)
         let discard = settings.buttons["keyboardDiscardButton"]
         try require(discard.exists && discard.isEnabled && discard.isHittable,
@@ -681,6 +840,13 @@ final class KeyboardInsertionUITests: XCTestCase {
             do { try action() }
             catch { failures.append("\(name): \(error)") }
         }
+        // Safari exposes SearchFieldItemView in landscape and URL in portrait.
+        // Inspect the known focused editor before changing its presentation.
+        attempt("Clear only owned Safari text and leave the address editor") {
+            guard let safariControlHost else { return }
+            defer { XCUIDevice.shared.press(.home) }
+            try clearOwnedSafariAddressIfNeeded(safariControlHost)
+        }
         attempt("Restore landscape probe environment") {
             guard restoresLandscapeEnvironment else { return }
             XCUIDevice.shared.orientation = .portrait
@@ -690,11 +856,6 @@ final class KeyboardInsertionUITests: XCTestCase {
         }
         attempt("Cancel the isolated editor") {
             if ownsSaysoEditor { try closeOwnedSaysoEditor() }
-        }
-        attempt("Leave the empty Safari address editor") {
-            // No Safari text was entered and no tab was created or loaded.
-            // Home safely ends the probe without guessing a new Cancel selector.
-            if safariControlHost != nil { XCUIDevice.shared.press(.home) }
         }
         attempt("Stop any remaining synthetic recording") {
             if launchedScriptedFixture { try cancelScriptedFixtureIfNeeded() }
@@ -956,16 +1117,25 @@ final class KeyboardInsertionUITests: XCTestCase {
                 if window.intersects(keyboard.frame) { bottom = min(bottom, keyboard.frame.minY - 12) }
             }
             let viewport = CGRect(x: window.minX, y: top, width: window.width, height: max(0, bottom - top))
-            var target: XCUIElement?
+            var targetFrame: CGRect?
             for name in names {
                 // iOS 27 exposes navigation as buttons inside collection-view
                 // cells. Target the actionable button before its container.
-                let candidates = [settings.buttons[name], row(name), settings.staticTexts[name]]
-                if let element = candidates.first(where: { $0.exists && viewport.contains($0.frame) && $0.isHittable }) {
-                    element.tap()
-                    return
+                // An offscreen row's global StaticText can report exists and
+                // then lose its typed snapshot as Settings virtualizes it.
+                // Buttons and cells cover the observed navigation surfaces.
+                let candidates = [settings.buttons[name], row(name)]
+                for element in candidates where element.exists {
+                    let frame = element.frame
+                    guard frame.minX.isFinite, frame.minY.isFinite,
+                          frame.width.isFinite, frame.height.isFinite,
+                          frame.width > 0, frame.height > 0 else { continue }
+                    if viewport.contains(frame) && element.isHittable {
+                        element.tap()
+                        return
+                    }
+                    if targetFrame == nil { targetFrame = frame }
                 }
-                if target == nil { target = candidates.first(where: { $0.exists }) }
             }
             // Settings uses both tables and collections. The final table is
             // the foreground Add Keyboard sheet, above the underlying list.
@@ -977,7 +1147,7 @@ final class KeyboardInsertionUITests: XCTestCase {
             else { scroll = settings }
             let frame = scroll.frame.intersection(viewport)
             try require(frame.height > 80, "No visible Settings list viewport for '\(title)'.", app: settings)
-            let above = target.map { $0.frame.minY < viewport.minY } ?? false
+            let above = targetFrame.map { $0.minY < viewport.minY } ?? false
             let start = settings.coordinate(withNormalizedOffset: .zero).withOffset(
                 CGVector(dx: frame.maxX - 20, dy: frame.minY + frame.height * (above ? 0.3 : 0.75)))
             let end = settings.coordinate(withNormalizedOffset: .zero).withOffset(
@@ -1028,9 +1198,9 @@ final class KeyboardInsertionUITests: XCTestCase {
     private func selectSaysoKeyboard(in app: XCUIApplication? = nil) throws {
         let host = app ?? settings!
         try dismissKeyboardIntroduction(in: host)
-        if host.buttons["keyboardInsertButton"].exists { return }
+        if host.staticTexts["keyboardPreview"].exists { return }
         let globe = inputModeButton(in: host)
-        try require(globe.waitForExistence(timeout: 5) && globe.isHittable,
+        try require(globe.waitForExistence(timeout: 5) && hasVisibleCenter(globe, in: host) && globe.isHittable,
                     "The system keyboard has no visible globe/input-mode control. It may be hidden by a connected hardware keyboard.", app: host)
         // The native value identifies the next target. Two AX picker selections
         // left English visible; an observed direct Next keyboard tap opened Sayso.
@@ -1047,23 +1217,39 @@ final class KeyboardInsertionUITests: XCTestCase {
         // iOS 26.5 supplies a bottom Next keyboard button and sets
         // needsInputModeSwitchKey=false, so the extension correctly hides its own.
         let customGlobe = host.buttons["keyboardNextButton"]
-        let globe = customGlobe.exists && customGlobe.isHittable ? customGlobe : inputModeButton(in: host)
-        try require(globe.exists && globe.isHittable, "No visible keyboard-switching control is available.", app: host)
+        let globe = hasVisibleCenter(customGlobe, in: host) && customGlobe.isHittable ? customGlobe : inputModeButton(in: host)
+        try require(hasVisibleCenter(globe, in: host) && globe.isHittable, "No visible keyboard-switching control is available.", app: host)
         globe.press(forDuration: 1)
         try tapInputMode(containing: "English", in: host)
-        try require(waitFor(host.buttons["keyboardInsertButton"], predicate: "exists == false", timeout: 5),
+        try require(waitFor(host.staticTexts["keyboardPreview"], predicate: "exists == false", timeout: 5),
                     "Choosing English did not switch away from Sayso.", app: host)
+    }
+
+    /// XCTest may throw while hit-testing an offscreen native keyboard button
+    /// on iOS 27. Inspect its geometry first so a missing keyboard is a normal
+    /// readiness result, and a bounded responder refresh can run before capture.
+    private func hasVisibleCenter(_ element: XCUIElement, in host: XCUIApplication) -> Bool {
+        guard element.exists else { return false }
+        let frame = element.frame
+        guard frame.minX.isFinite, frame.minY.isFinite, frame.width.isFinite, frame.height.isFinite,
+              frame.width > 0, frame.height > 0 else { return false }
+        let window = host.windows.firstMatch.frame
+        return window.intersects(frame) && window.contains(CGPoint(x: frame.midX, y: frame.midY))
     }
 
     private func inputModeButton(in app: XCUIApplication? = nil) -> XCUIElement {
         let host = app ?? settings!
-        let systemGlobe = host.buttons["Next keyboard"]
-        if systemGlobe.exists && systemGlobe.isHittable { return systemGlobe }
+        let systemGlobe = host.buttons.matching(identifier: "Next keyboard").firstMatch
+        if hasVisibleCenter(systemGlobe, in: host) && systemGlobe.isHittable { return systemGlobe }
         let predicate = NSPredicate(format: "label IN %@",
                                     ["Next keyboard", "Next Keyboard", "Emoji", "Emoji keyboard", "International"])
-        let button = host.buttons.matching(predicate).firstMatch
-        if button.exists { return button }
-        return host.keys.matching(predicate).firstMatch
+        let buttons = host.buttons.matching(predicate)
+        for button in buttons.allElementsBoundByIndex where hasVisibleCenter(button, in: host) {
+            return button
+        }
+        let keys = host.keys.matching(predicate)
+        for key in keys.allElementsBoundByIndex where hasVisibleCenter(key, in: host) { return key }
+        return buttons.firstMatch.exists ? buttons.firstMatch : keys.firstMatch
     }
 
     private func tapInputMode(containing text: String, in app: XCUIApplication? = nil) throws {
@@ -1072,16 +1258,42 @@ final class KeyboardInsertionUITests: XCTestCase {
         // Match a row prefix so English never selects Sayso's language subtitle.
         let menu = host.tables["InputSwitcherTable"]
         if menu.waitForExistence(timeout: 2) {
-            let choice = menu.cells.matching(NSPredicate(format: "label BEGINSWITH[c] %@", text)).firstMatch
-            try require(choice.exists && choice.isHittable, "The input-mode menu has no selectable '\(text)' row.", app: host)
-            choice.tap()
+            let choices = menu.cells.matching(NSPredicate(format: "label BEGINSWITH[c] %@", text))
+            // In landscape the picker scrolls to the selected keyboard. Its
+            // first English match may be above the menu while another English
+            // row is visible. Do not hit-test that offscreen first match.
+            for attempt in 0..<5 {
+                let viewport = menu.frame.intersection(host.windows.firstMatch.frame).insetBy(dx: 2, dy: 0)
+                var targetFrame: CGRect?
+                for choice in choices.allElementsBoundByIndex where choice.exists {
+                    let frame = choice.frame
+                    guard frame.minX.isFinite, frame.minY.isFinite,
+                          frame.width.isFinite, frame.height.isFinite,
+                          frame.width > 0, frame.height > 0 else { continue }
+                    // Rows fill the table width; require their complete height
+                    // plus a centered target inside the observed menu viewport.
+                    let target = CGRect(x: frame.midX - 22, y: frame.minY,
+                                        width: 44, height: frame.height)
+                    if frame.contains(target) && viewport.contains(target) && choice.isHittable {
+                        choice.tap()
+                        return
+                    }
+                    if targetFrame == nil { targetFrame = frame }
+                }
+                guard attempt < 4, viewport.height > 80 else { break }
+                let above = targetFrame.map { $0.minY < viewport.minY } ?? false
+                let start = menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: above ? 0.3 : 0.75))
+                let end = menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: above ? 0.75 : 0.3))
+                start.press(forDuration: 0.05, thenDragTo: end)
+            }
+            try require(false, "The input-mode menu has no fully visible selectable '\(text)' row after bounded scrolling.", app: host)
             return
         }
         let predicate = NSPredicate(format: "label CONTAINS[c] %@", text)
         let button = host.buttons.matching(predicate).firstMatch
         let label = host.staticTexts.matching(predicate).firstMatch
-        if button.waitForExistence(timeout: 2) && button.isHittable { button.tap(); return }
-        if label.exists && label.isHittable { label.tap(); return }
+        if button.waitForExistence(timeout: 2) && hasVisibleCenter(button, in: host) && button.isHittable { button.tap(); return }
+        if hasVisibleCenter(label, in: host) && label.isHittable { label.tap(); return }
         try require(false, "The visible input-mode menu did not list '\(text)'.", app: host)
     }
 

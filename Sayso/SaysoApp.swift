@@ -16,7 +16,7 @@ struct SaysoApp: App {
             _model = State(initialValue: DictationController(
                 store: DictationStore(fileURL: url),
                 speech: ScriptedSpeechPreview(extended: ProcessInfo.processInfo.arguments.contains("--scripted-long")),
-                transformation: ScriptedSpeechPreview.transform))
+                transformation: ScriptedSpeechPreview.transform, preferences: preferences))
             return
         }
         #else
@@ -28,7 +28,20 @@ struct SaysoApp: App {
     }
     var body: some Scene {
         WindowGroup {
-            ContentView(model: model, styles: styles).tint(SaysoTheme.accent).defaultAppStorage(preferences)
+            Group {
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("--uitesting"),
+                   ProcessInfo.processInfo.arguments.contains("--scripted-speech"),
+                   ProcessInfo.processInfo.arguments.contains("--keyboard-panel-host") {
+                    KeyboardPanelPreview(model: model)
+                } else {
+                    ContentView(model: model, styles: styles)
+                }
+                #else
+                ContentView(model: model, styles: styles)
+                #endif
+            }
+            .tint(SaysoTheme.accent).defaultAppStorage(preferences)
         }
     }
 }

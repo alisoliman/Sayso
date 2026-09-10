@@ -50,8 +50,72 @@ final class CrossAppRecordingTests: XCTestCase {
         XCTAssertEqual(fixture.store.entries.first?.text, fixture.speech.stopText)
         XCTAssertEqual(try fixture.handoff.latest()?.text, fixture.speech.stopText)
         XCTAssertEqual(try fixture.handoff.latest()?.id, sessionID)
+        XCTAssertEqual(try fixture.handoff.latest()?.recordingSessionID, sessionID)
         XCTAssertNil(try fixture.sessions.latest())
         XCTAssertEqual(fixture.activity.endedPhases, [.ready])
+    }
+
+    func testKeyboardStopUsesChosenModeFromTheRecordingCatalog() async throws {
+        var usedMode: WritingMode?
+        var usedInstructions: String?
+        let fixture = CrossAppFixture(transformation: { _, mode, instructions, _ in
+            usedMode = mode
+            usedInstructions = instructions
+            return "- The chosen notes."
+        })
+        defer { fixture.removeFiles() }
+        start(fixture, mode: .clean)
+        await waitUntil("Recording starts") { fixture.controller.phase == .recording }
+        let session = try XCTUnwrap(fixture.sessions.latest())
+        XCTAssertEqual(session.selectedModeID, WritingMode.clean.rawValue)
+        XCTAssertTrue(session.availableModes?.contains(where: { $0.id == WritingMode.notes.rawValue }) == true)
+        let now = Date()
+        try fixture.sessions.send(.stop, sessionID: session.id, modeID: WritingMode.notes.rawValue, now: now)
+        fixture.coordinator.poll(now: now)
+        await waitUntil("Chosen mode finishes") { fixture.controller.phase == .idle }
+        XCTAssertEqual(usedMode, .notes)
+        XCTAssertEqual(usedInstructions, WritingMode.notes.instructions)
+        XCTAssertEqual(try fixture.handoff.latest()?.text, "- The chosen notes.")
+    }
+
+    func testKeyboardOriginalChoiceSkipsWritingAndManualReshareClearsProvenance() async throws {
+        var writingCalls = 0
+        let fixture = CrossAppFixture(transformation: { text, _, _, _ in writingCalls += 1; return text })
+        defer { fixture.removeFiles() }
+        start(fixture, mode: .clean)
+        await waitUntil("Recording starts") { fixture.controller.phase == .recording }
+        let id = try XCTUnwrap(fixture.coordinator.sessionID)
+        let now = Date()
+        try fixture.sessions.send(.stop, sessionID: id, modeID: WritingMode.transcript.rawValue, now: now)
+        fixture.coordinator.poll(now: now)
+        await waitUntil("Original finishes") { fixture.controller.phase == .idle }
+        XCTAssertEqual(writingCalls, 0)
+        XCTAssertEqual(try fixture.handoff.latest()?.recordingSessionID, id)
+        try fixture.handoff.publish(text: "An explicit later edit.", id: id)
+        XCTAssertNil(try fixture.handoff.latest()?.recordingSessionID)
+    }
+
+    func testKeyboardModeWithLongDisplayNameRetainsItsPrompt() async throws {
+        var usedInstructions: String?
+        let fixture = CrossAppFixture(transformation: { text, _, instructions, _ in
+            usedInstructions = instructions
+            return text
+        })
+        defer { fixture.removeFiles() }
+        let style = WritingStyle(title: String(repeating: "A long saved mode ", count: 12), prompt: "Keep a concise complete paragraph.")
+        fixture.controller.start(mode: .custom, locale: "en-US", instructions: "", vocabulary: "",
+                                 saveHistory: false, destination: .keyboard, writingStyle: style)
+        await waitUntil("Recording starts") { fixture.controller.phase == .recording }
+        let session = try XCTUnwrap(fixture.sessions.latest())
+        let sharedStyle = try XCTUnwrap(session.availableModes?.first(where: { $0.id == style.id }))
+        XCTAssertEqual(session.selectedModeID, style.id)
+        XCTAssertLessThanOrEqual(sharedStyle.title.utf8.count, 120)
+        let now = Date()
+        try fixture.sessions.send(.stop, sessionID: session.id, modeID: style.id, now: now)
+        fixture.coordinator.poll(now: now)
+        await waitUntil("Selected saved mode finishes") { fixture.controller.phase == .idle }
+        XCTAssertEqual(usedInstructions, style.prompt)
+        XCTAssertEqual(fixture.controller.current?.writingStyle, style)
     }
 
     func testOrdinaryRecordingStillStopsOnBackgroundWithoutSharingOrInvokingWriting() async throws {

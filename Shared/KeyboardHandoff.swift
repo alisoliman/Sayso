@@ -15,6 +15,8 @@ nonisolated struct KeyboardHandoff: Sendable {
         let text: String
         let createdAt: Date
         let expiresAt: Date
+        /// Present only for a completed cross-app recording, never a manual re-share.
+        var recordingSessionID: UUID? = nil
 
         /// Sharing the same dictation again creates a fresh, intentionally insertable handoff.
         var consumptionIdentifier: String { "\(id.uuidString):\(createdAt.timeIntervalSince1970)" }
@@ -52,15 +54,16 @@ nonisolated struct KeyboardHandoff: Sendable {
     }
 
     @discardableResult
-    func publish(text: String, id: UUID = UUID(), now: Date = Date()) throws -> Payload {
+    func publish(text: String, id: UUID = UUID(), recordingSessionID: UUID? = nil, now: Date = Date()) throws -> Payload {
         guard let fileURL else { throw HandoffError.unavailable }
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw HandoffError.emptyText
         }
         guard text.utf8.count <= Self.maximumTextBytes else { throw HandoffError.tooLarge }
         guard now.timeIntervalSince1970.isFinite else { throw HandoffError.invalidPayload }
+        guard recordingSessionID == nil || recordingSessionID == id else { throw HandoffError.invalidPayload }
         let payload = Payload(version: 1, id: id, text: text, createdAt: now,
-                              expiresAt: now.addingTimeInterval(Self.lifetime))
+                              expiresAt: now.addingTimeInterval(Self.lifetime), recordingSessionID: recordingSessionID)
         let data = try JSONEncoder().encode(payload)
         try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(),
                                                 withIntermediateDirectories: true)
@@ -84,6 +87,7 @@ nonisolated struct KeyboardHandoff: Sendable {
             payload = try JSONDecoder().decode(Payload.self, from: Data(contentsOf: fileURL))
         } catch { throw HandoffError.invalidPayload }
         guard payload.version == 1,
+              payload.recordingSessionID == nil || payload.recordingSessionID == payload.id,
               payload.text.utf8.count <= Self.maximumTextBytes,
               !payload.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               payload.createdAt.timeIntervalSince1970.isFinite,
