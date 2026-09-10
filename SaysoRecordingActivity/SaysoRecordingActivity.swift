@@ -27,7 +27,7 @@ struct SaysoRecordingActivity: Widget {
                         .padding(.top, 4)
                 }
                 DynamicIslandExpandedRegion(.center) {
-                    Text(context.recordingStatusIsStale ? "Open Sayso" : context.state.phase.title)
+                    RecordingPhaseTitle(phase: context.state.phase, stale: context.recordingStatusIsStale)
                         .font(.subheadline.weight(.medium))
                         .lineLimit(1).minimumScaleFactor(0.8)
                         .padding(.top, 7)
@@ -36,27 +36,51 @@ struct SaysoRecordingActivity: Widget {
                     VStack(spacing: 8) {
                         if let note = context.state.note, !context.recordingStatusIsStale {
                             Text(note).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                .contentTransition(.identity).transition(.identity)
                         }
                         if !context.state.phase.isTerminal, !context.recordingStatusIsStale {
                             RecordingControls(sessionID: context.attributes.sessionID, listening: context.state.phase == .listening, island: true)
+                                .transition(.identity)
                         } else {
                             Text(context.recordingStatusIsStale ? "Return to Sayso to check this recording." : context.state.phase == .ready ? "Open the Sayso keyboard and tap Insert." : "Tap to return to your words.")
                                 .font(.caption).foregroundStyle(.secondary)
+                                .contentTransition(.identity).transition(.identity)
                         }
                     }.padding(.top, 5)
                 }
             } compactLeading: {
-                RecordingSymbol(phase: context.state.phase, stale: context.recordingStatusIsStale, island: true)
+                RecordingSymbol(phase: context.state.phase, stale: context.recordingStatusIsStale, island: true, animatesPhase: false)
                     .font(.system(size: 16, weight: .semibold))
             } compactTrailing: {
                 RecordingCompactTrailing(context: context)
             } minimal: {
-                RecordingSymbol(phase: context.state.phase, stale: context.recordingStatusIsStale, island: true)
+                RecordingSymbol(phase: context.state.phase, stale: context.recordingStatusIsStale, island: true, animatesPhase: false)
                     .font(.system(size: 15, weight: .semibold))
             }
             .widgetURL(RecordingActivityAttributes.recordingURL)
             .keylineTint(ActivityPalette.islandAccent)
         }
+    }
+}
+
+private struct RecordingPhaseTitle: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isLuminanceReduced) private var luminanceReduced
+    let phase: RecordingActivityAttributes.Phase
+    let stale: Bool
+
+    private var title: String { stale ? "Open Sayso" : phase.title }
+    private var animates: Bool { !reduceMotion && !luminanceReduced && !stale }
+
+    var body: some View {
+        Text(title)
+            // One quiet content change marks a phase update. Freshness ticks
+            // do not retrigger it, and stale status appears immediately.
+            .contentTransition(animates ? .opacity : .identity)
+            .transition(.identity)
+            .animation(animates ? .easeOut(duration: 0.18) : nil, value: title)
+            .animation(nil, value: reduceMotion)
+            .animation(nil, value: luminanceReduced)
     }
 }
 
@@ -70,7 +94,7 @@ private struct RecordingCompactTrailing: View {
             // glanceable microphone/status symbol beside the leading waveform;
             // duration remains available in the keyboard and expanded activity.
             RecordingSymbol(phase: context.state.phase, stale: context.recordingStatusIsStale,
-                            island: true, listeningSymbol: "mic.fill")
+                            island: true, listeningSymbol: "mic.fill", animatesPhase: false)
                 .font(.system(size: 14, weight: .semibold))
         } else {
             RecordingElapsed(context: context)
@@ -92,12 +116,12 @@ private struct RecordingLockScreenView: View {
                 RecordingSymbol(phase: context.state.phase, stale: context.recordingStatusIsStale)
                     .font(.system(size: 23, weight: .medium))
                     .frame(width: 38, height: 38)
-                    .background(ActivityPalette.accent(for: scheme).opacity(0.1), in: Circle())
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(context.recordingStatusIsStale ? "Open Sayso" : context.state.phase.title)
+                    RecordingPhaseTitle(phase: context.state.phase, stale: context.recordingStatusIsStale)
                         .font(.subheadline.weight(.semibold)).lineLimit(1)
                     Text(context.recordingStatusIsStale ? "Check your recording in the app." : context.state.note ?? subtitle)
-                        .font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                        .font(.caption).foregroundStyle(ActivityPalette.secondaryInk(for: scheme)).lineLimit(2)
+                        .contentTransition(.identity)
                 }
                 Spacer(minLength: 4)
                 RecordingElapsed(context: context)
@@ -106,10 +130,11 @@ private struct RecordingLockScreenView: View {
             }
             if !context.state.phase.isTerminal, !context.recordingStatusIsStale {
                 RecordingControls(sessionID: context.attributes.sessionID, listening: context.state.phase == .listening)
+                    .transition(.identity)
             }
         }
         .padding(16)
-        .foregroundStyle(scheme == .dark ? Color.white : Color.black)
+        .foregroundStyle(ActivityPalette.ink(for: scheme))
         .activityBackgroundTint(ActivityPalette.canvas(for: scheme))
         .activitySystemActionForegroundColor(ActivityPalette.accent(for: scheme))
     }
@@ -129,6 +154,10 @@ private struct RecordingElapsed: View {
     let context: ActivityViewContext<RecordingActivityAttributes>
     var body: some View {
         elapsedText.monospacedDigit()
+            // Keep the narrow timer stable. The native date interval still
+            // owns ticking and its existing freshness bound.
+            .contentTransition(.identity)
+            .transition(.identity)
             .accessibilityLabel("Recording duration")
             .accessibilityValue(context.recordingStatusIsStale && context.state.phase == .listening
                                 ? Text("Unavailable. Open Sayso to check.") : elapsedText)
@@ -165,13 +194,25 @@ private extension ActivityViewContext where Attributes == RecordingActivityAttri
 
 private struct RecordingSymbol: View {
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isLuminanceReduced) private var luminanceReduced
     let phase: RecordingActivityAttributes.Phase
     let stale: Bool
     var island = false
     var listeningSymbol = "waveform"
+    var animatesPhase = true
+
+    private var symbol: String { stale ? "mic.slash" : phase == .listening ? listeningSymbol : phase.symbol }
+    private var animates: Bool { animatesPhase && !reduceMotion && !luminanceReduced && !stale }
+
     var body: some View {
-        Image(systemName: stale ? "mic.slash" : phase == .listening ? listeningSymbol : phase.symbol)
+        Image(systemName: symbol)
             .foregroundStyle(island ? ActivityPalette.islandAccent : ActivityPalette.accent(for: scheme))
+            .contentTransition(animates ? .opacity : .identity)
+            .transition(.identity)
+            .animation(animates ? .easeOut(duration: 0.18) : nil, value: symbol)
+            .animation(nil, value: reduceMotion)
+            .animation(nil, value: luminanceReduced)
             .accessibilityLabel(stale ? "Recording status unavailable" : phase.title)
     }
 }
@@ -188,6 +229,7 @@ private struct RecordingControls: View {
                     .font(.subheadline.weight(.medium)).frame(maxWidth: .infinity).padding(.vertical, 4)
             }
             .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
             .tint(.secondary)
             .accessibilityHint("Discard this active recording.")
             if listening {
@@ -196,11 +238,16 @@ private struct RecordingControls: View {
                         .font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity).padding(.vertical, 4)
                 }
                 .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.capsule)
                 .tint(island ? ActivityPalette.islandAccent : ActivityPalette.accent(for: scheme))
                 .foregroundStyle(island ? ActivityPalette.islandInk : ActivityPalette.onAccent(for: scheme))
+                .transition(.identity)
                 .accessibilityHint("Stop the microphone and finish your text.")
             }
         }
+        // Intent buttons keep native press feedback; never retain a fading
+        // Stop target after capture has entered its processing phase.
+        .animation(nil, value: listening)
     }
 }
 
@@ -209,14 +256,26 @@ private enum ActivityPalette {
     // text. A dynamic UIColor can resolve differently in ActivityKit's host,
     // producing a light background behind Lock Screen white text.
     static func accent(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? islandAccent : Color(red: 0.30, green: 0.22, blue: 0.43)
+        scheme == .dark ? islandAccent : color(0x503968)
     }
     static func onAccent(for scheme: ColorScheme) -> Color {
         scheme == .dark ? islandInk : .white
     }
     static func canvas(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color(red: 0.075, green: 0.075, blue: 0.09) : Color(red: 0.975, green: 0.97, blue: 0.96)
+        scheme == .dark ? color(0x141218) : color(0xF8F6F2)
     }
-    static let islandAccent = Color(red: 0.81, green: 0.72, blue: 0.95)
-    static let islandInk = Color(red: 0.12, green: 0.10, blue: 0.16)
+    static func ink(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? color(0xF5F0FA) : color(0x261F2F)
+    }
+    static func secondaryInk(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? color(0xB8AEBD) : color(0x6D6674)
+    }
+    static let islandAccent = color(0xCEB8F2)
+    static let islandInk = color(0x261F2F)
+
+    private static func color(_ value: UInt32) -> Color {
+        Color(red: Double((value >> 16) & 0xFF) / 255,
+              green: Double((value >> 8) & 0xFF) / 255,
+              blue: Double(value & 0xFF) / 255)
+    }
 }

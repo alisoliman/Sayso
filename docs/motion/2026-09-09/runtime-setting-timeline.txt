@@ -1,0 +1,41 @@
+0.012 s | System UIAccessibility.isReduceMotionEnabled = false
+18.895 s | Native Settings Reduce Motion switch = false; requested false
+20.976 s | Verified native switch and UIAccessibility.isReduceMotionEnabled = false
+20.978 s | Capture System-Reduce-Motion-Off
+27.917 s | App launched; system Reduce Motion = false
+30.524 s | Observed recordButton: enabled == true AND label == 'Stop recording'
+33.643 s | Observed liveTranscript: label ENDSWITH 'next project.'
+33.747 s | Live preference-change session established in Attributes: Application, 0x105cd0dc0, pid: 75139, label: 'Sayso'
+33.747 s | Capture Runtime-Standard-Meter-Frame-0
+34.054 s | Capture Runtime-Standard-Meter-Frame-1
+34.334 s | Capture Runtime-Standard-Meter-Frame-2
+34.620 s | Capture Runtime-Standard-Meter-Frame-3
+52.584 s | Native Settings Reduce Motion switch = false; requested true
+52.903 s | Tapping the observed native Reduce Motion thumb at (305.0, 147.33333269755045, 63.0, 28.0)
+56.230 s | Verified native switch and UIAccessibility.isReduceMotionEnabled = true
+56.232 s | Capture System-Reduce-Motion-On
+56.548 s | Same Sayso instance remains in background state 3
+58.383 s | Observed recordButton: enabled == true AND label == 'Stop recording'
+58.419 s | Resumed unchanged recording with system Reduce Motion = true
+58.419 s | Capture Runtime-Reduced-Meter-Frame-0
+58.711 s | Capture Runtime-Reduced-Meter-Frame-1
+59.012 s | Capture Runtime-Reduced-Meter-Frame-2
+59.290 s | Capture Runtime-Reduced-Meter-Frame-3
+76.364 s | Native Settings Reduce Motion switch = true; requested false
+76.731 s | Tapping the observed native Reduce Motion thumb at (305.0, 147.33333269755045, 63.0, 28.0)
+79.315 s | Verified native switch and UIAccessibility.isReduceMotionEnabled = false
+79.319 s | Capture System-Reduce-Motion-Off
+79.471 s | Same Sayso instance remains in background state 3
+80.786 s | Observed recordButton: enabled == true AND label == 'Stop recording'
+80.815 s | Resumed unchanged recording with system Reduce Motion = false
+80.815 s | Capture Runtime-Restored-Meter-Frame-0
+81.095 s | Capture Runtime-Restored-Meter-Frame-1
+81.374 s | Capture Runtime-Restored-Meter-Frame-2
+81.655 s | Capture Runtime-Restored-Meter-Frame-3
+81.762 s | Finish requested after live off-on-off system preference changes
+83.176 s | Observed recordButton: enabled == true AND label == 'Start recording'
+84.330 s | Capture Runtime-Preference-Change-Exact-Result
+97.629 s | Native Settings Reduce Motion switch = false; requested false
+99.731 s | Verified native switch and UIAccessibility.isReduceMotionEnabled = false
+99.731 s | Capture System-Reduce-Motion-Off
+99.854 s | Restored original system Reduce Motion = false

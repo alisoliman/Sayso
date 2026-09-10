@@ -1,0 +1,525 @@
+{
+  "recordedAtUTC": "2026-09-09T14:09:56.701386+00:00",
+  "baseCommit": "c0501580518db460ab3e4b0450cc98791795ba13",
+  "environment": {
+    "xcode": "27.0 beta 6",
+    "xcodeBuild": "27A5252f",
+    "sdk": "iOS 27 simulator",
+    "runtimeBuild": "24A5423a",
+    "device": "iPhone 17 Pro simulator",
+    "simulatorId": "5950F29E-BEA9-4314-9B76-0698897B9395"
+  },
+  "build": {
+    "action": "build-for-testing",
+    "result": "passed",
+    "log": ".build/design-wrapping-settings-build.log"
+  },
+  "sourceSHA256": {
+    "Sayso/ContentView.swift": "e4f512d874e1e284c2bfc105f9856e1681ce6eea83805c1b5b67e7bcc70aaf51",
+    "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+    "Sayso/Models/DictationController.swift": "58a61f3c3726781086cc94470d9e7f3568e0a75a38a4e3532dbee124ea4f3c01",
+    "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+    "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "74482031dde5c1104fa02d9d9bc95e039ff1ead80388686f652ca0ae5e7930a5",
+    "Sayso/SaysoApp.swift": "5281056882758c0b010f5930d608af0a1fd8c0c5d10eeea73e74031166dbad0a",
+    "Sayso/Services/DictationIntent.swift": "be56c1e899ceeee672da8b313bacce527f40254fb8a41a39bad20050c9671d15",
+    "Sayso/Services/IntelligenceService.swift": "242ff519471eac8f5aa20a6f8f2b6192ceaf511c3f9b969049f2547431a7f006",
+    "Sayso/Services/KeyboardRecordingCoordinator.swift": "639f532c682cd98a0a6d25231cccfe0aff724320bfa1b45658adc7d4e41a0e11",
+    "Sayso/Services/ParakeetModelStore.swift": "53cab30a9d8719c49514dd5c72b26d90c31f332a86c10381ff4a14c6a6053811",
+    "Sayso/Services/ParakeetRuntime.swift": "f03e3be2739d55dfc1b1366f69e0c45f500d6803f7b08183103afe1c18cbc60d",
+    "Sayso/Services/ParakeetSpeechService.swift": "50b4e24bcf09d7e291e0b17955c359cf1afbb212aa7dc1e68c8a9be77a591b96",
+    "Sayso/Services/RecordingActivityCoordinator.swift": "e45a19d05ad23863290aa01f5f40325af1cc3d28f26ee3042c15587ca34de321",
+    "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+    "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+    "Sayso/Services/SpeechProvider.swift": "9f1b6e648203a79b445203d49ddf1e4e87a3da14c09a10b444bdca0ebc373293",
+    "Sayso/Services/SpeechService.swift": "a645ca1d4cee9f7ec1d5c841772f5a5929295674bc8adc97f888f23f6e76e9b9",
+    "Sayso/Views/HistoryView.swift": "2bba5bd96c228b68316e4b77e034eac237cf365ba4eaf87b92d665615e8ac1a1",
+    "Sayso/Views/KeyboardSendButton.swift": "3991f9284832a2563ad8e61073dd0e7a129f00c772c5306ecd7c181b9ef5ee64",
+    "Sayso/Views/ModePickerView.swift": "903588dfcecf30ae531718793a0a19955b9ba11290ba39b91b8f781b025a4cdd",
+    "Sayso/Views/SaysoTheme.swift": "fb0231e5d8598d0d38da55113da81ff82e40783905b06f5d1f02981fa2d7e415",
+    "Sayso/Views/SettingsView.swift": "80a81d41f3ec0b78a3958ec87b82846f351bd720abb2e29b0fdc69ab21233311",
+    "SaysoKeyboard/KeyboardViewController.swift": "17d55a6f664c298fefcb4531fb370fac94179467d04db9524932e25c13ba657b",
+    "SaysoRecordingActivity/SaysoRecordingActivity.swift": "88df25c517e163a8dabbbcfe9db46392a656601b17177c51c5565e3cc2c92402",
+    "SaysoUITests/DesignLanguageUITests.swift": "22db0bde5d7e57348c1ffc0e3a99d6589af51bd52b8418dd759644beb96ce575",
+    "SaysoUITests/KeyboardInsertionUITests.swift": "b3a33e0507d934d169b212b5a232f71101df6146d13238accc606d43f6cdd2f5",
+    "SaysoUITests/SaysoUITests.swift": "1702d44347a1ec203267107b34a20f60e956119cb6b0ea84f97dc0e31397e93d",
+    "SaysoUITests/WritingModesUITests.swift": "9d31d0a51d67f879d88284dd57c747d196ae8ca30430d4e3ce52ea7db1fd3a34"
+  },
+  "completedCohorts": [
+    {
+      "resultBundle": ".build/Design-Validated-Light.xcresult",
+      "log": ".build/design-validated-light-tests.log",
+      "scope": "Light; functional cohort before final target and Settings refinements",
+      "passed": 11,
+      "failed": 1,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "failed",
+          "durationSeconds": 32.054
+        },
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable",
+          "result": "passed",
+          "durationSeconds": 43.011
+        },
+        {
+          "test": "SaysoUITests.KeyboardInsertionUITests/testExplicitInsertionInSettingsWithFullAccessOff",
+          "result": "passed",
+          "durationSeconds": 104.235
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testAccessibilityTextSizeKeepsRecordingActionAccessible",
+          "result": "passed",
+          "durationSeconds": 31.249
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testCompactRefinementCancelPreservesOriginalAndAllowsNextRecording",
+          "result": "passed",
+          "durationSeconds": 50.123
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable",
+          "result": "passed",
+          "durationSeconds": 19.004
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testLandscapeKeepsHomeRecordingAndLongResultAccessibleAtNormalAndLargestText",
+          "result": "passed",
+          "durationSeconds": 229.063
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testNativeShareAndImportCancellationPreservePreview",
+          "result": "passed",
+          "durationSeconds": 28.833
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch",
+          "result": "passed",
+          "durationSeconds": 30.601
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testScriptedDiscardDoesNotLeaveHistoryOrDisableNextRecording",
+          "result": "passed",
+          "durationSeconds": 13.865
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testScriptedLongRecordingCanReviewAndResumeLatestWords",
+          "result": "passed",
+          "durationSeconds": 18.953
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testScriptedRecordingFinishingRefinementAndResult",
+          "result": "passed",
+          "durationSeconds": 18.847
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Design-Targets-Light.xcresult",
+      "log": ".build/design-targets-light-tests.log",
+      "scope": "Light; corrected prompt-edit target",
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "passed",
+          "durationSeconds": 71.097
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable",
+          "result": "passed",
+          "durationSeconds": 19.94
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Design-Dark.xcresult",
+      "log": ".build/design-dark-tests.log",
+      "scope": "Dark; primary, large-text, History and Live Activity journeys",
+      "passed": 4,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "passed",
+          "durationSeconds": 72.428
+        },
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable",
+          "result": "passed",
+          "durationSeconds": 46.173
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testDarkAppearanceKeepsRecordingActionAccessible",
+          "result": "passed",
+          "durationSeconds": 9.001
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testScriptedLiveActivityStopFromNotificationCenter",
+          "result": "passed",
+          "durationSeconds": 25.1
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Design-Settings-Light.xcresult",
+      "log": ".build/design-settings-light-tests.log",
+      "scope": "Light; intermediate stacked-picker layout; screenshot still showed truncation",
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "passed",
+          "durationSeconds": 72.355
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable",
+          "result": "passed",
+          "durationSeconds": 20.386
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Design-Settings-Dark.xcresult",
+      "log": ".build/design-settings-dark-tests.log",
+      "scope": "Dark; intermediate stacked-picker layout; screenshot still showed truncation",
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "passed",
+          "durationSeconds": 70.038
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Design-Wrapping-Settings-Light.xcresult",
+      "log": ".build/design-wrapping-settings-light-tests.log",
+      "scope": "Light; final wrapping menus, selection persistence and normal Settings navigation",
+      "passed": 2,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "passed",
+          "durationSeconds": 123.567
+        },
+        {
+          "test": "SaysoUITests.SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable",
+          "result": "passed",
+          "durationSeconds": 18.352
+        }
+      ]
+    },
+    {
+      "resultBundle": ".build/Design-Wrapping-Settings-Dark.xcresult",
+      "log": ".build/design-wrapping-settings-dark-tests.log",
+      "scope": "Dark; final wrapping menus and selection persistence",
+      "passed": 1,
+      "failed": 0,
+      "tests": [
+        {
+          "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+          "result": "passed",
+          "durationSeconds": 122.708
+        }
+      ]
+    }
+  ],
+  "latestOutcomeByDistinctTest": [
+    {
+      "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable",
+      "result": "passed",
+      "durationSeconds": 122.708,
+      "resultBundle": ".build/Design-Wrapping-Settings-Dark.xcresult"
+    },
+    {
+      "test": "SaysoUITests.DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable",
+      "result": "passed",
+      "durationSeconds": 46.173,
+      "resultBundle": ".build/Design-Dark.xcresult"
+    },
+    {
+      "test": "SaysoUITests.KeyboardInsertionUITests/testExplicitInsertionInSettingsWithFullAccessOff",
+      "result": "passed",
+      "durationSeconds": 104.235,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testAccessibilityTextSizeKeepsRecordingActionAccessible",
+      "result": "passed",
+      "durationSeconds": 31.249,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testCompactRefinementCancelPreservesOriginalAndAllowsNextRecording",
+      "result": "passed",
+      "durationSeconds": 50.123,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable",
+      "result": "passed",
+      "durationSeconds": 18.352,
+      "resultBundle": ".build/Design-Wrapping-Settings-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testLandscapeKeepsHomeRecordingAndLongResultAccessibleAtNormalAndLargestText",
+      "result": "passed",
+      "durationSeconds": 229.063,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testNativeShareAndImportCancellationPreservePreview",
+      "result": "passed",
+      "durationSeconds": 28.833,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch",
+      "result": "passed",
+      "durationSeconds": 30.601,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testScriptedDiscardDoesNotLeaveHistoryOrDisableNextRecording",
+      "result": "passed",
+      "durationSeconds": 13.865,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testScriptedLongRecordingCanReviewAndResumeLatestWords",
+      "result": "passed",
+      "durationSeconds": 18.953,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testScriptedRecordingFinishingRefinementAndResult",
+      "result": "passed",
+      "durationSeconds": 18.847,
+      "resultBundle": ".build/Design-Validated-Light.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testDarkAppearanceKeepsRecordingActionAccessible",
+      "result": "passed",
+      "durationSeconds": 9.001,
+      "resultBundle": ".build/Design-Dark.xcresult"
+    },
+    {
+      "test": "SaysoUITests.SaysoUITests/testScriptedLiveActivityStopFromNotificationCenter",
+      "result": "passed",
+      "durationSeconds": 25.1,
+      "resultBundle": ".build/Design-Dark.xcresult"
+    }
+  ],
+  "summary": {
+    "distinctTests": 14,
+    "latestPassed": 14,
+    "completedExecutions": 24,
+    "passedExecutions": 23,
+    "failedExecutions": 1
+  },
+  "screenshots": [
+    {
+      "path": "docs/screenshots/design-2026-09-09/history-dark-accessibility.png",
+      "sha256": "1324383f32204f4ba5584575b3898a6c2d836fced9b37a42369955fc1205fa93",
+      "source": {
+        "manifest": ".build/design-dark-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable()",
+        "attachment": "0964E1C6-4854-46E5-B5F3-868B9125603C.png",
+        "suggestedName": "Design-AX-Saved-Actions_0_0146C868-D3E8-4C7B-B899-835841B794B4.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/history-empty-accessibility.png",
+      "sha256": "2afb21e946b28cb58aa2b39f5fc8391c6578937304e6c852c4cfa527a1bdeec5",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "5D006536-0EAB-4489-B107-CB1C6148310F.png",
+        "suggestedName": "Design-AX-Empty-History_0_CC60CACF-FE37-4C36-9F8D-55D9FE48D7F7.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/home-accessibility.png",
+      "sha256": "d459bd7fe2ad35d944f728e6b1698209f6c3e4835d0192073d4f2223f648d386",
+      "source": {
+        "manifest": ".build/design-validated-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testAccessibilityTextSizeKeepsRecordingActionAccessible()",
+        "attachment": "DF4A2E06-CB52-40DF-A42A-BEE732902043.png",
+        "suggestedName": "08-Home-Accessibility-XXXL_0_0ECCD0DE-066C-4380-8862-4A7F46AE4E3F.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/home-dark-accessibility.png",
+      "sha256": "92156f7fa012571c15308453c48a90c3c281c340417506de833d1912081eb837",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-dark-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "76F19D92-8BCC-43CF-9E97-B94287107B71.png",
+        "suggestedName": "Design-AX-Home_0_946E8B3D-7A1F-4B52-B54A-FAD85246F84B.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/home-dark.png",
+      "sha256": "c87e7af32a60199f7e365acb19eafea4b46622f661c57f566721bf82a4a5dc61",
+      "source": {
+        "manifest": ".build/design-dark-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testDarkAppearanceKeepsRecordingActionAccessible()",
+        "attachment": "14D86359-C297-4EC2-9074-9BE0B6BB3DF2.png",
+        "suggestedName": "07-Home-Dark_0_67A84D23-BBE6-427A-BE4C-27659B2D028C.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/home-landscape-accessibility.png",
+      "sha256": "c2f0c602d3d860bdfcd4d53da61206a73fef4e705ea43341834c18bb1c48ab84",
+      "source": {
+        "manifest": ".build/design-validated-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testLandscapeKeepsHomeRecordingAndLongResultAccessibleAtNormalAndLargestText()",
+        "attachment": "E720EAD6-73B1-4022-95D0-576338AA51B0.png",
+        "suggestedName": "Landscape-AX-XXXL-Left-Home_0_484C68DB-26C2-4798-9CE5-A0B9280E5574.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/home-landscape.png",
+      "sha256": "f1f8fc699c65df7de1d88a44b53c8772756d2b046e79ec50b816b778bbb760e1",
+      "source": {
+        "manifest": ".build/design-validated-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testLandscapeKeepsHomeRecordingAndLongResultAccessibleAtNormalAndLargestText()",
+        "attachment": "7461E2D7-B21E-400A-950D-5CBE6B8C9C42.png",
+        "suggestedName": "Landscape-Normal-Left-Home_0_E2050B49-E092-45AE-9705-0FA40A336AE9.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/home-light.png",
+      "sha256": "1a68cc105a43e89138897b3cc439105d4c0cdf62e659b7896a6b46b8ebf2336e",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable()",
+        "attachment": "FE996011-A892-4E03-82DD-2259F2DCE4CB.png",
+        "suggestedName": "01-Home_0_287206E5-BF66-4E47-A84F-223020C3EE98.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/keyboard-light.png",
+      "sha256": "81563a41be4efd88a8a38b0000df82a834bf9c05f721d079d9c3d166c90344de",
+      "source": {
+        "manifest": ".build/design-light-attachments/manifest.json",
+        "testIdentifier": "KeyboardInsertionUITests/testExplicitInsertionInSettingsWithFullAccessOff()",
+        "attachment": "94AA883F-023F-4EEA-A3B2-E4C3E4ADBAF5.png",
+        "suggestedName": "Keyboard-Ready-Full-Access-Off_0_C455BA0B-28C1-4E09-BC8A-540C0B6A998E.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/language-accessibility.png",
+      "sha256": "30f86ff40844657d851580ee4b33692d8f7063896a22f1b91e964d69853cba5f",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "61137B56-0812-41F8-B0F7-FE67EF8B8E98.png",
+        "suggestedName": "Design-AX-Language-Selected_0_98F004DE-48CD-43E3-AD35-82BC4C95E3DD.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/language-dark-accessibility.png",
+      "sha256": "5e0e872432f4fb16a2d33cb2db705c156b142ad5917f68ff15566be096baed57",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-dark-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "C691D459-4801-48ED-AC70-DEA31DADAA1D.png",
+        "suggestedName": "Design-AX-Language-Selected_0_C56F89F9-18D7-43A4-B4EA-1C4A2371F10B.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/live-activity-dark.png",
+      "sha256": "c7a81749a1843ec3fb11d0a7b6f9afd8c380f4395d45ad9581dc6b6b4db86d63",
+      "source": {
+        "manifest": ".build/design-dark-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testScriptedLiveActivityStopFromNotificationCenter()",
+        "attachment": "0273EF83-84D1-4C10-8DE0-7A000041D514.png",
+        "suggestedName": "21-Live-Activity-Controls_0_9FEAEC47-FC4B-4CB4-A80B-211E505C3D32.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/modes-accessibility.png",
+      "sha256": "271047f8bdfdaf693effd7b21f5f607d95f4e3dbfe9d4c1e561f2e535a42c6c9",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "C55BBF2F-F6B4-4B72-A60A-8A6A649BDCA0.png",
+        "suggestedName": "Design-AX-Modes_0_30B40329-23E4-4A74-B67A-9752C938F9A8.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/modes-light.png",
+      "sha256": "188bdbb9c6a76675b743139198885efd0a2d9c185ca0b6423b021db33b1d146a",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable()",
+        "attachment": "4BAD4156-40F6-47D5-BA61-F820728EF301.png",
+        "suggestedName": "02-Writing-Modes_0_AE0BB9A5-DC7A-41F1-89B5-10EEC7FE08F4.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/recording-light.png",
+      "sha256": "9c64fef5cd08c535d39656fd7b5057f4c7f0b81f2fd5a834f8eb689ccb9b136d",
+      "source": {
+        "manifest": ".build/design-validated-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testScriptedRecordingFinishingRefinementAndResult()",
+        "attachment": "DB12EB87-A1AB-4EF7-AB43-AC065FCD5C68.png",
+        "suggestedName": "11-Scripted-Recording_0_A3A87DDC-0EAC-476E-9CAA-6C29296EF59C.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/result-light.png",
+      "sha256": "b0863efd00c148a437b0a0534965b5c80cd331643e6e4a73365d065eaf5e73cc",
+      "source": {
+        "manifest": ".build/design-validated-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch()",
+        "attachment": "32E66C45-3149-4CFA-8E9C-58ADBA2DA2BD.png",
+        "suggestedName": "05-Result_0_6886C56E-1F8F-4B51-9088-2276EFCBD0EF.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/settings-accessibility.png",
+      "sha256": "e3a6f955943f3c2fd8125d80ebbd64ec4b538c48579bda18b46f941ee2d8de7b",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "8F6638F3-6D8E-4624-BCF4-F2582D9BADCE.png",
+        "suggestedName": "Design-AX-Settings_0_F52255AD-603A-4FFC-BAAA-5089906AE608.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/settings-dark-accessibility.png",
+      "sha256": "27600495a36f9e87a64d216056baf8f2406d81cb50465cf2972242851d0bd8db",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-dark-attachments/manifest.json",
+        "testIdentifier": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+        "attachment": "ECC43E3A-D490-457C-8AE6-8FCF0F3B201E.png",
+        "suggestedName": "Design-AX-Settings_0_621EE530-F81E-408B-BECC-CA7F8FEED83E.png"
+      }
+    },
+    {
+      "path": "docs/screenshots/design-2026-09-09/settings-light.png",
+      "sha256": "da09a6964626e3e6a7f92885f1e8f3a8df185024eb8f2f61f4e4017d753e8357",
+      "source": {
+        "manifest": ".build/design-wrapping-settings-light-attachments/manifest.json",
+        "testIdentifier": "SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable()",
+        "attachment": "3AF2C1BA-E19F-4533-A390-4CF116EAA323.png",
+        "suggestedName": "03-Settings_0_0395B615-41FA-4B8C-BAEA-CFAA7AFC0054.png"
+      }
+    }
+  ],
+  "limits": [
+    "Selected tests were run in cohorts; this is not a claim that the entire repository suite passed on a single build.",
+    "The first cohort retains a 42-point prompt-edit target failure, fixed and rerun in later cohorts.",
+    "Final Settings-only changes were verified with focused light and dark reruns; unchanged journeys retain their preceding results.",
+    "Earlier exploratory/interrupted bundles are retained locally and are not included in these completed cohorts.",
+    "Scripted speech and saved-text fixtures do not verify microphone recognition, live Apple Intelligence quality, physical-device behavior or assistive-technology operation.",
+    "Screenshots are unmodified XCTest exports; earlier captures remain applicable to unchanged surfaces."
+  ]
+}

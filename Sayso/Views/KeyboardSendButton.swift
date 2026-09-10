@@ -18,9 +18,9 @@ struct KeyboardSendButton: View {
                 message = error.localizedDescription
             }
         } label: {
-            Image(systemName: "keyboard").font(.system(size: 18)).frame(width: 42, height: 42)
+            Image(systemName: "keyboard").font(.system(size: 18)).frame(width: 44, height: 44)
         }
-        .buttonStyle(.glass).buttonBorderShape(.circle)
+        .buttonStyle(SaysoQuietButtonStyle())
         .accessibilityLabel("Send to keyboard")
         .accessibilityHint("Make this text available to insert in another app")
         .accessibilityIdentifier("sendToKeyboardButton")
@@ -60,6 +60,8 @@ struct KeyboardSetupView: View {
                 }
             } footer: { Text("Clearing shared text leaves your dictation history in Sayso.") }
         }
+        .scrollContentBackground(.hidden)
+        .background(SaysoTheme.canvas)
         .navigationTitle("Sayso keyboard").navigationBarTitleDisplayMode(.inline)
         .alert("Shared text", isPresented: Binding(get: { clearMessage != nil }, set: { if !$0 { clearMessage = nil } })) {
             Button("OK") { clearMessage = nil }
