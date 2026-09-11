@@ -13,7 +13,7 @@ final class SpeechRecognitionIntegrationTests: XCTestCase {
     private static let fixtureSHA256 = "6cf42cebb9e453ae7f92b7c00fbfd365b479bcb0faf53d8894a5f28dbdfc0f1c"
     private static let utterance = "Today we are testing local speech recognition. The blue notebook is on the table. Please send the meeting notes tomorrow morning."
 
-    func testSyntheticFileAndProductionConverterOnPhysicalDevice() async throws {
+    func testSyntheticAudioThroughProductionConverterOnPhysicalDevice() async throws {
         #if targetEnvironment(simulator)
         throw XCTSkip("Speech model probe requires a physical iPhone; simulator checks cannot establish recognition quality.")
         #else
@@ -35,23 +35,6 @@ final class SpeechRecognitionIntegrationTests: XCTestCase {
                                  fixtureSHA256: Self.fixtureSHA256, syntheticUtterance: Self.utterance,
                                  fixtureFrames: audio.length,
                                  fixtureDurationSeconds: Double(audio.length) / audio.processingFormat.sampleRate)
-        let service = SpeechService()
-        var direct = PathReport(path: "production-direct-file")
-        let directStarted = Date()
-        do {
-            direct.transcript = try await bounded(operation: {
-                try await service.transcribeFile(at: fixture, localeIdentifier: "en-US", contextualStrings: [])
-            }, cancel: { await service.cancel() })
-            direct.completed = true
-        } catch { direct.error = ErrorReport(error) }
-        direct.elapsedSeconds = Date().timeIntervalSince(directStarted)
-        direct.nonempty = !(direct.transcript?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
-        direct.productionDiagnostics = service.diagnosticsReport
-        await service.cancel()
-        report.paths.append(direct)
-        try attach(report, name: "Device-Speech-Probe-Direct-Completed")
-
-        // A first-path failure must not prevent the independent converter comparison.
         let streamed = StreamedProbe()
         let streamedStarted = Date()
         do {
@@ -65,8 +48,7 @@ final class SpeechRecognitionIntegrationTests: XCTestCase {
         streamed.report.nonempty = !(streamed.report.transcript?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
         await streamed.cancel()
         report.paths.append(streamed.report)
-        try attach(report, name: "Device-Speech-Probe-Comparison")
-        XCTAssertTrue(direct.completed && direct.nonempty, "Direct production file recognition failed or returned no words; inspect the synthetic comparison attachment.")
+        try attach(report, name: "Device-Speech-Probe-Streaming")
         XCTAssertTrue(streamed.report.completed && streamed.report.nonempty, "Production-converter streaming failed or returned no words; inspect the synthetic comparison attachment.")
         XCTAssertGreaterThan(streamed.report.finalResultCount ?? 0, 0, "Streamed recognition published no final result.")
         XCTAssertEqual(streamed.report.convertedDurationSeconds ?? -1, report.fixtureDurationSeconds, accuracy: 0.02,
@@ -145,7 +127,6 @@ final class SpeechRecognitionIntegrationTests: XCTestCase {
         var elapsedSeconds: Double?
         var transcript: String?
         var error: ErrorReport?
-        var productionDiagnostics: String?
         var inputFrameCount: Int64?
         var convertedBufferCount: Int?
         var convertedDurationSeconds: Double?

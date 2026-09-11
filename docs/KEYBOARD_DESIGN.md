@@ -30,7 +30,7 @@ Keyboard availability also depends on the target field and app: secure fields an
 
 ## Finished-text handoff contract
 
-1. The person records or imports in Sayso, reviews/edits, then explicitly selects **Send to keyboard**. Sharing is independent of saving history. No history list, raw audio or surrounding host-field text enters the shared container.
+1. The person records live in Sayso, reviews/edits, then explicitly selects **Send to keyboard**. Sharing is independent of saving history. No history list, raw audio or surrounding host-field text enters the shared container.
 2. The app atomically publishes `id`, exact `text`, `createdAt` and `expiresAt` to `group.solimanali.Sayso`. A handoff expires after ten minutes; a new publication replaces the previous one. File protection applies while locked. A missing entitlement/container is an actionable failure, never a fallback to a guessed directory.
 3. The person switches back, focuses the destination and selects Sayso with the globe. The keyboard reads the current handoff and shows a short preview and **Insert**.
 4. Insert re-reads and validates the handoff, checks it still matches the displayed ID/text, then calls the active `textDocumentProxy.insertText`. It marks that handoff consumed only in its own sandbox to suppress accidental repeated taps. Appearance alone never inserts a result. Only an in-memory pending Stop & insert for the matching recording provenance and current document authorizes automatic insertion; leaving the keyboard revokes it.

@@ -81,7 +81,7 @@ The host remains **macOS 26.6.2 (25G83)**. The production Mac intelligence, spee
 
 ## Deferred alternatives
 
-Audio-file import continues to use `SpeechAnalyzer.analyzeSequence(from: AVAudioFile)`. `AssetInputSequenceProvider` and `CaptureInputSequenceProvider` are not required for this migration. The capture provider would replace the engine/session architecture, and its sequence ends when its audio output is deallocated; stopping capture alone is not documented to finish it. That larger change remains deferred. [Asset provider](https://developer.apple.com/documentation/speech/assetinputsequenceprovider), [capture sequence lifetime](https://developer.apple.com/documentation/speech/captureinputsequenceprovider/analyzerinputs).
+At migration time, audio-file import used `SpeechAnalyzer.analyzeSequence(from: AVAudioFile)`. That app feature and its service API were removed on 10 September 2026; Sayso now accepts only live recordings. `AssetInputSequenceProvider` and `CaptureInputSequenceProvider` are not required for this migration. The capture provider would replace the engine/session architecture, and its sequence ends when its audio output is deallocated; stopping capture alone is not documented to finish it. That larger change remains deferred. [Asset provider](https://developer.apple.com/documentation/speech/assetinputsequenceprovider), [capture sequence lifetime](https://developer.apple.com/documentation/speech/captureinputsequenceprovider/analyzerinputs).
 
 ## Completed SDK interface provenance
 

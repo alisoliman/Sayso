@@ -69,7 +69,7 @@ struct SettingsView: View {
                     }
                 } header: { Text("Transcription") } footer: {
                     if provider == .parakeet {
-                        Text("Download once or import the Parakeet TDT v3 Core ML folder. Recording and audio imports then work offline, without Apple Intelligence. Transcription appears after Stop; recordings and imports are limited to 10 minutes. \(provider.languageDescription)")
+                        Text("Download once or import the Parakeet TDT v3 Core ML folder. Recording then works offline, without Apple Intelligence. Transcription appears after Stop; recordings are limited to 10 minutes. \(provider.languageDescription)")
                     } else {
                         Text("Apple’s on-device speech model provides live transcription. Language assets may need an initial download.")
                     }

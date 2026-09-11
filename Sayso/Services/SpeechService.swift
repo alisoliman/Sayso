@@ -21,7 +21,6 @@ protocol SpeechTranscribing: AnyObject {
     func start(localeIdentifier: String, contextualStrings: [String]) async throws
     func stop() async throws -> String
     func cancel() async
-    func transcribeFile(at url: URL, localeIdentifier: String, contextualStrings: [String]) async throws -> String
 }
 
 extension SpeechTranscribing {
@@ -32,7 +31,7 @@ extension SpeechTranscribing {
 }
 
 /// Owns one on-device transcription at a time. Speech assets may be downloaded
-/// from Apple; recorded and imported audio is processed on the device.
+/// from Apple; recorded audio is processed on the device.
 @MainActor
 @Observable
 final class SpeechService: SpeechTranscribing {
@@ -73,7 +72,7 @@ final class SpeechService: SpeechTranscribing {
     }
 
     func start(localeIdentifier: String, contextualStrings: [String] = []) async throws {
-        let session = try beginSession(kind: .microphone)
+        let session = try beginSession()
         session.diagnostics.localeIdentifier = localeIdentifier
         do {
             try ensureDeviceSupport()
@@ -186,7 +185,7 @@ final class SpeechService: SpeechTranscribing {
 
     /// Drains captured audio before finalizing, so the end of a sentence is retained.
     func stop() async throws -> String {
-        guard let session, session.kind == .microphone, !session.isStopping,
+        guard let session, !session.isStopping,
               session.analyzer != nil, !session.isCancelled else {
             throw SpeechServiceError.notRecording
         }
@@ -234,51 +233,9 @@ final class SpeechService: SpeechTranscribing {
         level = 0
     }
 
-    /// Imports the original file directly into SpeechAnalyzer. Its file API
-    /// performs format conversion and streams the file without loading it all.
-    func transcribeFile(at url: URL, localeIdentifier: String,
-                        contextualStrings: [String] = []) async throws -> String {
-        let session = try beginSession(kind: .file)
-        session.diagnostics.localeIdentifier = localeIdentifier
-        let hasSecurityScope = url.startAccessingSecurityScopedResource()
-        defer { if hasSecurityScope { url.stopAccessingSecurityScopedResource() } }
-        do {
-            try ensureDeviceSupport()
-            let file = try AVAudioFile(forReading: url)
-            session.diagnostics.captureFormat = Self.describe(file.processingFormat)
-            session.diagnostics.stopReason = "end of file"
-            guard file.length > 0 else { throw SpeechServiceError.emptyFile }
-            let analyzer = try await prepare(session, localeIdentifier: localeIdentifier,
-                                             contextualStrings: contextualStrings)
-            try checkActive(session)
-            status = "Transcribing on device"
-            session.analysisTask = Task {
-                try await analyzer.analyzeSequence(from: file)
-            }
-            let lastSample = try await session.analysisTask?.value
-            session.diagnostics.analyzerLastSampleSeconds = lastSample.map(CMTimeGetSeconds)
-            try checkActive(session)
-            if let lastSample {
-                try await analyzer.finalizeAndFinish(through: lastSample)
-            } else {
-                await analyzer.cancelAndFinishNow()
-            }
-            try await session.resultsTask?.value
-            try checkActive(session)
-            let transcript = partialText.trimmingCharacters(in: .whitespacesAndNewlines)
-            finishDiagnostics(session, outcome: transcript.isEmpty ? "no words from file" : "transcribed")
-            await cleanUp(session)
-            status = "Ready"
-            return transcript
-        } catch {
-            await finishFailedSession(session, error: error)
-            throw error
-        }
-    }
-
-    private func beginSession(kind: SpeechSession.Kind) throws -> SpeechSession {
+    private func beginSession() throws -> SpeechSession {
         guard session == nil else { throw SpeechServiceError.busy }
-        let newSession = SpeechSession(kind: kind)
+        let newSession = SpeechSession()
         newSession.diagnostics = SpeechDiagnostics(
             appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown",
             appBuild: Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown",
@@ -461,7 +418,7 @@ final class SpeechService: SpeechTranscribing {
         guard let session, session.id == sessionID, !session.isCancelled else { return }
         if session.failure == nil { session.failure = error }
         session.diagnostics.stopReason = "processing error"
-        guard session.kind == .microphone, !session.isStopping else { return }
+        guard !session.isStopping else { return }
         interrupt(session)
     }
 
@@ -596,9 +553,7 @@ private final class PreparedSpeechResources {
 
 @MainActor
 private final class SpeechSession {
-    enum Kind { case microphone, file }
     let id = UUID()
-    let kind: Kind
     var engine: AVAudioEngine?
     var analyzer: SpeechAnalyzer?
     var transcriber: SpeechTranscriber?
@@ -618,8 +573,6 @@ private final class SpeechSession {
     var isStopping = false
     var isCancelled = false
     var didInterrupt = false
-
-    init(kind: Kind) { self.kind = kind }
 }
 
 /// Uses Speech's word-level timestamps to replace volatile interpretations in
@@ -664,7 +617,6 @@ nonisolated enum SpeechServiceError: LocalizedError {
     case noWordsRecognized(String)
     case incompatibleAudio
     case audioOverrun
-    case emptyFile
     case busy
     case notRecording
 
@@ -698,8 +650,6 @@ nonisolated enum SpeechServiceError: LocalizedError {
             "This audio format couldn’t be prepared for on-device transcription."
         case .audioOverrun:
             "Transcription couldn’t keep up with the microphone. Please try recording again."
-        case .emptyFile:
-            "This file doesn’t contain any audio."
         case .busy:
             "Finish the current transcription before starting another."
         case .notRecording:

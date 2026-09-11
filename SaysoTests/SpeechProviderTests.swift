@@ -109,33 +109,6 @@ final class SpeechProviderTests: XCTestCase {
         XCTAssertEqual(service.partialText, "")
     }
 
-    func testImportSelectsCurrentProviderAndForwardsFileLanguageAndVocabulary() async throws {
-        var selected = SpeechProvider.apple
-        let local = ProviderTestSpeech()
-        let apple = ProviderTestSpeech()
-        local.fileResult = "A locally imported recording."
-        apple.fileResult = "An Apple recording."
-        var requested: [SpeechProvider] = []
-        let service = SpeechProviderService(selection: { selected }, factory: { provider in
-            requested.append(provider)
-            return provider == .parakeet ? local : apple
-        })
-        let url = URL(filePath: "/unused-provider-test-recording.wav")
-
-        let first = try await service.transcribeFile(at: url, localeIdentifier: "en-GB", contextualStrings: ["Sayso"])
-        selected = .parakeet
-        let second = try await service.transcribeFile(at: url, localeIdentifier: "nl-NL", contextualStrings: ["Utrecht"])
-
-        XCTAssertEqual(first, "An Apple recording.")
-        XCTAssertEqual(second, "A locally imported recording.")
-        XCTAssertEqual(requested, [.apple, .parakeet])
-        XCTAssertEqual(apple.files, [.init(locale: "en-GB", vocabulary: ["Sayso"], url: url)])
-        XCTAssertEqual(local.files, [.init(locale: "nl-NL", vocabulary: ["Utrecht"], url: url)])
-        XCTAssertEqual(service.partialText, second)
-        XCTAssertEqual(apple.cancelCalls, 1)
-        XCTAssertEqual(local.cancelCalls, 1)
-    }
-
     func testFactoryFailureDoesNotFallBackAndLeavesRouterReusable() async throws {
         var selected = SpeechProvider.parakeet
         let apple = ProviderTestSpeech()
@@ -150,13 +123,8 @@ final class SpeechProviderTests: XCTestCase {
             try await service.start(localeIdentifier: "en-US", contextualStrings: [])
             XCTFail("The selected local backend is unavailable.")
         } catch { XCTAssertTrue(error is ProviderTestError) }
-        do {
-            _ = try await service.transcribeFile(at: URL(filePath: "/unused.wav"), localeIdentifier: "en-US", contextualStrings: [])
-            XCTFail("Import must also fail without switching to Apple.")
-        } catch { XCTAssertTrue(error is ProviderTestError) }
-        XCTAssertEqual(requested, [.parakeet, .parakeet])
+        XCTAssertEqual(requested, [.parakeet])
         XCTAssertTrue(apple.starts.isEmpty)
-        XCTAssertTrue(apple.files.isEmpty)
         XCTAssertFalse(service.isRecording)
 
         selected = .apple
@@ -219,7 +187,7 @@ final class SpeechProviderTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: modelStore.directory.path))
     }
 
-    func testBusySessionRejectsBothRecordingAndImportWithoutAnotherFactoryCall() async throws {
+    func testBusySessionRejectsRecordingWithoutAnotherFactoryCall() async throws {
         let backend = ProviderTestSpeech()
         var factories = 0
         let service = SpeechProviderService(selection: { .parakeet }, factory: { _ in
@@ -230,12 +198,6 @@ final class SpeechProviderTests: XCTestCase {
         do {
             try await service.start(localeIdentifier: "nl-NL", contextualStrings: [])
             XCTFail("A second recording must not take over the microphone.")
-        } catch {
-            guard case SpeechServiceError.busy = error else { return XCTFail("Unexpected error: \(error)") }
-        }
-        do {
-            _ = try await service.transcribeFile(at: URL(filePath: "/unused.wav"), localeIdentifier: "en-US", contextualStrings: [])
-            XCTFail("Import must not replace an active recording.")
         } catch {
             guard case SpeechServiceError.busy = error else { return XCTFail("Unexpected error: \(error)") }
         }
@@ -294,41 +256,6 @@ final class SpeechProviderTests: XCTestCase {
         } catch { XCTAssertTrue(error is CancellationError) }
         XCTAssertTrue(service.isRecording)
         XCTAssertEqual(service.partialText, "New live words")
-        XCTAssertEqual(next.cancelCalls, 0)
-        await service.cancel()
-    }
-
-    func testCancelledImportCannotPublishLateTextOrDiagnosticsOverNewSession() async throws {
-        let gate = ProviderTestGate()
-        let old = ProviderTestSpeech()
-        old.fileOverride = {
-            await gate.wait()
-            old.diagnosticsReport = "Stale import diagnostic"
-            return "Stale imported words"
-        }
-        let next = ProviderTestSpeech()
-        var factories = 0
-        let service = SpeechProviderService(selection: { .parakeet }, factory: { _ in
-            factories += 1
-            return factories == 1 ? old : next
-        })
-        let importing = Task {
-            try await service.transcribeFile(at: URL(filePath: "/unused.wav"), localeIdentifier: "en-US", contextualStrings: [])
-        }
-        defer { gate.resume() }
-        await waitUntil("Import should suspend") { gate.isWaiting }
-        await service.cancel()
-        try await service.start(localeIdentifier: "nl-NL", contextualStrings: [])
-        next.partialText = "Current recording"
-        next.diagnosticsReport = "Current diagnostic"
-        gate.resume()
-        do {
-            _ = try await importing.value
-            XCTFail("The cancelled import must reject its late result.")
-        } catch { XCTAssertTrue(error is CancellationError) }
-        XCTAssertTrue(service.isRecording)
-        XCTAssertEqual(service.partialText, "Current recording")
-        XCTAssertEqual(service.diagnosticsReport, "Current diagnostic")
         XCTAssertEqual(next.cancelCalls, 0)
         await service.cancel()
     }
@@ -398,16 +325,17 @@ final class SpeechProviderTests: XCTestCase {
         await service.cancel()
     }
 
-    func testFailedImportRetainsRecoverableTextAndDiagnosticAfterCleanup() async {
+    func testFailedStopRetainsRecoverableTextAndDiagnosticAfterCleanup() async throws {
         let backend = ProviderTestSpeech()
-        backend.fileOverride = {
+        backend.stopOverride = {
             backend.partialText = "Words recovered before failure."
             backend.diagnosticsReport = "Capture ended early"
             throw ProviderTestError.interrupted
         }
         let service = SpeechProviderService(selection: { .parakeet }, factory: { _ in backend })
+        try await service.start(localeIdentifier: "en-US", contextualStrings: [])
         do {
-            _ = try await service.transcribeFile(at: URL(filePath: "/unused.wav"), localeIdentifier: "en-US", contextualStrings: [])
+            _ = try await service.stop()
             XCTFail("The failure must reach the controller.")
         } catch { XCTAssertTrue(error is ProviderTestError) }
         XCTAssertEqual(service.partialText, "Words recovered before failure.")
@@ -603,7 +531,6 @@ private final class ProviderTestSpeech: SpeechTranscribing {
     struct Request: Equatable {
         let locale: String
         let vocabulary: [String]
-        var url: URL? = nil
     }
     var partialText = ""
     var level = 0.0
@@ -614,15 +541,12 @@ private final class ProviderTestSpeech: SpeechTranscribing {
     var starts: [Request] = []
     var warmups: [Request] = []
     var releaseCalls = 0
-    var files: [Request] = []
     var stopCalls = 0
     var cancelCalls = 0
     var stopResult = ""
-    var fileResult = ""
     var startOverride: (() async throws -> Void)?
     var stopOverride: (() async throws -> String)?
     var cancelOverride: (() async -> Void)?
-    var fileOverride: (() async throws -> String)?
 
     func resetTranscript() { partialText = "" }
     func prewarm(localeIdentifier: String, contextualStrings: [String]) async throws {
@@ -647,11 +571,6 @@ private final class ProviderTestSpeech: SpeechTranscribing {
         diagnosticsReport = nil
         level = 0
         await cancelOverride?()
-    }
-    func transcribeFile(at url: URL, localeIdentifier: String, contextualStrings: [String]) async throws -> String {
-        files.append(.init(locale: localeIdentifier, vocabulary: contextualStrings, url: url))
-        partialText = try await fileOverride?() ?? fileResult
-        return partialText
     }
 }
 

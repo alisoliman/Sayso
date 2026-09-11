@@ -120,17 +120,19 @@ final class DictationControllerTests: XCTestCase {
         await waitUntil("Final cleanup should finish") { controller.phase == .idle }
     }
 
-    func testFailedImportRetainsPartialTranscriptAndItsOriginal() async {
+    func testFailedRecordingRetainsPartialTranscriptAndItsOriginal() async {
         let url = storeURL()
         defer { try? FileManager.default.removeItem(at: url) }
         let speech = StubSpeech()
-        speech.filePartialText = "  Recover these words.\n"
-        speech.fileResult = .failure(StubFailure.interrupted)
+        speech.stopOverride = { throw StubFailure.interrupted }
         let controller = DictationController(store: DictationStore(fileURL: url), speech: speech)
-        controller.importAudio(URL(filePath: "/unused-test-audio.m4a"), mode: .clean, locale: "en-US",
+        controller.start(mode: .clean, locale: "en-US",
                                instructions: "", vocabulary: "", saveHistory: true,
                                writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
-        await waitUntil("Failed import should settle") { controller.phase == .idle }
+        await waitUntil("Recording starts") { controller.phase == .recording }
+        speech.partialText = "  Recover these words.\n"
+        controller.finish()
+        await waitUntil("Failed recording should settle") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.text, "Recover these words.")
         XCTAssertEqual(controller.current?.original, "Recover these words.")
         XCTAssertEqual(controller.current?.mode, .transcript)
@@ -383,29 +385,6 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(controller.store.entries.first?.writingStyle, selectedStyle)
     }
 
-    func testImportFreezesSelectedStyleBeforeTranscriptionBegins() async {
-        let url = storeURL()
-        defer { try? FileManager.default.removeItem(at: url) }
-        let speech = StubSpeech()
-        speech.fileResult = .success("The imported thought.")
-        var style = WritingStyle(id: WritingMode.message.rawValue, title: "Message", prompt: WritingMode.message.instructions)
-        let selectedStyle = style
-        let controller = DictationController(store: DictationStore(fileURL: url), speech: speech, transformation: { text, mode, prompt, _ in
-            XCTAssertEqual(text, "The imported thought.")
-            XCTAssertEqual(mode, .message)
-            XCTAssertEqual(prompt, selectedStyle.prompt)
-            return "A message from the import."
-        })
-        controller.importAudio(URL(filePath: "/unused-test-audio.m4a"), mode: .message, locale: "en-US",
-                               instructions: "Old preferences", vocabulary: "", saveHistory: true, writingStyle: style)
-        style.prompt = "An edited message prompt."
-        await waitUntil("Import should finish") { controller.phase == .idle }
-
-        XCTAssertEqual(controller.current?.text, "A message from the import.")
-        XCTAssertEqual(controller.current?.writingStyle, selectedStyle)
-        XCTAssertEqual(controller.current?.mode, .message)
-    }
-
     func testHistoryRewriteUsesLatestSavedEditsAndUpdatesSameEntry() async {
         let url = storeURL()
         defer { try? FileManager.default.removeItem(at: url) }
@@ -447,22 +426,18 @@ final class DictationControllerTests: XCTestCase {
     }
 
     func testFailedPreparationCannotMakePreviousPrivateResultPersistent() async {
-        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: false, cancelled: false, importing: false)
+        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: false, cancelled: false)
     }
 
     func testCancelledPreparationCannotMakePreviousPrivateResultPersistent() async {
-        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: false, cancelled: true, importing: false)
+        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: false, cancelled: true)
     }
 
-    func testEmptyImportCannotMakePreviousPrivateResultPersistent() async {
-        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: false, cancelled: false, importing: true)
+    func testFailedPrivatePreparationDoesNotDisableEditsToSavedResult() async {
+        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: true, cancelled: false)
     }
 
-    func testEmptyPrivateImportDoesNotDisableEditsToSavedResult() async {
-        await verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: true, cancelled: false, importing: true)
-    }
-
-    private func verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: Bool, cancelled: Bool, importing: Bool) async {
+    private func verifyPreviousResultPolicyAfterFailedAttempt(previousHistory: Bool, cancelled: Bool) async {
         let url = storeURL()
         defer { try? FileManager.default.removeItem(at: url) }
         let speech = StubSpeech()
@@ -475,14 +450,9 @@ final class DictationControllerTests: XCTestCase {
         await waitUntil("Initial result settles") { controller.phase == .idle }
         let originalID = controller.current?.id
         speech.partialText = ""
-        if importing {
-            speech.fileResult = .success("")
-            controller.importAudio(URL(filePath: "/empty.wav"), mode: .transcript, locale: "en-US", instructions: "", vocabulary: "", saveHistory: !previousHistory)
-        } else {
-            speech.startResult = .failure(StubFailure.interrupted)
-            start(controller, history: !previousHistory)
-            if cancelled { controller.cancel() }
-        }
+        speech.startResult = .failure(StubFailure.interrupted)
+        start(controller, history: !previousHistory)
+        if cancelled { controller.cancel() }
         await waitUntil("Failed new attempt settles") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.id, originalID)
         controller.updateText("An edit to the previous thought.")
@@ -520,7 +490,7 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertEqual(controller.current?.text, "Final captured words.")
     }
 
-    func testImmediateBackgroundBeforeImportCannotCheckpointPreviousPrivateWords() async {
+    func testImmediateBackgroundBeforeRecordingCannotCheckpointPreviousPrivateWords() async {
         let url = storeURL()
         defer { try? FileManager.default.removeItem(at: url) }
         let speech = StubSpeech()
@@ -533,10 +503,10 @@ final class DictationControllerTests: XCTestCase {
         let previousID = controller.current?.id
         // Speech retains its most recent transcript after finalization, as the real service does.
         speech.partialText = speech.stopText
-        controller.importAudio(URL(filePath: "/not-started.wav"), mode: .clean, locale: "en-US", instructions: "", vocabulary: "", saveHistory: true)
-        // Deliberately background before the newly created import Task has run.
+        controller.start(mode: .clean, locale: "en-US", instructions: "", vocabulary: "", saveHistory: true)
+        // Deliberately background before the newly created recording Task has run.
         controller.appDidEnterBackground()
-        await waitUntil("Import cancellation settles") { controller.phase == .idle }
+        await waitUntil("Preparation cancellation settles") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.id, previousID)
         XCTAssertTrue(controller.store.entries.isEmpty)
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
@@ -578,8 +548,6 @@ private final class StubSpeech: SpeechTranscribing {
     var preparedLocale: String?
     var preparedVocabulary: [String] = []
     var prewarmFailure: Error?
-    var fileResult: Result<String, Error> = .success("")
-    var filePartialText: String?
     var suspendCancellation = false
     private var cancellations: [CheckedContinuation<Void, Never>?] = []
     private(set) var finishedCancellations = 0
@@ -599,10 +567,6 @@ private final class StubSpeech: SpeechTranscribing {
         isRecording = false
         if let stopOverride { return try await stopOverride() }
         return stopText
-    }
-    func transcribeFile(at url: URL, localeIdentifier: String, contextualStrings: [String]) async throws -> String {
-        if let filePartialText { partialText = filePartialText }
-        return try fileResult.get()
     }
     func cancel() async {
         isRecording = false

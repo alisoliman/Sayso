@@ -669,10 +669,6 @@ private final class CrossAppSpeech: SpeechTranscribing {
         isRecording = false
         if let cancelOverride { await cancelOverride() }
     }
-    func transcribeFile(at url: URL, localeIdentifier: String, contextualStrings: [String]) async throws -> String {
-        XCTFail("Cross-app recording must not use file import")
-        return ""
-    }
 }
 
 @MainActor

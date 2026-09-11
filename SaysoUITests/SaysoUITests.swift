@@ -45,8 +45,7 @@ final class SaysoUITests: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["recordButton"].isEnabled)
-        XCTAssertTrue(app.buttons["importButton"].exists)
-        XCTAssertTrue(app.buttons["importButton"].isHittable)
+        XCTAssertFalse(app.buttons["importButton"].exists)
         XCTAssertTrue(app.staticTexts["Speak freely."].isHittable)
         XCTAssertFalse(app.buttons["speechModelButton"].exists)
         XCTAssertFalse(app.staticTexts["Dictation mode"].exists)
@@ -207,7 +206,7 @@ final class SaysoUITests: XCTestCase {
         let result = app.staticTexts["resultText"]
         XCTAssertTrue(result.waitForExistence(timeout: 10))
         let refined = result.label
-        XCTAssertTrue(app.buttons["importButton"].exists)
+        XCTAssertFalse(app.buttons["importButton"].exists)
         capture("05-Result", app: app)
 
         app.buttons["originalButton"].tap()
@@ -309,8 +308,7 @@ final class SaysoUITests: XCTestCase {
         let actions = [
             ("copyButton", "08c-Copy-Accessibility-XXXL"),
             ("editButton", "08c-Edit-Accessibility-XXXL"),
-            ("sendToKeyboardButton", "08c-Keyboard-Accessibility-XXXL"),
-            ("importButton", "08c-Result-Actions-Accessibility-XXXL")
+            ("sendToKeyboardButton", "08c-Keyboard-Accessibility-XXXL")
         ]
         for (identifier, screenshot) in actions {
             let action = app.buttons[identifier]
@@ -395,7 +393,7 @@ final class SaysoUITests: XCTestCase {
                 XCTAssertGreaterThanOrEqual(scroll.frame.height, 180, "Landscape must retain space for multiple lines of writing.")
                 let viewport = scroll.frame.intersection(window.frame).insetBy(dx: 2, dy: 2)
                 assertFullyVisible(app.staticTexts["Speak freely."], in: viewport, enabled: false)
-                assertFullyVisible(app.buttons["importButton"], in: viewport)
+                XCTAssertFalse(app.buttons["importButton"].exists)
                 let mode = app.buttons["modeButton"]
                 let crossApp = app.buttons["keyboardRecordButton"]
                 for control in [mode, record, crossApp] {
@@ -483,7 +481,9 @@ final class SaysoUITests: XCTestCase {
                     let startY = offset > 0 ? visible.maxY - 12 : visible.minY + 12
                     let endY = startY + (offset > 0 ? -distance : distance)
                     let origin = scroll.coordinate(withNormalizedOffset: .zero)
-                    let x = visible.maxX - scroll.frame.minX - 24
+                    // Keep the gesture inside content in either rotation;
+                    // the far edge can fall in the camera safe area.
+                    let x = visible.minX + visible.width * 0.75 - scroll.frame.minX
                     let start = origin.withOffset(CGVector(dx: x, dy: startY - scroll.frame.minY))
                     let end = origin.withOffset(CGVector(dx: x, dy: endY - scroll.frame.minY))
                     start.press(forDuration: 0.05, thenDragTo: end,
@@ -576,7 +576,7 @@ final class SaysoUITests: XCTestCase {
         }
     }
 
-    func testNativeShareAndImportCancellationPreservePreview() {
+    func testNativeShareCancellationPreservesPreview() {
         continueAfterFailure = false
         addTeardownBlock {
             await MainActor.run {
@@ -629,26 +629,11 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["recordButton"].isEnabled)
         XCTAssertTrue(app.buttons["copyButton"].isEnabled)
 
-        let importAudio = app.buttons["importButton"]
-        let cancelImport = app.navigationBars.buttons["Cancel"].firstMatch
-        XCTAssertFalse(cancelImport.exists)
-        assertFullyVisible(importAudio, in: window.frame)
-        importAudio.tap()
-        // A native run captured a blank presented sheet after five seconds.
-        // Allow bounded readiness; its cause is unproven and Cancel is still required.
-        let importAppeared = cancelImport.waitForExistence(timeout: 15)
-        captureNativeBoundary("Native-Import-Picker-Presented", app: app)
-        XCTAssertTrue(importAppeared, "The native audio picker did not expose navigation Cancel; inspect the retained hierarchy.")
-        assertFullyVisible(cancelImport, in: window.frame)
-        cancelImport.tap()
-        XCTAssertTrue(cancelImport.waitForNonExistence(timeout: 5))
-        XCTAssertFalse(app.alerts["Couldn’t complete dictation"].exists,
-                       "Cancelling file selection must not report a failed dictation.")
-        XCTAssertEqual(result.label, original)
-        for control in [app.buttons["recordButton"], app.buttons["copyButton"], importAudio] {
+        XCTAssertFalse(app.buttons["importButton"].exists)
+        for control in [app.buttons["recordButton"], app.buttons["copyButton"]] {
             assertFullyVisible(control, in: window.frame)
         }
-        capture("Native-Share-And-Import-Cancelled-Preview", app: app)
+        capture("Native-Share-Cancelled-Preview", app: app)
     }
 
     /// Run with microphone access denied for the dedicated simulator. This uses the real service;
