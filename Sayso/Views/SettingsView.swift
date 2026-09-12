@@ -18,7 +18,6 @@ struct SettingsView: View {
     @State private var supportedLocales: Set<String> = []
     @State private var loadedLanguages = false
     @State private var confirmingDelete = false
-    @State private var sharingError: String?
     @State private var importingModel = false
     @State private var confirmingModelRemoval = false
     private var provider: SpeechProvider { SpeechProvider(rawValue: providerRaw) ?? .defaultProvider }
@@ -142,9 +141,6 @@ struct SettingsView: View {
                 }
                 .listRowBackground(SaysoTheme.surface)
                 Section {
-                    NavigationLink { KeyboardSetupView() } label: {
-                        Label("Sayso keyboard", systemImage: "keyboard")
-                    }
                     Label("Start dictation", systemImage: "waveform")
                     Text("In Shortcuts, add Sayso’s Start Dictation action. Assign that shortcut to your Action button for quick access.")
                         .font(.footnote).foregroundStyle(.secondary)
@@ -176,16 +172,9 @@ struct SettingsView: View {
             } message: { Text("You’ll need to download or import it again before using Parakeet. Your dictation history stays on this iPhone.") }
             .confirmationDialog("Delete all dictations?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                 Button("Delete all dictations", role: .destructive) {
-                    if store.deleteAll() {
-                        do { try KeyboardHandoff().clear() }
-                        catch KeyboardHandoff.HandoffError.unavailable { }
-                        catch { sharingError = "History was deleted, but the shared keyboard copy couldn’t be cleared. " + error.localizedDescription }
-                    }
+                    store.deleteAll()
                 }
             } message: { Text("This permanently removes \(store.entries.count) saved dictations and their original transcripts from this iPhone.") }
-            .alert("Keyboard sharing", isPresented: Binding(get: { sharingError != nil }, set: { if !$0 { sharingError = nil } })) {
-                Button("OK") { sharingError = nil }
-            } message: { Text(sharingError ?? "") }
             .task {
                 speechModels.refresh()
                 intelligence.refreshAvailability()

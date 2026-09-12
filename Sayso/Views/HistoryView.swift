@@ -7,7 +7,6 @@ struct HistoryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var search = ""
     @State private var deleting: Dictation?
-    @State private var sharingError: String?
     @ScaledMetric(relativeTo: .largeTitle) private var emptyTitleSize = 32.0
 
     private var filtered: [Dictation] {
@@ -82,11 +81,8 @@ struct HistoryView: View {
             .navigationTitle("History")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .confirmationDialog("Delete this dictation?", isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }), titleVisibility: .visible) {
-                Button("Delete dictation", role: .destructive) { if let deleting { delete(deleting) }; deleting = nil }
+                Button("Delete dictation", role: .destructive) { if let deleting { store.delete(deleting.id) }; deleting = nil }
             } message: { Text("This removes both the text and its original transcript from this iPhone.") }
-            .alert("Keyboard sharing", isPresented: Binding(get: { sharingError != nil }, set: { if !$0 { sharingError = nil } })) {
-                Button("OK") { sharingError = nil }
-            } message: { Text(sharingError ?? "") }
         }
     }
 
@@ -118,19 +114,6 @@ struct HistoryView: View {
         if Calendar.current.isDateInToday(day) { return "Today" }
         if Calendar.current.isDateInYesterday(day) { return "Yesterday" }
         return day.formatted(.dateTime.month(.wide).day().year())
-    }
-
-    private func delete(_ entry: Dictation) {
-        guard store.delete(entry.id) else { return }
-        do {
-            let handoff = KeyboardHandoff()
-            try handoff.purgeExpired()
-            if try handoff.latest()?.id == entry.id { try handoff.clear() }
-        } catch KeyboardHandoff.HandoffError.unavailable {
-            // This installation could not have shared a result with the keyboard.
-        } catch {
-            sharingError = "The dictation was deleted from History, but its shared keyboard copy couldn’t be cleared. " + error.localizedDescription
-        }
     }
 }
 
@@ -201,7 +184,6 @@ struct HistoryDetailView: View {
                             Image(systemName: "pencil")
                         }
                         .buttonStyle(SaysoQuietButtonStyle()).accessibilityLabel("Edit text")
-                        KeyboardSendButton(text: showOriginal ? saved.original : saved.text, id: saved.id)
                     }
                 }
                 .font(.subheadline.weight(.medium))

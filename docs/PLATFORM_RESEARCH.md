@@ -1,5 +1,7 @@
 # Apple platform research for Sayso
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 **Historical research snapshot:** the original observations below were recorded on 7 September 2026 against Xcode 26.6 / SDK 26.5. The installed-toolchain table and migration recommendations describe that earlier state. Xcode 27 is now installed and production has migrated; use [iOS 27 migration](IOS27_MIGRATION.md) and [current verification](VERIFICATION.md) for present source/build status. The separately dated Dynamic Island addendum below records a newly verified iOS 27 API.
 
 Verified 7 September 2026 against official Apple documentation, Apple staff guidance, and the installed SDK. This is an implementation boundary document, not a claim that physical-device testing has passed.

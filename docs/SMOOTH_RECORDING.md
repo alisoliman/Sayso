@@ -1,5 +1,7 @@
 # Recording readiness and keyboard panel — 10 September 2026
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 ## Experience
 
 Home opens with the recording action and writing mode. Speech provider, language, downloads, and technical setup remain in Settings. An actual missing-model error links to Sayso’s Settings. The microphone is never opened by passive preparation.

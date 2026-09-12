@@ -1,5 +1,19 @@
 # Verification record
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
+## Keyboard removal — 12 September 2026
+
+Removed the keyboard extension, setup and Send to keyboard controls, keyboard Shortcut and URL route, shared handoff/session stores, and cross-app recording coordinator. The Live Activity was used only by that recording mode, so its extension, intents, App Group entitlement and background-audio capability were removed too. Copy, Share, ordinary Start Dictation, history, editing and background transcript finalization remain. Historical screenshots and reports retain their original source context.
+
+- **Unsigned iPhone Release passed** with Xcode 27 RC `27A266a`, arm64, minimum iOS 27. [Build log](../.build/keyboard-removal/release.log).
+- **Simulator build-for-testing passed** for arm64, including the app, unit and UI test targets. [Build log](../.build/keyboard-removal/build-for-testing-arm64.log). A generic all-architecture attempt hit the existing FluidAudio/NemoTextProcessing binary’s missing x86_64 slice; the native arm64 build passed.
+- **Compiled bundle inspection passed:** no `.appex`, background-audio mode, Live Activity flag or removed intents; microphone description and ordinary Start Dictation metadata remain. [Inspection](../.build/keyboard-removal/release-inspection.json).
+- The project generator preserves equivalent configuration on repeated runs and creates only `Sayso`, `SaysoTests` and `SaysoUITests`. All project object references resolve; preflight, shell syntax and `git diff --check` pass.
+- **Runtime tests are blocked, not passed.** The existing and a freshly created iOS 27 simulator stayed at the Apple startup screen before any test method ran. Both test attempts were interrupted after bounded waits. [First attempt](../.build/keyboard-removal/unit-tests.log), [fresh attempt](../.build/keyboard-removal/verification.log). No physical-device or visual UI validation is claimed.
+- Added a controller regression check for backgrounding during capture: stop once, retain the final original under the checkpoint's identity and skip rewriting. Retained UI checks cover the remaining navigation, editing, copy/share and recording layouts.
+
+
 The current app is **build 2**, which adds recording diagnostics after the full build 1 verification below. The historical 122-method aggregate and unsigned Release do not validate these later source changes. Runtime integrity, real iOS 27 writing quality, current-source motion and physical-device acceptance remain open.
 
 Source, documentation and selected screenshots are checked in. **All `.build/` links below refer to local generated artifacts excluded from Git**, including native result bundles, logs and source-hash reports. Historical artifact references preserve the original evidence locations; they are not repository downloads. The [reproduction instructions](#reproduce) generate new evidence for another checkout and environment.

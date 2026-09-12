@@ -289,11 +289,6 @@ final class SaysoUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["recordButton"].isHittable)
-        let crossAppRecording = app.buttons["keyboardRecordButton"]
-        XCTAssertTrue(crossAppRecording.waitForExistence(timeout: 5))
-        XCTAssertEqual(crossAppRecording.label, "Dictate in another app")
-        XCTAssertTrue(crossAppRecording.isEnabled)
-        XCTAssertTrue(crossAppRecording.isHittable)
         capture("08-Home-Accessibility-XXXL", app: app)
 
         app.terminate()
@@ -307,8 +302,7 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(scroll.exists)
         let actions = [
             ("copyButton", "08c-Copy-Accessibility-XXXL"),
-            ("editButton", "08c-Edit-Accessibility-XXXL"),
-            ("sendToKeyboardButton", "08c-Keyboard-Accessibility-XXXL")
+            ("editButton", "08c-Edit-Accessibility-XXXL")
         ]
         for (identifier, screenshot) in actions {
             let action = app.buttons[identifier]
@@ -341,8 +335,6 @@ final class SaysoUITests: XCTestCase {
             }
             capture(screenshot, app: app)
         }
-        XCTAssertEqual(crossAppRecording.label, "Dictate in another app")
-        XCTAssertTrue(crossAppRecording.isHittable, "Cross-app recording must remain reachable while reviewing a result.")
     }
 
     func testLandscapeKeepsHomeRecordingAndLongResultAccessibleAtNormalAndLargestText() {
@@ -395,13 +387,11 @@ final class SaysoUITests: XCTestCase {
                 assertFullyVisible(app.staticTexts["Speak freely."], in: viewport, enabled: false)
                 XCTAssertFalse(app.buttons["importButton"].exists)
                 let mode = app.buttons["modeButton"]
-                let crossApp = app.buttons["keyboardRecordButton"]
-                for control in [mode, record, crossApp] {
+                for control in [mode, record] {
                     assertFullyVisible(control, in: window.frame)
                     XCTAssertLessThanOrEqual(scroll.frame.maxY, control.frame.minY,
                                              "Recording controls must not cover the scroll viewport.")
                 }
-                XCTAssertEqual(crossApp.label, "Dictate in another app")
                 let captureName = "Landscape-\(textSize.name)-\(orientation.name)"
                 capture("\(captureName)-Home", app: app)
                 // The wide plain mode button must respond at its center, not
@@ -726,118 +716,6 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["recordButton"].isEnabled)
         app.buttons["historyButton"].tap()
         XCTAssertTrue(app.staticTexts["A place for your words"].waitForExistence(timeout: 5))
-    }
-
-    func testExplicitKeyboardSharingAndSetupAreReachable() {
-        let app = launch(previewResult: true)
-        let send = app.buttons["sendToKeyboardButton"]
-        XCTAssertTrue(send.waitForExistence(timeout: 10))
-        XCTAssertTrue(send.isHittable)
-        XCTAssertLessThan(app.buttons["copyButton"].frame.height, 70, "Copy must stay on one line at the default text size.")
-        capture("15-Result-With-Keyboard-Sharing", app: app)
-        send.tap()
-        let ready = app.alerts["Ready in your keyboard"]
-        XCTAssertTrue(ready.waitForExistence(timeout: 5), "The signed simulator build must have a working App Group.")
-        capture("16-Keyboard-Handoff-Ready", app: app)
-        ready.buttons["OK"].tap()
-        app.buttons["settingsButton"].tap()
-        let setup = app.buttons["Sayso keyboard"]
-        for _ in 0..<4 {
-            if setup.isHittable { break }
-            app.swipeUp()
-        }
-        XCTAssertTrue(setup.isHittable)
-        setup.tap()
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Enable Full Access for recording controls")).firstMatch.waitForExistence(timeout: 5))
-        capture("17-Keyboard-Setup", app: app)
-        let clear = app.buttons["Clear shared text"]
-        for _ in 0..<3 {
-            if clear.isHittable { break }
-            app.swipeUp()
-        }
-        clear.tap()
-        XCTAssertTrue(app.alerts["Shared text"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.alerts.staticTexts["The text shared with your keyboard has been removed."].exists)
-    }
-    /// Uses a real ActivityKit request and App Group with scripted speech. It
-    /// checks app state across a brief background visit, not real audio capture.
-    func testScriptedKeyboardRecordingSurvivesBackgroundAndPreparesInsertion() {
-        XCUIDevice.shared.orientation = .portrait
-        let app = launchScripted()
-        let start = app.buttons["keyboardRecordButton"]
-        XCTAssertTrue(start.waitForExistence(timeout: 10))
-        start.tap()
-        let live = app.staticTexts["liveTranscript"]
-        XCTAssertTrue(live.waitForExistence(timeout: 8), "Keyboard recording must successfully start a real Live Activity.")
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Stop & insert")).firstMatch.exists)
-        capture("18-Cross-App-Recording", app: app)
-        XCUIDevice.shared.press(.home)
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        XCTAssertTrue(springboard.icons["Sayso"].waitForExistence(timeout: 5))
-        // Observe the widget's own label when SpringBoard exposes it. Its native
-        // accessibility topology is not a contract, so a missing label is diagnostic.
-        let duration = springboard.descendants(matching: .any)
-            .matching(NSPredicate(format: "label == %@", "Recording duration")).firstMatch
-        let durationVisible = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
-            guard duration.exists else { return false }
-            let frame = duration.frame
-            return frame.width > 0 && frame.height > 0
-                && springboard.frame.contains(frame)
-        }, object: nil)
-        let observation = XCTWaiter.wait(for: [durationVisible], timeout: 3)
-        // Capture the actual system surface; an app screenshot can omit its overlay.
-        let home = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
-        home.name = "19-Cross-App-Home"
-        home.lifetime = .keepAlways
-        add(home)
-        let observationText = observation == .completed
-            ? "Recording duration label observed on screen."
-            : "Recording duration label not observed within 3 seconds; inspect the native capture."
-        let hierarchy = XCTAttachment(string: observationText + "\n\n" + springboard.debugDescription)
-        hierarchy.name = "19-Cross-App-Home-Hierarchy"
-        hierarchy.lifetime = .keepAlways
-        add(hierarchy)
-        app.activate()
-        XCTAssertTrue(live.waitForExistence(timeout: 5))
-        XCTAssertEqual(app.buttons["recordButton"].label, "Stop recording")
-        let captured = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label ENDSWITH %@", "next project."), object: live)
-        XCTAssertEqual(XCTWaiter.wait(for: [captured], timeout: 10), .completed)
-        app.buttons["recordButton"].tap()
-        XCTAssertTrue(app.staticTexts["resultText"].waitForExistence(timeout: 8))
-        let ready = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Ready in the Sayso keyboard")).firstMatch
-        XCTAssertTrue(ready.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.alerts["Couldn’t complete dictation"].exists)
-        capture("20-Cross-App-Ready", app: app)
-    }
-
-    func testScriptedLiveActivityStopFromNotificationCenter() {
-        let app = launchScripted()
-        XCTAssertTrue(app.buttons["keyboardRecordButton"].waitForExistence(timeout: 10))
-        app.buttons["keyboardRecordButton"].tap()
-        let live = app.staticTexts["liveTranscript"]
-        let captured = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label ENDSWITH %@", "next project."), object: live)
-        XCTAssertEqual(XCTWaiter.wait(for: [captured], timeout: 10), .completed)
-        XCUIDevice.shared.press(.home)
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        XCTAssertTrue(springboard.icons["Sayso"].waitForExistence(timeout: 5))
-        // Pull from the observed status-bar edge to reveal Notification Center.
-        springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.01))
-            .press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.75)))
-        for label in ["Allow", "Always Allow"] {
-            let allow = springboard.buttons[label]
-            if allow.exists && allow.isHittable { allow.tap() }
-        }
-        let stop = springboard.buttons["Stop"]
-        XCTAssertTrue(stop.waitForExistence(timeout: 8), springboard.debugDescription)
-        capture("21-Live-Activity-Controls", app: springboard)
-        guard stop.exists else { app.activate(); return }
-        stop.tap()
-        app.activate()
-        let result = app.staticTexts["resultText"]
-        XCTAssertTrue(result.waitForExistence(timeout: 8))
-        XCTAssertTrue(result.label.hasSuffix("next project."))
-        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Ready in the Sayso keyboard")).firstMatch.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.alerts["Couldn’t complete dictation"].exists)
     }
 
 }
