@@ -62,57 +62,6 @@ final class MotionUITests: XCTestCase {
         testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting()
     }
 
-    func testLiveSystemMotionChangePreservesRecording() throws {
-        // Save the original setting once, including when the test starts with
-        // Reduce Motion on. Subsequent toggles must not overwrite restoration.
-        try setSystemReduceMotion(false, preserveOriginal: true)
-        let app = launch()
-        let record = app.buttons["recordButton"]
-        let crossApp = app.buttons["keyboardRecordButton"]
-        XCTAssertTrue(crossApp.waitForExistence(timeout: 10))
-        // Ordinary dictation intentionally finishes on backgrounding. This
-        // public recording route is designed to remain active in other apps.
-        crossApp.tap()
-        waitForState(record, predicate: "enabled == true AND label == 'Stop recording'", timeout: 8)
-        let live = app.staticTexts["liveTranscript"]
-        waitForState(live, predicate: "label ENDSWITH 'next project.'", timeout: 10)
-        let capturedWords = live.label
-        XCTAssertFalse(UIAccessibility.isReduceMotionEnabled)
-        event("Live preference-change session established in \(app.debugDescription.components(separatedBy: .newlines).first ?? "Sayso")")
-        captureSequence("Runtime-Standard-Meter", app: app)
-
-        func resumeSameRecording(expectedReducedMotion: Bool) {
-            let state = app.state
-            XCTAssertTrue(state == .runningBackground || state == .runningBackgroundSuspended,
-                          "Sayso must remain running while Settings changes motion; activation must not relaunch it.")
-            event("Same Sayso instance remains in background state \(state.rawValue)")
-            app.activate()
-            XCTAssertEqual(app.state, .runningForeground)
-            waitForState(record, predicate: "enabled == true AND label == 'Stop recording'")
-            XCTAssertEqual(live.label, capturedWords,
-                           "Changing the system motion preference must preserve the active words.")
-            XCTAssertFalse(app.staticTexts["resultText"].exists)
-            XCTAssertEqual(UIAccessibility.isReduceMotionEnabled, expectedReducedMotion)
-            event("Resumed unchanged recording with system Reduce Motion = \(expectedReducedMotion)")
-        }
-
-        try setSystemReduceMotion(true, preserveOriginal: false)
-        resumeSameRecording(expectedReducedMotion: true)
-        captureSequence("Runtime-Reduced-Meter", app: app)
-
-        try setSystemReduceMotion(false, preserveOriginal: false)
-        resumeSameRecording(expectedReducedMotion: false)
-        captureSequence("Runtime-Restored-Meter", app: app)
-
-        event("Finish requested after live off-on-off system preference changes")
-        record.tap()
-        waitForState(record, predicate: "enabled == true AND label == 'Start recording'", timeout: 10)
-        let result = app.staticTexts["resultText"]
-        XCTAssertTrue(result.waitForExistence(timeout: 5))
-        XCTAssertEqual(result.label, capturedWords)
-        XCTAssertFalse(app.alerts["Couldn’t complete dictation"].exists)
-        capture("Runtime-Preference-Change-Exact-Result", app: app)
-    }
 
     func testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting() {
         let app = launch()
@@ -295,7 +244,7 @@ final class MotionUITests: XCTestCase {
     }
 
     private func returnToSettingsRoot(_ settings: XCUIApplication) throws {
-        // Reuse the native BackButton route exercised by keyboard UI tests.
+        // Return through the native Settings navigation stack.
         for _ in 0..<10 {
             if settings.searchFields.firstMatch.exists {
                 let close = settings.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "close"]))
@@ -305,7 +254,7 @@ final class MotionUITests: XCTestCase {
             if settings.navigationBars["Settings"].exists { return }
             let observedBack = settings.navigationBars.buttons["BackButton"]
             let back = observedBack.exists ? observedBack : settings.navigationBars.buttons.matching(NSPredicate(
-                format: "label IN %@", ["Settings", "Accessibility", "Motion", "General", "Keyboard", "Keyboards", "Back"]
+                format: "label IN %@", ["Settings", "Accessibility", "Motion", "General", "Back"]
             )).firstMatch
             guard back.exists && back.isHittable else { break }
             back.tap()

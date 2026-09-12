@@ -1,10 +1,10 @@
 # Sayso
 
-A quiet native iPhone app for turning speech into useful text. Record, choose a writing style, and copy, share or insert the result where you need it. Sayso supports local Parakeet transcription through FluidAudio, Apple Speech, and optional Apple Intelligence rewriting. No Sayso account, API key or server is required.
+A quiet native iPhone app for turning speech into useful text. Record, choose a writing style, and copy or share the result where you need it. Sayso supports local Parakeet transcription through FluidAudio, Apple Speech, and optional Apple Intelligence rewriting. No Sayso account, API key or server is required.
 
 **iOS 27.0 or later · SwiftUI · Parakeet / Apple Speech · Foundation Models**
 
-[Current design](docs/DESIGN_LANGUAGE.md) · [Design verification](docs/DESIGN_VERIFICATION.md) · [Motion design](docs/MOTION_DESIGN.md)
+[Design reference](docs/DESIGN_LANGUAGE.md) · [Design verification](docs/DESIGN_VERIFICATION.md) · [Motion design](docs/MOTION_DESIGN.md)
 
 ## What it does
 
@@ -13,9 +13,8 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 - **Original**, the default, keeps your words. **Clean, Message, Email, Notes and Custom** optionally refine them with Apple Intelligence. The original remains available when rewriting is cancelled or fails.
 - Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap the pencil or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
 - Editable results, original/refined comparison, local searchable history, vocabulary spellings and a choice of supported speech languages. Saving history is optional.
-- Record live, then copy or use native Share. The embedded keyboard is a compact recording panel: choose a writing mode, stop and insert at the cursor. Its globe switches to the normal keyboard for typing.
-- **Dictate in another app** starts recording in Sayso and provides a Live Activity, Dynamic Island and Stop/Discard controls while you return to your destination. Recording is limited to ten minutes.
-- Shortcuts for ordinary and keyboard dictation, suitable for Siri or the Action button.
+- Record live, then copy or use native Share.
+- A Start Dictation shortcut, suitable for Siri or the Action button.
 - Native Liquid Glass controls and a layered app icon, light/dark appearances, compact landscape layouts, Dynamic Type, VoiceOver labels and Reduce Motion support.
 
 Language/model downloads need internet access initially; Parakeet is fetched only through the explicit download control. A missing local model never silently switches providers. Apple Intelligence must be available for rewriting; **Original works with Parakeet without Apple Intelligence**. Rewrites can still omit or change meaning, so keep the original available and review important details. [Parakeet setup, model files and verification](docs/PARAKEET.md).
@@ -43,19 +42,19 @@ xcodebuild -project Sayso.xcodeproj -scheme Sayso \
 
 `DEVELOPER_DIR` selects the toolchain without changing global `xcode-select`. Xcode 27's simulator interface is its bundled `Contents/Applications/DeviceHub.app`.
 
-Preflight records toolchain, runtime and source provenance without changing simulator settings or building. The full script builds and runs the app and extension checks; use a dedicated simulator with English system labels and its software keyboard visible. Set `SAYSO_SIMULATOR_ID` explicitly because the script's default UUID belongs to the original development machine.
+Preflight records toolchain, runtime and source provenance without changing simulator settings or building. The full script builds and runs the app checks; use a dedicated simulator with English system labels and its software keyboard visible. Set `SAYSO_SIMULATOR_ID` explicitly because the script's default UUID belongs to the original development machine.
 
-For a physical iPhone, choose **your Apple Developer signing team** in Signing & Capabilities for the app, keyboard and Live Activity extension. The checked-in identifiers use `solimanali.Sayso` and App Group `group.solimanali.Sayso`; provision these for your team or replace the bundle identifiers and matching App Group entitlements together. The existing team setting is developer-specific.
+For a physical iPhone, choose **your Apple Developer signing team** in Signing & Capabilities for the app. The checked-in bundle identifier is `solimanali.Sayso`; provision it for your team or replace it. The existing team setting is developer-specific.
 
-## Use the keyboard
+## Recording and sharing
 
-Enable Sayso through **Settings → General → Keyboard → Keyboards** using the in-app setup guide. For a finished result, select **Send to keyboard**, return to your destination, choose Sayso with the globe and tap **Insert**. Manual result insertion works with Full Access off.
-
-For ongoing dictation, choose **Dictate in another app** or its Keyboard Dictation shortcut, then manually return to the destination. Stop through the Live Activity, or enable Full Access to use keyboard Stop/Discard. With Full Access on, choose a mode and tap **Stop & insert**: the result appears automatically while the same field stays open. Leaving the field or stopping elsewhere keeps an explicit **Insert** button. The keyboard does not launch Sayso or capture audio. Ordinary dictation finishes when Sayso goes into the background. [Keyboard behavior and platform boundaries](docs/KEYBOARD_DESIGN.md).
+Start recording in Sayso or through Start Dictation. Stop to review, edit, copy or share the text. Recording finishes when Sayso moves to the background, retaining the captured transcript.
 
 Speech resources now prepare quietly on foreground entry and reuse the selected backend across completed recordings. Passive preparation does not request permissions, download missing assets, or activate the microphone. Idle resources release on memory pressure and after a best-effort background grace period. Speech model and language details stay in Settings. [Recording flow and current validation](docs/SMOOTH_RECORDING.md).
 
 ## Verification and iPhone acceptance
+
+The keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. Older reports and screenshots below describe their recorded revisions; extension results do not describe the current app.
 
 **Optional local Parakeet:** the device Release build and 35 focused model/capture tests passed. The broader run plus focused rerun has passing latest results for 145 distinct methods, with the existing physical-device probe skipped. Real Parakeet inference through Sayso’s audio converter also passed on the Mac with networking denied, including right-channel-only stereo audio. Apple Speech remains the default. [Setup, detailed results and iPhone acceptance boundary](docs/PARAKEET.md).
 
@@ -67,17 +66,17 @@ Speech resources now prepare quietly on foreground entry and reuse the selected 
 
 The remaining acceptance boundaries are explicit:
 
-- **Physical iPhone:** the user reported no detected speech with both internal input and AirPods, then suspected Mac screen sharing and requested a retry. The cause is unconfirmed. Successful real microphone recognition, continued background capture, offline asset readiness, Bluetooth/interruptions, haptics, battery, thermal behavior and latency remain acceptance work on the intended iPhone 17 Pro running iOS 27. Follow the [device acceptance checklist](docs/DEVICE_ACCEPTANCE.md).
+- **Physical iPhone:** the user reported no detected speech with both internal input and AirPods, then suspected Mac screen sharing and requested a retry. The cause is unconfirmed. Successful real microphone recognition, offline asset readiness, Bluetooth/interruptions, haptics, battery, thermal behavior and latency remain acceptance work on the intended iPhone 17 Pro running iOS 27. Follow the [device acceptance checklist](docs/DEVICE_ACCEPTANCE.md).
 - **Writing quality:** real iOS 27 model quality is unverified. Historical macOS 26.x evaluations contain known Notes ownership, segmentation and correction failures; their separate cohorts are not an iOS 27 accuracy claim. This host is macOS 26.6.2, and current model runners require macOS 27. [Writing evaluations](docs/INTELLIGENCE_EVALUATION.md), [Notes challenge](docs/NOTES_CHALLENGE_EVALUATION.md), [structured Notes comparison](docs/STRUCTURED_NOTES_EVALUATION.md).
 - **Runtime:** simulator boot and app tests work, but native runtime signature verification still reports `-67054` and AMFI cache-signature diagnostics remain unresolved. Passing app tests do not certify runtime integrity. [Environment and diagnostics](docs/IOS27_MIGRATION.md).
 - **Presentation:** 25 consecutive AX portrait timer captures retained their leading zero; persistent clipping was not reproduced. The earlier isolated frame remains qualified in the record. Native captures cover the recorded layouts and four icon styles. The subsequent [motion pass](docs/MOTION_DESIGN.md) addresses transition overlap, isolates meter geometry, and records actual system Reduce Motion and native keyboard checks. Physical-device motion performance remains unmeasured. [Visual evidence](docs/VERIFICATION.md), [icon design](docs/ICON_DESIGN.md).
 
 ## Data and development
 
-Sayso does not send audio or text to a server or persist microphone recordings. History uses protected local files and may be included in device backups. Only a deliberately shared result reaches the keyboard's App Group; it expires from insertion after ten minutes and can be cleared in Sayso. The keyboard does not collect surrounding host-field text. Copy uses the local-device pasteboard. Recording diagnostics contain counts, durations, levels, format/port-type identifiers and app/OS metadata; they contain no audio, transcript, vocabulary, input-device names or route identifiers.
+Sayso does not send audio or text to a server or persist microphone recordings. History uses protected local files and may be included in device backups. Copy uses the local-device pasteboard. Recording diagnostics contain counts, durations, levels, format/port-type identifiers and app/OS metadata; they contain no audio, transcript, vocabulary, input-device names or route identifiers.
 
-Production code is in `Sayso/`; the keyboard is in `SaysoKeyboard/`, the Live Activity in `SaysoRecordingActivity/`, and shared transfer types in `Shared/` and `RecordingActivityShared/`. Unit and UI checks live in `SaysoTests/` and `SaysoUITests/`.
+Production code is in `Sayso/`. Unit and UI checks live in `SaysoTests/` and `SaysoUITests/`.
 
-DEBUG-only preview and scripted speech fixtures isolate test data. Their captures verify presentation and lifecycle, not recognition, real background audio or model quality. The verification record retains source hashes and the boundary for every reported result. [Apple API research](docs/PLATFORM_RESEARCH.md), [speech validation](docs/SPEECH_VALIDATION.md), [Live Activity design](docs/LIVE_ACTIVITY_DESIGN.md).
+DEBUG-only preview and scripted speech fixtures isolate test data. Their captures verify presentation and lifecycle, not recognition, real background audio or model quality. The verification record retains source hashes and the boundary for every reported result. [Apple API research](docs/PLATFORM_RESEARCH.md), [speech validation](docs/SPEECH_VALIDATION.md).
 
 Source, documentation and selected screenshots are included in Git. Links into `.build/` in the detailed verification records refer to **local generated evidence excluded from Git**, including logs, result bundles and inspection reports; they are not downloadable repository artifacts. Run the documented checks to generate evidence for your own environment.

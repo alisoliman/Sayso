@@ -1,5 +1,7 @@
 # Sayso design language
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 Design direction established 9 September 2026. Sayso turns a spoken thought into useful writing with a calm, precise interface. The ambition is an experience worthy of Apple Design Award consideration in 2028. Selection belongs to Apple; 2028 eligibility, categories and judging expectations must be checked when published. Apple's current awards recognize innovation, ingenuity and technical achievement, with categories including Interaction and Inclusivity. Those are useful quality lenses for this product, not a prediction of a future award. [Apple Design Awards](https://developer.apple.com/design/awards/)
 
 ## Principles

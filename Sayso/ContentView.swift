@@ -172,7 +172,6 @@ struct ContentView: View {
             if phase == .background { model.appDidEnterBackground() }
             if phase == .active {
                 model.intelligence.refreshAvailability()
-                try? KeyboardHandoff().purgeExpired()
                 consumeRoute()
             }
         }
@@ -183,13 +182,10 @@ struct ContentView: View {
         .onOpenURL { url in
             guard url.scheme == "sayso" else { return }
             if url.host == "record" { AppRoute.shared.requestRecording() }
-            if url.host == "keyboard" { AppRoute.shared.requestRecording(destination: .keyboard) }
-            // sayso://recording from a Live Activity opens the current session.
             consumeRoute()
         }
         .task {
             model.intelligence.refreshAvailability()
-            try? KeyboardHandoff().purgeExpired()
             #if DEBUG
             if ProcessInfo.processInfo.arguments.contains("--preview-result") { model.loadPreviewResult() }
             #endif
@@ -256,9 +252,6 @@ struct ContentView: View {
                     .accessibilityLabel("Recording duration")
                 }
             }
-            if model.destination == .keyboard {
-                information("Return to your app and choose Sayso. Tap Stop & insert to add your words at the cursor.", symbol: "keyboard")
-            }
             Text(model.speech.partialText.isEmpty
                  ? (recording ? "I’m listening…" : "Finishing your words…")
                  : model.speech.partialText)
@@ -319,7 +312,6 @@ struct ContentView: View {
                 Button { editText = entry.text; sheet = .edit } label: {
                     Image(systemName: "pencil").font(.system(size: 18)).frame(width: 44, height: 44)
                 }.buttonStyle(SaysoQuietButtonStyle()).accessibilityLabel("Edit text").accessibilityIdentifier("editButton")
-                KeyboardSendButton(text: showOriginal ? entry.original : entry.text, id: entry.id)
                 if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: 0) }
             }.disabled(model.isBusy)
             actions {
@@ -376,17 +368,6 @@ struct ContentView: View {
                     .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
                     .frame(minHeight: 44)
                     .accessibilityIdentifier("discardRecordingButton")
-            } else if !model.isBusy {
-                Button { startRecording(destination: .keyboard) } label: {
-                    Label(dynamicTypeSize.isAccessibilitySize ? "Other apps" : "Dictate in another app", systemImage: "keyboard")
-                        .font(.subheadline.weight(.medium))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(minHeight: 44)
-                }
-                .buttonStyle(SaysoPressButtonStyle()).foregroundStyle(SaysoTheme.accent)
-                .accessibilityLabel("Dictate in another app")
-                .accessibilityIdentifier("keyboardRecordButton")
-                .accessibilityHint("Starts a recording you can continue after returning to your app")
             }
         }
         .frame(maxWidth: 410)
@@ -421,15 +402,6 @@ struct ContentView: View {
                     Button("Cancel") { model.cancel() }
                         .font(.subheadline.weight(.medium)).frame(minHeight: 44)
                         .disabled(!model.canCancel)
-                } else {
-                    Button { startRecording(destination: .keyboard) } label: {
-                        Image(systemName: "keyboard").font(.system(size: 20, weight: .medium))
-                            .frame(width: 44, height: 44)
-                    }
-                    .buttonStyle(.glass).buttonBorderShape(.circle)
-                    .accessibilityLabel("Dictate in another app")
-                    .accessibilityIdentifier("keyboardRecordButton")
-                    .accessibilityHint("Starts a recording you can continue after returning to your app")
                 }
                 recordControl
             }
@@ -503,14 +475,14 @@ struct ContentView: View {
             .padding(16).frame(maxWidth: .infinity, alignment: .leading)
             .background(SaysoTheme.surface, in: RoundedRectangle(cornerRadius: 16))
     }
-    private func startRecording(destination: DictationController.Destination = .app) {
+    private func startRecording() {
         showOriginal = false
-        model.start(mode: mode.mode, locale: locale, instructions: mode.prompt, vocabulary: vocabulary, saveHistory: saveHistory, destination: destination, writingStyle: mode)
+        model.start(mode: mode.mode, locale: locale, instructions: mode.prompt, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: mode)
     }
     private func consumeRoute() {
-        guard scenePhase == .active, let request = AppRoute.shared.recordRequest else { return }
+        guard scenePhase == .active, AppRoute.shared.recordRequest != nil else { return }
         AppRoute.shared.recordRequest = nil
-        if !model.isBusy { sheet = nil; startRecording(destination: request.destination) }
+        if !model.isBusy { sheet = nil; startRecording() }
     }
 }
 

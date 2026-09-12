@@ -1,5 +1,7 @@
 # Keyboard handoff — updated 10 September 2026
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 The keyboard is now a recording control panel; letter, number, space and delete keys have been removed. The always-visible globe returns to normal typing. While recording, the app shares mode names/icons/IDs (not prompts); **Stop & insert** applies the selected snapshot and automatically inserts only into the same still-visible document. An explicit result handoff, leaving the keyboard or destination app, changing documents, an expired request, or stopping through the Live Activity requires **Insert**. See [recording readiness and current verification](SMOOTH_RECORDING.md).
 
 ## Decision

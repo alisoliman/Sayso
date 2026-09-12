@@ -1,5 +1,7 @@
 # Motion design
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 Sayso uses motion to acknowledge a press, explain a state change, or reveal newly available text. The reading surface stays quiet. This document describes the implementation and simulator evidence from 9 September 2026.
 
 ## Motion grammar

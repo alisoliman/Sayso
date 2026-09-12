@@ -1,5 +1,7 @@
 # Recording Live Activity
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 Implemented against the installed iOS 26.5 SDK with Xcode 26.6. No iOS 27 or physical-device verification is implied.
 
 ## System integration

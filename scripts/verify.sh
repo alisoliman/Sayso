@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Verify the app, system appearances, both extensions, and host-field insertion.
+# Verify the app and system appearances.
 # --preflight-only records provenance without building or changing the simulator.
 # Require iOS 27 by default for both SDKs and the selected simulator runtime.
 set -euo pipefail
@@ -83,8 +83,7 @@ try:
         report["validationErrors"].append("The selected simulator/runtime is unavailable.")
 
     files = {}
-    for directory in ("Sayso", "SaysoKeyboard", "SaysoRecordingActivity", "RecordingActivityShared",
-                      "Shared", "SaysoTests", "SaysoUITests", "Sayso.xcodeproj", "scripts"):
+    for directory in ("Sayso", "SaysoTests", "SaysoUITests", "Sayso.xcodeproj", "scripts"):
         for path in sorted(Path(directory).rglob("*")):
             if path.is_file() and not ({"__pycache__", "xcuserdata", ".DS_Store"} & set(path.parts)):
                 files[path.as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -147,19 +146,7 @@ xcodebuild test-without-building -project Sayso.xcodeproj -scheme Sayso \
     -derivedDataPath "$SAYSO_DERIVED_DATA" -resultBundlePath ".build/Verification-$SAYSO_RUN-Dark.xcresult" \
     -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
     -only-testing:SaysoUITests/SaysoUITests/testDarkAppearanceKeepsRecordingActionAccessible \
-    -only-testing:SaysoUITests/KeyboardInsertionUITests \
     CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- > ".build/verification-$SAYSO_RUN-dark.log" 2>&1
-xcrun simctl ui "$SAYSO_DEVICE" appearance light
-xcrun simctl ui "$SAYSO_DEVICE" content_size accessibility-extra-extra-extra-large
-xcodebuild test-without-building -project Sayso.xcodeproj -scheme Sayso \
-    -destination "platform=iOS Simulator,id=$SAYSO_DEVICE" \
-    -derivedDataPath "$SAYSO_DERIVED_DATA" -resultBundlePath ".build/Verification-$SAYSO_RUN-Keyboard-AX.xcresult" \
-    -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
-    -only-testing:SaysoUITests/KeyboardInsertionUITests/testKeyboardReadyAndExactInsertionInBothLandscapeOrientations \
-    -only-testing:SaysoUITests/KeyboardInsertionUITests/testKeyboardStopAndDiscardInSafariBothLandscapeOrientations \
-    -only-testing:SaysoUITests/KeyboardInsertionUITests/testKeyboardStopThenExactInsertionWithFullAccessOn \
-    -only-testing:SaysoUITests/KeyboardInsertionUITests/testKeyboardDiscardRemovesRecordingAndHandoffWithFullAccessOn \
-    CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- > ".build/verification-$SAYSO_RUN-keyboard-ax.log" 2>&1
 restore_environment
 
 xcodebuild build -project Sayso.xcodeproj -scheme Sayso \

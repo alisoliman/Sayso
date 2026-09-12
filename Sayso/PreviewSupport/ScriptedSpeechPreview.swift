@@ -54,8 +54,7 @@ final class ScriptedSpeechPreview: SpeechTranscribing {
         playback = nil
         isRecording = false
         level = 0
-        let panelTest = ProcessInfo.processInfo.arguments.contains("--keyboard-panel-host")
-        try await Task.sleep(for: .milliseconds(panelTest ? 3_000 : 550))
+        try await Task.sleep(for: .milliseconds(550))
         return partialText
     }
 
@@ -72,56 +71,6 @@ final class ScriptedSpeechPreview: SpeechTranscribing {
         let slow = ProcessInfo.processInfo.arguments.contains("--scripted-slow-refinement")
         try await Task.sleep(for: .milliseconds(slow ? 30_000 : 1500))
         return text
-    }
-}
-/// Keeps an ordinary editable host and the real keyboard extension visible while
-/// the audio-free service finishes. This verifies UIKit/IPC, never microphone or
-/// operating-system background execution. All launch gates are in SaysoApp.
-struct KeyboardPanelPreview: View {
-    @Bindable var model: DictationController
-    @State private var firstText = ""
-    @State private var otherText = ""
-    @FocusState private var focusedField: Field?
-    private enum Field { case first, other }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Button("Record fixture") {
-                    model.start(mode: .transcript, locale: "en-US", instructions: "", vocabulary: "",
-                                saveHistory: false, destination: .keyboard)
-                }
-                .disabled(model.isBusy)
-                .accessibilityIdentifier("keyboardFixtureRecord")
-                Spacer()
-                Button("Reset fixture") {
-                    focusedField = nil
-                    model.cancel()
-                    firstText = ""
-                    otherText = ""
-                    try? KeyboardHandoff().clear()
-                }
-                .accessibilityIdentifier("keyboardFixtureReset")
-            }
-            Text(model.speech.partialText.isEmpty ? "Waiting for fixture" : model.speech.partialText)
-                .lineLimit(1)
-                .accessibilityIdentifier("keyboardFixtureTranscript")
-            Text(model.current?.writingStyle?.id ?? model.current?.mode.rawValue ?? "recording")
-                .font(.caption)
-                .accessibilityIdentifier("keyboardFixtureResultMode")
-            TextEditor(text: $firstText)
-                .focused($focusedField, equals: .first)
-                .frame(minHeight: 60, maxHeight: 90)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary.opacity(0.4)))
-                .accessibilityIdentifier("keyboardHostField")
-            TextEditor(text: $otherText)
-                .focused($focusedField, equals: .other)
-                .frame(minHeight: 60, maxHeight: 90)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary.opacity(0.4)))
-                .accessibilityIdentifier("keyboardOtherHostField")
-            Spacer(minLength: 0)
-        }
-        .padding()
     }
 }
 #endif

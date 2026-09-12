@@ -5,7 +5,6 @@ import UIKit
 @MainActor @Observable
 final class DictationController {
     enum Phase: Equatable { case idle, preparing, recording, finishing, refining }
-    enum Destination: Equatable { case app, keyboard }
     typealias Transformation = @MainActor (String, WritingMode, String, [String]) async throws -> String
 
     let speech: any SpeechTranscribing
@@ -18,19 +17,15 @@ final class DictationController {
     var resultNote: String?
     var startedAt: Date?
     var copied = false
-    private(set) var destination = Destination.app
-    @ObservationIgnored private let keyboardRecording: KeyboardRecordingCoordinator
     @ObservationIgnored private let transformation: Transformation
     @ObservationIgnored private let usesSystemWritingModel: Bool
     @ObservationIgnored private var operation: Task<Void, Never>?
     @ObservationIgnored private var copyFeedbackTask: Task<Void, Never>?
     @ObservationIgnored private var preparationTask: Task<Void, Never>?
     @ObservationIgnored private var resourceReleaseTask: Task<Void, Never>?
-    @ObservationIgnored private let preferences: UserDefaults
     private var isInBackground = false
     private var releaseWhenIdle = false
     private var preparationSuppressedForMemoryPressure = false
-    private var keyboardStyles: [WritingStyle] = []
     @ObservationIgnored private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     @ObservationIgnored private var backgroundGeneration: UUID?
     private var generation = UUID()
@@ -48,24 +43,21 @@ final class DictationController {
     private var currentKeepsHistory = true
     private var finishedDuration: TimeInterval?
     private var isCancelling = false
-    private var keyboardResultCommitted = false
     var isBusy: Bool { phase != .idle }
-    var canCancel: Bool { isBusy && !keyboardResultCommitted }
+    var canCancel: Bool { isBusy }
     var elapsedRecordingTime: TimeInterval { recordingDuration }
 
     init(store: DictationStore, speech: (any SpeechTranscribing)? = nil,
          intelligence: IntelligenceService? = nil,
-         transformation: Transformation? = nil, keyboardRecording: KeyboardRecordingCoordinator? = nil,
+         transformation: Transformation? = nil,
          preferences: UserDefaults = .standard, speechModels: ParakeetModelStore? = nil) {
         let models = speechModels ?? ParakeetModelStore()
         self.speechModels = models
-        self.preferences = preferences
         let resolvedSpeech = speech ?? SpeechProviderService(preferences: preferences, models: models)
         let resolvedIntelligence = intelligence ?? IntelligenceService()
         self.store = store
         self.speech = resolvedSpeech
         self.intelligence = resolvedIntelligence
-        self.keyboardRecording = keyboardRecording ?? KeyboardRecordingCoordinator()
         usesSystemWritingModel = transformation == nil
         self.transformation = transformation ?? { text, mode, instructions, vocabulary in
             try await resolvedIntelligence.transform(text, mode: mode, customInstructions: instructions, vocabulary: vocabulary)
@@ -73,36 +65,12 @@ final class DictationController {
         resolvedSpeech.onInterruption = { [weak self] in
             guard let self else { return }
             if self.phase == .preparing {
-                // Audio may already be active while ActivityKit finishes setup.
-                // Invalidate that pending start before it can display Listening.
+                // Invalidate the pending start before it can display Listening.
                 self.notice = "Recording was interrupted before it was ready. Try again."
                 self.cancel()
             } else if self.phase == .recording {
                 self.finish()
             }
-        }
-        self.keyboardRecording.onStop = { [weak self] in
-            guard let self else { return }
-            if self.phase == .preparing { self.cancel() } else { self.finish() }
-        }
-        self.keyboardRecording.onSelectMode = { [weak self] id in
-            guard let self, self.destination == .keyboard, self.phase == .recording,
-                  let style = self.keyboardStyles.first(where: { $0.id == id }) else { return }
-            self.configureWriting(mode: style.mode, instructions: style.prompt, writingStyle: style)
-            // The keyboard can choose a writing mode after recording began in
-            // Original. Give its model lead time while speech finishes.
-            if self.usesSystemWritingModel, self.activeTransformationMode != .transcript { self.intelligence.prewarm() }
-        }
-        self.keyboardRecording.onCancel = { [weak self] in self?.cancel() }
-        self.keyboardRecording.onExpiration = { [weak self] in self?.keyboardCompletionExpired() }
-        self.keyboardRecording.onFailure = { [weak self] error in
-            guard let self, self.destination == .keyboard, self.isBusy else { return }
-            self.notice = error.localizedDescription
-            if self.phase == .recording { self.finish() }
-        }
-        self.keyboardRecording.onCheckpoint = { [weak self] in
-            guard let self, self.phase == .recording, UIApplication.shared.applicationState == .background else { return }
-            self.checkpointPartial(duration: self.recordingDuration)
         }
         store.onEntriesChanged = { [weak self] previous, updated in
             self?.reconcileCurrent(previous: previous, updated: updated)
@@ -151,24 +119,10 @@ final class DictationController {
         }
     }
 
-    func start(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, destination: Destination = .app, writingStyle: WritingStyle? = nil) {
+    func start(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle? = nil) {
         guard phase == .idle else { return }
         resourceReleaseTask?.cancel()
         configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: writingStyle)
-        self.destination = destination
-        if destination == .keyboard {
-            // Snapshot complete prompts in the app. Only display metadata crosses
-            // into the keyboard, and a mid-recording library edit cannot change it.
-            var catalog = WritingStyleStore(defaults: preferences).styles
-            if let writingStyle {
-                catalog.removeAll { $0.id == writingStyle.id }
-                catalog.insert(writingStyle, at: 0)
-            }
-            keyboardStyles = Array(catalog.filter {
-                ($0.isOriginal || !$0.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty) &&
-                $0.id.utf8.count <= 128
-            }.prefix(24))
-        }
         phase = .preparing
         notice = nil
         resultNote = nil
@@ -182,16 +136,6 @@ final class DictationController {
                 // cancel a subsequent service session or mutate the current screen.
                 guard generation == token, !Task.isCancelled else { return }
                 startedAt = Date()
-                if destination == .keyboard {
-                    let modes = keyboardStyles.map {
-                        KeyboardRecordingSessionStore.Mode(id: $0.id, title: Self.keyboardTitle($0.title), symbol: $0.symbol)
-                    }
-                    let selectedID = activeWritingStyle?.id ?? activeMode.rawValue
-                    try await keyboardRecording.start(sessionID: activeDictationID, availableModes: modes,
-                        selectedModeID: modes.contains(where: { $0.id == selectedID }) ? selectedID : nil,
-                        now: startedAt ?? Date())
-                    guard generation == token, !Task.isCancelled else { return }
-                }
                 current = nil
                 activeCreatedAt = startedAt ?? Date()
                 phase = .recording
@@ -215,14 +159,10 @@ final class DictationController {
         finishedDuration = duration
         let token = generation
         feedback(.light)
-        if destination == .keyboard, UIApplication.shared.applicationState == .background { beginBackgroundFinalization() }
         operation = Task {
             defer { completeOperation(token: token) }
             do {
-                // Begin stopping capture before awaiting a system UI update.
-                async let stopped = speech.stop()
-                if destination == .keyboard { await keyboardRecording.transition(to: .finishing) }
-                let raw = try await stopped
+                let raw = try await speech.stop()
                 guard generation == token, !Task.isCancelled else { return }
                 await accept(raw, duration: duration, token: token)
             } catch {
@@ -231,20 +171,12 @@ final class DictationController {
                                note: "Recording ended early. The text captured so far is here.",
                                error: error)
             }
-            await completeKeyboardRecording(token: token)
         }
     }
 
-    func cancel(discardRecording: Bool = true, terminalPhase: RecordingActivityAttributes.Phase = .cancelled) {
-        guard isBusy, !keyboardResultCommitted || !discardRecording else { return }
+    func cancel() {
+        guard isBusy else { return }
         let previousOperation = operation
-        let keyboardID = destination == .keyboard ? keyboardRecording.sessionID : nil
-        if let keyboardID { keyboardRecording.quiesce(sessionID: keyboardID) }
-        if discardRecording, destination == .keyboard, current?.id == activeDictationID {
-            if let saved = store.entries.first(where: { $0.id == activeDictationID }) { store.delete(saved.id) }
-            current = nil
-            resultNote = nil
-        }
         let token = UUID(); generation = token
         previousOperation?.cancel()
         isCancelling = true
@@ -254,7 +186,6 @@ final class DictationController {
         // Repeated cancellation can share SpeechService's cleanup safely.
         operation = Task {
             await speech.cancel()
-            if let keyboardID { await keyboardRecording.end(sessionID: keyboardID, phase: terminalPhase, note: nil) }
             completeOperation(token: token)
         }
     }
@@ -310,14 +241,9 @@ final class DictationController {
         isInBackground = true
         preparationTask?.cancel()
         preparationTask = nil
-        if keyboardResultCommitted {
-            beginBackgroundFinalization()
-            return
-        }
         switch phase {
         case .recording:
             checkpointPartial(duration: recordingDuration)
-            if destination == .keyboard { return }
             beginBackgroundFinalization()
             finish()
         case .finishing:
@@ -328,10 +254,6 @@ final class DictationController {
         case .preparing:
             cancel()
         case .refining:
-            if destination == .keyboard, keyboardRecording.sessionID != nil {
-                beginBackgroundFinalization()
-                return
-            }
             resultNote = "Writing paused when Sayso moved to the background. Your current text is unchanged, and the original is still available."
             cancel()
         case .idle:
@@ -347,13 +269,11 @@ final class DictationController {
         // Reset synchronously before the task can yield to an app-background
         // callback. A previous transcript must never become a new recording's checkpoint.
         speech.resetTranscript()
-        destination = .app
         configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
         activeLocale = locale
         activeVocabulary = vocabulary.split(separator: "\n").map(String.init)
         activeKeepsHistory = saveHistory
         finishedDuration = nil
-        keyboardResultCommitted = false
         isCancelling = false
         activeDictationID = UUID()
         activeCreatedAt = Date()
@@ -368,25 +288,12 @@ final class DictationController {
         activeInstructions = writingStyle?.prompt ?? instructions
     }
 
-    private static func keyboardTitle(_ title: String) -> String {
-        guard title.utf8.count > 120 else { return title }
-        var shortened = ""
-        for character in title {
-            guard shortened.utf8.count + String(character).utf8.count <= 117 else { break }
-            shortened.append(character)
-        }
-        return shortened.isEmpty ? "Custom" : shortened + "…"
-    }
-
     private func completeOperation(token: UUID) {
         guard generation == token else { return }
         startedAt = nil
         phase = .idle
         operation = nil
         isCancelling = false
-        keyboardResultCommitted = false
-        destination = .app
-        keyboardStyles = []
         if isInBackground || releaseWhenIdle { scheduleResourceRelease(immediately: releaseWhenIdle) }
         endBackgroundFinalization()
     }
@@ -416,12 +323,11 @@ final class DictationController {
         // unavailable or the app subsequently suspends.
         saveOriginal(text, duration: duration)
         guard let entry = current, activeMode != .transcript else { return }
-        guard destination == .keyboard || (backgroundTask == .invalid && UIApplication.shared.applicationState != .background) else {
+        guard backgroundTask == .invalid && UIApplication.shared.applicationState != .background else {
             resultNote = "Your transcript is here. Choose a writing mode to refine it."
             return
         }
         phase = .refining
-        if destination == .keyboard { await keyboardRecording.transition(to: .refining) }
         guard generation == token, !Task.isCancelled else { return }
         await refine(entry, token: token)
     }
@@ -484,56 +390,7 @@ final class DictationController {
         }
     }
 
-    private func completeKeyboardRecording(token: UUID) async {
-        guard generation == token, destination == .keyboard, let id = keyboardRecording.sessionID else { return }
-        var completed = false
-        if let entry = current, entry.id == id {
-            do {
-                guard try keyboardRecording.publish(entry) else {
-                    // A Discard accepted before the atomic completion boundary
-                    // wins even when it arrived after the most recent poll.
-                    cancel()
-                    return
-                }
-                keyboardResultCommitted = true
-                completed = true
-                let ready = "Ready in the Sayso keyboard. If it hasn’t appeared in your text field, tap Insert."
-                resultNote = resultNote.map { $0 + " " + ready } ?? ready
-            } catch {
-                // Publication is already final if only metadata cleanup failed.
-                // A late Cancel must not hide a result that is ready to insert.
-                completed = keyboardRecording.publicationCommitted
-                keyboardResultCommitted = completed
-                notice = error.localizedDescription
-            }
-        }
-        await keyboardRecording.end(sessionID: id, phase: completed ? .ready : .failed,
-                                    note: completed ? nil : "Open Sayso to review your recording.")
-    }
-
-    /// Both the system background deadline and the independent completion limit
-    /// retain the source before cancelling model work. No partial rewrite is sent.
-    func keyboardCompletionExpired() {
-        guard destination == .keyboard, isBusy, !isCancelling, !keyboardResultCommitted, keyboardRecording.sessionID != nil else { return }
-        if phase != .refining || current?.id != activeDictationID { checkpointPartial(duration: recordingDuration) }
-        var published = false
-        if let entry = current, entry.id == activeDictationID {
-            do {
-                guard try keyboardRecording.publish(entry) else { cancel(); return }
-                published = true
-                keyboardResultCommitted = true
-            } catch {
-                published = keyboardRecording.publicationCommitted
-                keyboardResultCommitted = published
-                notice = error.localizedDescription
-            }
-            resultNote = "Your transcript is ready. You can refine it in Sayso later."
-        }
-        cancel(discardRecording: false, terminalPhase: published ? .ready : .failed)
-    }
-
-    /// Requests finite execution to drain stopped audio and finish writing. The
-    /// audio background mode applies only to an explicit ongoing keyboard session.
+    /// Requests finite execution to drain stopped audio and retain the transcript.
     private func beginBackgroundFinalization() {
         guard backgroundTask == .invalid else { return }
         let token = generation
@@ -545,8 +402,6 @@ final class DictationController {
 
     private func backgroundFinalizationExpired(token: UUID) {
         guard generation == token, backgroundGeneration == token else { return }
-        if keyboardResultCommitted { completeOperation(token: token); return }
-        if destination == .keyboard { keyboardCompletionExpired(); return }
         // Save synchronously while the expiration callback still has execution
         // time. The microphone was stopped at the start of finalization.
         let partial = speech.partialText.trimmingCharacters(in: .whitespacesAndNewlines)

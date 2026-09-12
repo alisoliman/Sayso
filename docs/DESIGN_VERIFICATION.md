@@ -1,5 +1,7 @@
 # Design revision — 9 September 2026
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 This revision implements the [Sayso design language](DESIGN_LANGUAGE.md): warm porcelain and plum surfaces, a seven-bar voice signature, a labeled primary recording action, consistent reading typography, and coordinated History, Modes, Settings, keyboard and Live Activity controls.
 
 This document preserves the visual-design cohort and its source snapshots. The subsequent [motion pass](MOTION_DESIGN.md) records the later implementation and observed system Reduce Motion behavior, including changes during an active recording.

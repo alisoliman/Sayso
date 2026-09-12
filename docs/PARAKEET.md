@@ -28,7 +28,7 @@ Models are kept in the app’s Application Support/Sayso/Models directory, exclu
 - Recognition runs on the device. The normal load path constructs Core ML models from local files directly and never calls FluidAudio’s download/recovery loader. Only the explicit download control accesses the model host.
 - Parakeet automatically detects its 25 supported European languages. English and Dutch are supported; Arabic, Chinese, Japanese and Korean are not. Sayso’s language preference applies to Apple Speech. Vocabulary hints currently apply to Apple Speech and writing styles, not Parakeet.
 - This first version uses batch transcription after Stop. There is no live Parakeet transcript. Audio is converted to mono Float32 at 16 kHz in memory; microphone audio is never written to disk. Recordings stop at ten minutes.
-- Stop, Discard, interruptions and keyboard dictation use the same controller flows. There is no partial Parakeet text to recover before inference finishes. Real background finalization and locked-device behavior need acceptance on the intended iPhone.
+- Stop, Discard and interruptions use the same controller flows. There is no partial Parakeet text to recover before inference finishes. Real background finalization and locked-device behavior need acceptance on the intended iPhone.
 - On an iPhone, Core ML is configured for CPU and Neural Engine. Simulator inference uses CPU only. A new runtime/decoder state is created for each operation, and the router releases it after completion/cancellation. Core ML work already in flight may finish unwinding after cancellation; its stale result cannot replace a newer recording.
 
 ## Dependencies and attribution

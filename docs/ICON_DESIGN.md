@@ -1,5 +1,7 @@
 # Native app icon
 
+> Historical context: the Sayso keyboard and its cross-app recording/Live Activity support were removed on 12 September 2026. References and screenshots of those features below describe earlier revisions. See the [README](../README.md) for current behavior.
+
 Sayso uses `Sayso/AppIcon.icon`, authored in Apple's Icon Composer from the original seven-capsule waveform. The foreground remains vector artwork; the system supplies the mask, lighting, and appearance effects. The app target already selects the name `AppIcon`, and its synchronized Sayso folder includes the native document.
 
 The default appearance retains the warm background and muted purple waveform. Dark appearance uses the app's pale-violet accent. The monochrome variation uses white artwork so the system can apply a person's selected tint. Group shadow opacity is 0.16 and translucency is 0.12; the artwork contains no baked lighting.

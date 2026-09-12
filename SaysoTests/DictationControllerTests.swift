@@ -464,6 +464,36 @@ final class DictationControllerTests: XCTestCase {
         if previousHistory { XCTAssertEqual(controller.store.entries.first?.text, controller.current?.text) }
     }
 
+    func testBackgroundingStopsRecordingAndKeepsFinalOriginalWithoutRewriting() async throws {
+        let url = storeURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let speech = StubSpeech()
+        let suspended = SuspendedRewrite()
+        defer { suspended.resume("Final captured words.") }
+        speech.stopOverride = { await suspended.wait() }
+        var writingCalls = 0
+        let controller = DictationController(store: DictationStore(fileURL: url), speech: speech,
+            transformation: { text, _, _, _ in writingCalls += 1; return text })
+        start(controller, mode: .clean)
+        await waitUntil("Recording starts") { controller.phase == .recording }
+        speech.partialText = "Captured before backgrounding."
+        controller.appDidEnterBackground()
+        XCTAssertEqual(controller.phase, .finishing)
+        let checkpoint = try XCTUnwrap(controller.store.entries.first)
+        XCTAssertEqual(checkpoint.text, speech.partialText)
+        await waitUntil("Capture stops and awaits final text") { suspended.isWaiting }
+        XCTAssertFalse(speech.isRecording)
+        controller.appDidEnterBackground()
+        suspended.resume("Final captured words.")
+        await waitUntil("Finalization settles") { controller.phase == .idle }
+        XCTAssertEqual(speech.stopCalls, 1)
+        XCTAssertEqual(writingCalls, 0)
+        XCTAssertEqual(controller.current?.id, checkpoint.id)
+        XCTAssertEqual(controller.current?.text, "Final captured words.")
+        XCTAssertEqual(controller.current?.original, "Final captured words.")
+        XCTAssertEqual(controller.store.entries.count, 1)
+    }
+
     func testBackgroundCheckpointKeepsDurationAtStopInsteadOfFinalizationDelay() async throws {
         let url = storeURL()
         defer { try? FileManager.default.removeItem(at: url) }
