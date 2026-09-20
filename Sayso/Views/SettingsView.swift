@@ -21,52 +21,88 @@ struct SettingsView: View {
     @State private var importingModel = false
     @State private var confirmingModelRemoval = false
     private var provider: SpeechProvider { SpeechProvider(rawValue: providerRaw) ?? .defaultProvider }
+
     var body: some View {
         NavigationStack {
             Form {
+                if !dynamicTypeSize.isAccessibilitySize {
+                    Section {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Eyebrow(text: "Your personal writing studio")
+                            Text("Settle into your flow.")
+                                .font(.system(.title2, design: .serif)).foregroundStyle(SaysoTheme.ink)
+                            Label("Your voice stays on your iPhone.", systemImage: "lock.shield")
+                                .font(.subheadline.weight(.medium)).foregroundStyle(SaysoTheme.accent)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("Choose how Sayso listens, writes, and keeps your words.")
+                                .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                                .lineSpacing(4).fixedSize(horizontal: false, vertical: true)
+                        }.padding(.vertical, 8)
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
+                }
                 Section {
                     if dynamicTypeSize.isAccessibilitySize {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Speech model").font(.headline)
-                            Menu { providerPicker } label: {
-                                selectionLabel(provider.name)
-                            }
-                            .accessibilityLabel("Speech model")
-                            .accessibilityValue(provider.name)
-                            .accessibilityIdentifier("speechProviderPicker")
+                            Text("Speech model").font(.headline).foregroundStyle(SaysoTheme.ink)
+                            Menu { providerPicker } label: { selectionLabel(provider.name) }
+                                .accessibilityLabel("Speech model")
+                                .accessibilityValue(provider.name)
+                                .accessibilityIdentifier("speechProviderPicker")
                         }
                     } else { providerPicker }
                     if provider == .parakeet {
-                        LabeledContent("Parakeet TDT v3", value: speechModels.status)
-                            .accessibilityIdentifier("parakeetModelStatus")
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("Parakeet TDT v3", systemImage: "waveform")
+                                .font(.headline).foregroundStyle(SaysoTheme.ink)
+                            Text(speechModels.status).font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(.vertical, 8)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("parakeetModelStatus")
                         if speechModels.isWorking {
-                            HStack {
+                            HStack(alignment: .top, spacing: 12) {
                                 ProgressView()
-                                Text(speechModels.status).font(.footnote)
+                                Text(speechModels.status).font(.subheadline)
                             }
                             Text("The download and initial model preparation can take a few minutes.")
-                                .font(.footnote).foregroundStyle(.secondary)
-                            Button("Cancel installation") { speechModels.cancel() }
+                                .font(.footnote).foregroundStyle(SaysoTheme.secondaryInk)
+                            Button("Cancel installation") { speechModels.cancel() }.frame(minHeight: 44)
                         } else {
                             if !speechModels.isInstalled {
                                 Button("Download Parakeet (\(ParakeetModelFiles.downloadSizeDescription))") {
                                     speechModels.download()
-                                }.accessibilityIdentifier("downloadParakeetButton")
+                                }.frame(minHeight: 44).accessibilityIdentifier("downloadParakeetButton")
                             }
                             Button(speechModels.isInstalled ? "Replace from model folder…" : "Import model folder…") {
                                 importingModel = true
-                            }.accessibilityIdentifier("importParakeetButton")
+                            }.frame(minHeight: 44).accessibilityIdentifier("importParakeetButton")
                             if speechModels.isInstalled {
-                                Button("Remove model", role: .destructive) { confirmingModelRemoval = true }
+                                Button("Remove model", role: .destructive) { confirmingModelRemoval = true }.frame(minHeight: 44)
                             }
                         }
                         if let error = speechModels.error {
-                            Text(error).font(.footnote).foregroundStyle(.red).textSelection(.enabled)
+                            Label(error, systemImage: "exclamationmark.circle")
+                                .font(.footnote).foregroundStyle(.red).textSelection(.enabled)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         Link("Parakeet by NVIDIA · Core ML by Fluid Inference", destination: URL(string: "https://huggingface.co/FluidInference/parakeet-tdt-0.6b-v3-coreml")!)
-                            .font(.footnote)
+                            .font(.footnote).frame(minHeight: 44)
                     }
-                } header: { Text("Transcription") } footer: {
+                    if provider == .apple {
+                        if dynamicTypeSize.isAccessibilitySize {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Language").font(.headline).foregroundStyle(SaysoTheme.ink)
+                                Menu { languagePicker } label: { selectionLabel(selectedLanguageName) }
+                                    .accessibilityLabel("Language")
+                                    .accessibilityValue(selectedLanguageName)
+                                    .accessibilityIdentifier("languagePicker")
+                            }
+                        } else { languagePicker }
+                    }
+                } header: { Text("Listen").textCase(nil) } footer: {
                     if provider == .parakeet {
                         Text("Download once or import the Parakeet TDT v3 Core ML folder. Recording then works offline, without Apple Intelligence. Transcription appears after Stop; recordings are limited to 10 minutes. \(provider.languageDescription)")
                     } else {
@@ -74,87 +110,110 @@ struct SettingsView: View {
                     }
                 }
                 .disabled(isDictationBusy)
-                .listRowBackground(SaysoTheme.surface)
+                .listRowBackground(SaysoTheme.paper)
                 Section {
-                    HStack(alignment: .top, spacing: 13) {
-                        Image(systemName: "sparkles")
-                            .foregroundStyle(SaysoTheme.accent).font(.title3)
-                            .frame(width: 30).padding(.top, 3).accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Apple Intelligence").font(.headline.weight(.medium)).foregroundStyle(SaysoTheme.ink)
-                            Text(intelligence.availabilityMessage)
-                                .font(.footnote).foregroundStyle(SaysoTheme.secondaryInk)
-                                .lineSpacing(3).fixedSize(horizontal: false, vertical: true)
-                        }
-                    }.padding(.vertical, 8)
-                } header: { Text("On this iPhone") } footer: {
-                    Text("Optional writing styles use Apple Intelligence. Original needs only the selected speech model. Sayso doesn’t send your audio or text to a server.")
-                }
-                .listRowBackground(SaysoTheme.surface)
-                Section {
-                    if provider == .apple {
-                    if dynamicTypeSize.isAccessibilitySize {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Language").font(.headline)
-                            Menu { languagePicker } label: {
-                                selectionLabel(selectedLanguageName)
-                            }
-                            .accessibilityLabel("Language")
-                            .accessibilityValue(selectedLanguageName)
-                            .accessibilityIdentifier("languagePicker")
-                        }
-                    } else { languagePicker }
-                    }
                     NavigationLink {
                         Form {
+                            if !dynamicTypeSize.isAccessibilitySize {
+                                Section {
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("The words you know best.")
+                                            .font(.system(.title2, design: .serif)).foregroundStyle(SaysoTheme.ink)
+                                        Text("Names, places, and terms that come up in your day.")
+                                            .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }.padding(.vertical, 8)
+                                }.listRowBackground(Color.clear).listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
+                            }
                             Section {
                                 TextEditor(text: $vocabulary)
-                                    .font(.body).lineSpacing(4).frame(minHeight: 260).autocorrectionDisabled()
+                                    .font(.body).lineSpacing(5).frame(minHeight: 260).autocorrectionDisabled()
                                     .scrollContentBackground(.hidden)
                                     .accessibilityLabel("Vocabulary, one word or phrase per line")
-                            } header: { Text("One word or phrase per line") } footer: {
-                                Text("Add names, places, and words you use often, one per line. These give Apple Speech and rewriting a little context. Parakeet transcription does not use this vocabulary. Spelling is still worth checking.")
+                            } header: { Text("One word or phrase per line").textCase(nil) } footer: {
+                                if dynamicTypeSize.isAccessibilitySize {
+                                    Text("Add names, places, and terms that come up in your day.")
+                                }
+                                Text("These give Apple Speech and rewriting a little context. Parakeet transcription does not use this vocabulary. Spelling is still worth checking.")
                             }
-                            .listRowBackground(SaysoTheme.surface)
+                            .listRowBackground(SaysoTheme.paper)
                         }
                         .scrollContentBackground(.hidden).background(SaysoTheme.canvas)
                         .navigationTitle("Vocabulary").navigationBarTitleDisplayMode(.inline)
-                    } label: { LabeledContent("Vocabulary", value: "\(vocabulary.split(separator: "\n").count) words") }
-                    Toggle("Haptic feedback", isOn: $haptics)
-                } header: { Text("Dictation") }
-                .listRowBackground(SaysoTheme.surface)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Vocabulary", systemImage: "text.book.closed")
+                                .foregroundStyle(SaysoTheme.ink)
+                            Text("\(vocabulary.split(separator: "\n").count) saved words and phrases")
+                                .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                        }.padding(.vertical, 4)
+                    }
+                    Toggle(isOn: $haptics) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Haptic feedback").foregroundStyle(SaysoTheme.ink)
+                            Text("A little nudge when you start and stop.")
+                                .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }.padding(.vertical, 4)
+                    }
+                } header: { Text("Make it familiar").textCase(nil) }
+                .listRowBackground(SaysoTheme.paper)
                 Section {
                     NavigationLink { WritingModesSettingsView(styles: styles) } label: {
-                        Label("Writing modes", systemImage: "slider.horizontal.3")
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Writing modes", systemImage: "slider.horizontal.3")
+                                .foregroundStyle(SaysoTheme.ink)
+                            Text("Tune a prompt or create your own style.")
+                                .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }.padding(.vertical, 4)
                     }.accessibilityIdentifier("writingModesSettingsButton")
-                } header: { Text("Rewriting") } footer: {
-                    Text("Customize rewrite prompts and save your own modes.")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Apple Intelligence", systemImage: "sparkles")
+                            .font(.headline).foregroundStyle(SaysoTheme.accent)
+                        Text(intelligence.availabilityMessage)
+                            .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                            .lineSpacing(3).fixedSize(horizontal: false, vertical: true)
+                    }.padding(.vertical, 8)
+                } header: { Text("Write").textCase(nil) } footer: {
+                    Text("Rewriting is optional. Original needs only your selected speech model. Sayso doesn’t send your audio or text to a server.")
                 }
-                .listRowBackground(SaysoTheme.surface)
+                .listRowBackground(SaysoTheme.paper)
                 Section {
-                    Toggle("Save history", isOn: $saveHistory).accessibilityIdentifier("saveHistoryToggle")
+                    Toggle(isOn: $saveHistory) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Save history").foregroundStyle(SaysoTheme.ink)
+                            Text("Keep new dictations for another day.")
+                                .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }.padding(.vertical, 4)
+                    }.accessibilityIdentifier("saveHistoryToggle")
                     if !store.entries.isEmpty {
-                        Button("Delete all dictations", role: .destructive) { confirmingDelete = true }
+                        Button("Delete all dictations", role: .destructive) { confirmingDelete = true }.frame(minHeight: 44)
                     }
-                } header: { Text("Your words") } footer: {
+                } header: { Text("Keep").textCase(nil) } footer: {
                     Text("History is stored in Sayso on this iPhone and may be included in your device backup. Turning this off affects new dictations. Existing history stays until you delete it. Audio is not saved.")
                 }
-                .listRowBackground(SaysoTheme.surface)
+                .listRowBackground(SaysoTheme.paper)
                 Section {
-                    Label("Start dictation", systemImage: "waveform")
-                    Text("In Shortcuts, add Sayso’s Start Dictation action. Assign that shortcut to your Action button for quick access.")
-                        .font(.footnote).foregroundStyle(.secondary)
-                } header: { Text("One press away") }
-                .listRowBackground(SaysoTheme.surface)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Start dictation", systemImage: "waveform")
+                            .font(.headline).foregroundStyle(SaysoTheme.accent)
+                        Text("In Shortcuts, add Sayso’s Start Dictation action. Assign that shortcut to your Action button for quick access.")
+                            .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+                            .lineSpacing(4).fixedSize(horizontal: false, vertical: true)
+                    }.padding(.vertical, 8)
+                } header: { Text("One press away").textCase(nil) }
+                .listRowBackground(SaysoTheme.accentSoft)
                 Section {
                     LabeledContent {
                         Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0")
                             .foregroundStyle(SaysoTheme.secondaryInk)
                     } label: {
-                        Text("Sayso").font(.headline.weight(.medium)).foregroundStyle(SaysoTheme.ink)
+                        Text("Sayso").font(.headline).foregroundStyle(SaysoTheme.ink)
                     }
-                } footer: { Text("Made for a little less typing.") }
-                .listRowBackground(SaysoTheme.surface)
+                } footer: { Text("A little less typing. A little more you.") }
+                .listRowBackground(SaysoTheme.paper)
             }
             .accessibilityIdentifier("settingsForm")
             .scrollContentBackground(.hidden).background(SaysoTheme.canvas)
@@ -171,9 +230,7 @@ struct SettingsView: View {
                 Button("Remove model", role: .destructive) { speechModels.remove() }
             } message: { Text("You’ll need to download or import it again before using Parakeet. Your dictation history stays on this iPhone.") }
             .confirmationDialog("Delete all dictations?", isPresented: $confirmingDelete, titleVisibility: .visible) {
-                Button("Delete all dictations", role: .destructive) {
-                    store.deleteAll()
-                }
+                Button("Delete all dictations", role: .destructive) { store.deleteAll() }
             } message: { Text("This permanently removes \(store.entries.count) saved dictations and their original transcripts from this iPhone.") }
             .task {
                 speechModels.refresh()
@@ -183,6 +240,7 @@ struct SettingsView: View {
             }
         }
     }
+
     private var providerPicker: some View {
         Picker("Speech model", selection: $providerRaw) {
             ForEach(SpeechProvider.allCases) { option in

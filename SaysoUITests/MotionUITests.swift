@@ -156,7 +156,7 @@ final class MotionUITests: XCTestCase {
         event("Discard new recording confirmed")
         confirm.tap()
         waitForState(record, predicate: "enabled == true AND label == 'Start recording'")
-        XCTAssertTrue(app.staticTexts["Speak freely."].exists)
+        XCTAssertTrue(app.staticTexts["homeHeadline"].exists)
         XCTAssertFalse(app.staticTexts["resultText"].exists)
         XCTAssertTrue(app.buttons["modeButton"].isEnabled)
         capture("Discarded-Ready", app: app)

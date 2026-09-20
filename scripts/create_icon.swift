@@ -10,9 +10,9 @@ let colorSpace = CGColorSpace(name: CGColorSpace.sRGB)!
 let context = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8,
                         bytesPerRow: size * 4, space: colorSpace,
                         bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
-context.setFillColor(CGColor(srgbRed: 0.965, green: 0.955, blue: 0.94, alpha: 1))
+context.setFillColor(CGColor(srgbRed: 245.0 / 255, green: 243.0 / 255, blue: 236.0 / 255, alpha: 1))
 context.fill(CGRect(x: 0, y: 0, width: size, height: size))
-context.setFillColor(CGColor(srgbRed: 0.30, green: 0.22, blue: 0.43, alpha: 1))
+context.setFillColor(CGColor(srgbRed: 21.0 / 255, green: 94.0 / 255, blue: 82.0 / 255, alpha: 1))
 let heights: [CGFloat] = [102, 214, 344, 470, 344, 214, 102]
 for (index, height) in heights.enumerated() {
     let x = CGFloat(index) * 78 + 257

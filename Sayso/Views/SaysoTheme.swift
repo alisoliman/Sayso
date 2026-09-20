@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Porcelain, ink and a single expressive accent. Keep reading surfaces opaque;
+/// Warm paper, forest ink, and a clear recording accent. Keep reading surfaces opaque;
 /// system glass is reserved for navigation above the content.
 enum SaysoTheme {
     private static func adaptive(_ light: UInt32, _ dark: UInt32) -> Color {
@@ -12,13 +12,16 @@ enum SaysoTheme {
         })
     }
 
-    static let accent = adaptive(0x503968, 0xCEB8F2)
-    static let onAccent = adaptive(0xFFFFFF, 0x261F2F)
-    static let canvas = adaptive(0xF8F6F2, 0x141218)
-    static let surface = adaptive(0xF0EDF3, 0x211D27)
-    static let ink = adaptive(0x261F2F, 0xF5F0FA)
-    static let secondaryInk = adaptive(0x6D6674, 0xB8AEBD)
-    static let hairline = adaptive(0xDCD5E0, 0x49404F)
+    static let accent = adaptive(0x155E52, 0x9DDAC6)
+    static let onAccent = adaptive(0xFFFFFF, 0x103C33)
+    static let canvas = adaptive(0xF5F3EC, 0x121C19)
+    static let surface = adaptive(0xEAECE4, 0x24312C)
+    static let paper = adaptive(0xFFFEF9, 0x1B2823)
+    static let accentSoft = adaptive(0xE0EEE5, 0x263E33)
+    static let recording = adaptive(0xA33E27, 0xFFB49B)
+    static let ink = adaptive(0x20352D, 0xF0F4ED)
+    static let secondaryInk = adaptive(0x5C6961, 0xB0BFB5)
+    static let hairline = adaptive(0xD4DBD1, 0x46594E)
     static let muted = secondaryInk
 }
 
@@ -54,7 +57,7 @@ struct SaysoPrimaryButtonStyle: ButtonStyle {
             .foregroundStyle(isEnabled ? SaysoTheme.onAccent : SaysoTheme.secondaryInk)
             .padding(.horizontal, 20).padding(.vertical, 14)
             .frame(minHeight: 52)
-            .background(isEnabled ? SaysoTheme.accent : SaysoTheme.surface, in: .capsule)
+            .background(isEnabled ? SaysoTheme.accent : SaysoTheme.surface, in: .rect(cornerRadius: 20))
             .opacity(configuration.isPressed ? 0.82 : 1)
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
             .animation(reduceMotion ? nil : (configuration.isPressed ? SaysoMotion.feedback : SaysoMotion.settle), value: configuration.isPressed)
@@ -79,11 +82,12 @@ struct SaysoQuietButtonStyle: ButtonStyle {
 /// Direct feedback for plain controls; their surface and hit area stay owned
 /// by the caller. System glass, menus and navigation keep their native motion.
 struct SaysoPressButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .opacity(configuration.isPressed ? 0.68 : 1)
+            .opacity(!isEnabled ? 0.4 : (configuration.isPressed ? 0.68 : 1))
             .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
             .animation(reduceMotion ? nil : SaysoMotion.feedback, value: configuration.isPressed)
     }
@@ -98,8 +102,9 @@ struct RoundButton: View {
             Image(systemName: symbol).font(.system(size: 18, weight: .regular))
                 .frame(width: 44, height: 44)
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
+        .buttonStyle(SaysoPressButtonStyle())
+        .background(SaysoTheme.paper, in: .circle)
+        .overlay { Circle().strokeBorder(SaysoTheme.hairline, lineWidth: 1) }
         .foregroundStyle(SaysoTheme.ink)
         .accessibilityLabel(label)
     }
@@ -108,7 +113,7 @@ struct RoundButton: View {
 struct Eyebrow: View {
     let text: String
     var body: some View {
-        Text(text.uppercased()).font(.caption2.weight(.semibold)).tracking(1.8)
+        Text(text.uppercased()).font(.caption.weight(.semibold)).tracking(1.6)
             .foregroundStyle(SaysoTheme.secondaryInk)
             .fixedSize(horizontal: false, vertical: true)
     }

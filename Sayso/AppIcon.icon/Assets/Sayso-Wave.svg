@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <g id="Sayso-Wave" fill="rgb(30%, 22%, 43%)">
+  <g id="Sayso-Wave" fill="#155E52">
     <rect x="257" y="461" width="42" height="102" rx="21" ry="21"/>
     <rect x="335" y="405" width="42" height="214" rx="21" ry="21"/>
     <rect x="413" y="340" width="42" height="344" rx="21" ry="21"/>

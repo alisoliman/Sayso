@@ -146,6 +146,8 @@ xcodebuild test-without-building -project Sayso.xcodeproj -scheme Sayso \
     -derivedDataPath "$SAYSO_DERIVED_DATA" -resultBundlePath ".build/Verification-$SAYSO_RUN-Dark.xcresult" \
     -parallel-testing-enabled NO -jobs 2 -collect-test-diagnostics never \
     -only-testing:SaysoUITests/SaysoUITests/testDarkAppearanceKeepsRecordingActionAccessible \
+    -only-testing:SaysoUITests/DesignLanguageUITests \
+    -only-testing:SaysoUITests/ReimaginedAppUITests \
     CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- > ".build/verification-$SAYSO_RUN-dark.log" 2>&1
 restore_environment
 

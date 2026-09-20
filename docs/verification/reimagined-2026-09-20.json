@@ -1,0 +1,444 @@
+{
+  "status": "redesign_verified",
+  "build": {
+    "result": ".build/reimagine/FinalGeometryBuild.xcresult",
+    "outcome": "TEST BUILD SUCCEEDED",
+    "toolchain": "Xcode 27.0 27A266a",
+    "architecture": "arm64",
+    "platform": "iOS Simulator 27.0",
+    "summary": ".build/reimagine/final-geometry-build-summary.json",
+    "errors": 0,
+    "warnings_in_structured_result": 0,
+    "note": "FinalGeometryBuild changes only the UI test geometry tolerance from FinalVerificationBuild. App source is unchanged. FinalVerificationBuild log contains the standard AppIntents metadata extraction skipped message although its structured warning count is zero."
+  },
+  "runtime": {
+    "attempts": [
+      ".build/reimagine/Light.xcresult",
+      ".build/reimagine/RecoverySmoke.xcresult",
+      ".build/reimagine/SmallSmoke.xcresult",
+      ".build/reimagine/SmallLight.xcresult",
+      ".build/reimagine/SmallFocused.xcresult",
+      ".build/reimagine/SmallDark.xcresult",
+      ".build/reimagine/LargeLight.xcresult",
+      ".build/reimagine/LargeLightFinal.xcresult"
+    ],
+    "outcome": "All 27 unique UI methods have passing latest results across the full small-phone run and focused reruns. Six real-dark tests passed. The complete larger-phone portrait journey passed after a test-only floating-point tolerance correction. Native screenshots were inspected and retained.",
+    "unit_suite": {
+      "executed": 122,
+      "passed": 121,
+      "skipped": 1,
+      "failures": 0,
+      "evidence": ".build/reimagine/SmallSmoke.xcresult",
+      "summary": ".build/reimagine/small-smoke-summary.json"
+    },
+    "ui_issue": {
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal",
+      "control": "viewAllHistoryButton",
+      "observed_height": 20,
+      "required_height": 44,
+      "fix": "Minimum 44x44 frame inside explicit Button label with rectangular content shape",
+      "verification": "44-point target passed in both full portrait and landscape journeys in SmallLight."
+    },
+    "diagnostics_note": "Optional SmallSmoke simctl diagnose child was interrupted after test callbacks completed. Xcode then finalized the result bundle normally with the recorded UI failure. Subsequent runs use collect-test-diagnostics never and retain explicit test attachments.",
+    "small_light": {
+      "passed": 23,
+      "failed": 4,
+      "total": 27,
+      "result": ".build/reimagine/SmallLight.xcresult",
+      "summary": ".build/reimagine/small-light-summary.json",
+      "appearance": "light; test named DarkAppearance was not dark evidence in this run"
+    },
+    "small_focused": {
+      "passed": 4,
+      "failed": 1,
+      "total": 5,
+      "result": ".build/reimagine/SmallFocused.xcresult",
+      "summary": ".build/reimagine/small-focused-summary.json",
+      "failure": "Prompt-editor test incorrectly required entire scrollable TextEditor frame in viewport; now fixed, including actual input/cancel/persistence check."
+    },
+    "small_dark": {
+      "passed": 6,
+      "failed": 0,
+      "total": 6,
+      "result": ".build/reimagine/SmallDark.xcresult",
+      "summary": ".build/reimagine/small-dark-summary.json",
+      "appearance": "dark, queried from simctl; restored to prior light appearance on exit",
+      "appearance_evidence": ".build/reimagine/small-dark-appearance.txt",
+      "build": ".build/reimagine/FinalVerificationBuild.xcresult"
+    },
+    "large_light_initial": {
+      "passed": 0,
+      "failed": 1,
+      "total": 1,
+      "result": ".build/reimagine/LargeLight.xcresult",
+      "summary": ".build/reimagine/large-light-summary.json",
+      "failure": "XCTest reported editButton width43.99999999999997 for a44-point frame. Added0.000001-point tolerance for floating-point noise in UI test helper; product unchanged.",
+      "resolution": "Complete same portrait journey passed in LargeLightFinal; only the test geometry tolerance changed."
+    },
+    "ui_latest_small_matrix": {
+      "unique_methods": 27,
+      "passed": 27,
+      "failed": 0,
+      "note": "Combined full run and focused reruns, not a single green final full-suite run. FinalGeometryBuild subsequently changes only numerical tolerance in the Reimagined control geometry assertion.",
+      "methods": {
+        "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallDark.xcresult"
+        },
+        "DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallDark.xcresult"
+        },
+        "MotionUITests/testCancelAndImmediateRestartDoNotRestoreStaleUIWithSystemMotionSetting": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "MotionUITests/testCompactRecordingRefinementResultAndCopyFeedback": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "MotionUITests/testRecordingRefinementResultAndCopyFeedbackWithSystemMotionSetting": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "MotionUITests/testReducedMotionCancelAndImmediateRestart": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "MotionUITests/testReducedMotionRecordingRefinementResultAndCopyFeedback": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "ReimaginedAppUITests/testLandscapeRecordingToRecentThoughtKeepsControlsReachable": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallDark.xcresult"
+        },
+        "ReimaginedAppUITests/testLargestTextRecordingToRecentThoughtKeepsControlsReachable": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallDark.xcresult"
+        },
+        "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallDark.xcresult"
+        },
+        "SaysoUITests/testAccessibilityTextSizeKeepsRecordingActionAccessible": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testCancellingEditLeavesDisplayedTextUnchanged": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testCompactRefinementCancelPreservesOriginalAndAllowsNextRecording": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testCustomModeCommitsOnlyValidDoneAndSwipeDismissPreservesSavedStyle": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testDarkAppearanceKeepsRecordingActionAccessible": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallDark.xcresult"
+        },
+        "SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testLandscapeKeepsHomeRecordingAndLongResultAccessibleAtNormalAndLargestText": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallFocused.xcresult"
+        },
+        "SaysoUITests/testNativeShareCancellationPreservesPreview": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testRecordingDeniedOrUnavailableRestoresUsableHome": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testResultCopyOriginalEditingAndHistorySurviveRelaunch": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testScriptedDiscardDoesNotLeaveHistoryOrDisableNextRecording": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testScriptedLongRecordingCanReviewAndResumeLatestWords": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testScriptedRecordingFinishingRefinementAndResult": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "SaysoUITests/testSpeechModelAndLanguageStayInSettings": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "WritingModesUITests/testBuiltInPromptCanBeCustomizedAndRestoredWithoutChangingOriginal": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "WritingModesUITests/testNamedModePersistsEditsDiscardsCancelledDraftAndDeletesSelectedMode": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallLight.xcresult"
+        },
+        "WritingModesUITests/testNewModeIsAvailableForHomeAndSavedHistoryRewrites": {
+          "outcome": "passed",
+          "result": ".build/reimagine/SmallFocused.xcresult"
+        }
+      }
+    },
+    "large_light_final": {
+      "passed": 1,
+      "failed": 0,
+      "total": 1,
+      "result": ".build/reimagine/LargeLightFinal.xcresult",
+      "summary": ".build/reimagine/large-light-final-summary.json",
+      "appearance": "light, queried from simctl; prior light appearance restored on exit",
+      "appearance_evidence": ".build/reimagine/large-light-final-appearance.txt",
+      "build": ".build/reimagine/FinalGeometryBuild.xcresult",
+      "device": "iPhone 18 Pro",
+      "device_id": "4289ACFC-68CE-4A42-9DD0-41CF430AC402"
+    }
+  },
+  "source_sha256": {
+    "Sayso/AppIcon.icon/Assets/Sayso-Wave.svg": "83a83e2c7ba9ae77baaf1b86da520eb20012fde9265db772f2e546f8679fac20",
+    "Sayso/AppIcon.icon/icon.json": "65f354e36a38574da58c836a0510d3fe9addee7c5a1a6ba95d05e65736bcc5c7",
+    "Sayso/Assets.xcassets/AccentColor.colorset/Contents.json": "2cf403fb382b98926c9b70ca18124f48648fcb15c12fc5302a9e612932971680",
+    "Sayso/Assets.xcassets/AppIcon.appiconset/AppIcon.png": "ad24dacd7bd861b156f842cd9e5877392225dd8e26a1503cc5b0d8531b12582b",
+    "Sayso/Assets.xcassets/AppIcon.appiconset/Contents.json": "7620c94bee23e2787708bb50ecdff98e0d6b2df8d800c9c1ae0d6db618dea1f4",
+    "Sayso/Assets.xcassets/Contents.json": "0fd49ba3c3585c709678e0046a821c3c60685ec7063720d30d3a3448be3a208b",
+    "Sayso/ContentView.swift": "06e6265656a8fe425b3324411c5bbaac8e61997d0dbe746f041b1a83ea671b96",
+    "Sayso/Models/Dictation.swift": "f2efc24efce54c214f81220c82bab4ea778675b923ab9d51a4b216b2f5d504e7",
+    "Sayso/Models/DictationController.swift": "a1ed223fdd327e46ba3ff27219c65e883e1fbc538ce4e644b2ca4a9447f1b564",
+    "Sayso/Models/WritingStyle.swift": "5e1f3177cc2d5e6ac31de6ef47ed79556ca5bb5c59ffa58bafcd85664bfb1fbe",
+    "Sayso/PreviewSupport/ScriptedSpeechPreview.swift": "b23a50a3337ddd709b94b244534c35e2502da8e2c05caed20e3259ac6aa92647",
+    "Sayso/SaysoApp.swift": "3da944c650b7d4c8e1e4c00204fcc520369ec9124baa39c6a0507800107739ee",
+    "Sayso/Services/DictationIntent.swift": "8f6d28afe7af648b38852095912ef337ececde2e33e9b82c3db5721d65df8db7",
+    "Sayso/Services/IntelligenceService.swift": "700f48ea1e4405892a2352aa6142ca997709c5caed7935c89e3032921ca85e2c",
+    "Sayso/Services/ParakeetModelStore.swift": "43bf757aa52330289bce037a7dcfb687eec422f2ef7ad6fce7d6e67d8ac55f25",
+    "Sayso/Services/ParakeetRuntime.swift": "2b9c3f6ecf180cb6c9493c5846e7ab4f90fd4b0792ec7fe4e63e2d704d160173",
+    "Sayso/Services/ParakeetSpeechService.swift": "6458282f0b88a0206a547cb3662722fba958643ec9f969d4f6d640d2996c7c01",
+    "Sayso/Services/SpeechAudioConverter.swift": "0498506818efdd3a035b81901809aeaf71f542c83f680eec9f81267db6a0bd34",
+    "Sayso/Services/SpeechDiagnostics.swift": "84e443414484de2243967af87ca484c1ba3dda82840198481a896e70aa09ef6a",
+    "Sayso/Services/SpeechProvider.swift": "27776372d353b35b0058ddcbfba7c0c3f880fe573e3e71d1193e5129c28cca0c",
+    "Sayso/Services/SpeechService.swift": "ffa09877d7f47be52a7211d14c8c7f629c3e4281f1b31ea927eb2d131306f88e",
+    "Sayso/Views/HistoryView.swift": "9c7879138358741237efaf883a63c73f60b02df7c5afcc32e4e23e66c18d17ed",
+    "Sayso/Views/ModePickerView.swift": "023908ce3f01e5981d4e8cf1f264080017b90a1acfafdd523bac9806bf1b11a3",
+    "Sayso/Views/SaysoTheme.swift": "b9a826ee156ea9768f14a69fbeacd77bd23941620512847a32119723c7be2a17",
+    "Sayso/Views/SettingsView.swift": "65010d170bb4c57154baa32c71a6a619c39fa6ec0f4191a2a27865987d309fd4",
+    "Sayso/Views/WritingHomeView.swift": "9acfbc28bc84e1a643f00727a0f222e118e5d8abbed8ec2e52987f70d53099b9",
+    "SaysoUITests/DesignLanguageUITests.swift": "d84ff4286bfc7c10ef508b8ca16b92bec13d4d5010fcb7087e6191f2881a2e8c",
+    "SaysoUITests/MotionUITests.swift": "50a98ab2767c5f7cc489360121184c298ad85df66cd9a7cdda659517d9126245",
+    "SaysoUITests/ReimaginedAppUITests.swift": "1282970c25fbcc6db14a39ddba6566beef6b99fbc148e1ba4ba3e60ec5cbf4e0",
+    "SaysoUITests/SaysoUITests.swift": "f1d0207f3a9abc24bb20a6c0ea0a6e61190d8182a8379ad2b6b978dd5489401e",
+    "SaysoUITests/WritingModesUITests.swift": "0ced05dee015d60020d7ff7bba622e4bfc0afe94b69ad2293c919282673b87fd",
+    "scripts/verify.sh": "e3a881dbe5f20253a1ead7630c9a2480da39383a7046816b11983319edc1e953",
+    "scripts/create_icon.swift": "45f7292d6ff72a3c033a6ef08fb8cbb2b347f176cbf4cd76ce7ebf0209d626a9"
+  },
+  "screenshots": [
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/home-small-light.png",
+      "sha256": "55e678b9f03c57e035bcf3f554779a9d94de26ba3e381d28eec9be802b2cfa6d",
+      "appearance": "light",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789911242.725,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-01-Empty-Workspace",
+      "source_attachment": ".build/reimagine/SmallLight-attachments/6209E5A3-C065-4125-9932-9428AC346F21.png",
+      "source_result": ".build/reimagine/SmallLight.xcresult",
+      "source_build": ".build/reimagine/TargetFixBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/home-small-dark.png",
+      "sha256": "237375e5a47ace4dee185f76263ea4831d258ee93b805cf2a223de1ca3b8e5ab",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913691.394,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-01-Empty-Workspace",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/7376A97F-F488-456B-8E4A-557BD173F17C.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/modes-small-dark.png",
+      "sha256": "08e077e0783180968d466f8e50732454eddfd735a813db1fb258a9f8726c4076",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913694.393,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-02-Choose-Mode",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/ABDE09B2-AF2D-4977-B7F0-8B177EB72CB1.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/recording-small-dark.png",
+      "sha256": "5c60e0549257a9942f80d06d485d3497a78c4b78f097a912c23ae00d6357db40",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913702.023,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-03-Recording",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/D7475650-0496-4EBD-82AE-2E500FAA5102.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/result-small-dark.png",
+      "sha256": "174bbbefab38dfe005271d6aa49546c66cb45503c3aa0fab59869be6948836a7",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913704.596,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-04-Result",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/C474F411-2A2A-4685-8DE5-C0A95001D8C6.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/history-detail-small-dark.png",
+      "sha256": "b018a8bb6938223ca8d9d68cc2f6dc2a0d28db6dd8a7c697d2475dcccd9cb554",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913789.272,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-10-Verified-In-History",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/99F1459B-D8D4-4E3E-9291-54544C22E805.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/prompt-editor-ax-dark.png",
+      "sha256": "7e769b1dccd2fc392325e5cde013200bc480ef260a672d2e5dadd5ada8c11ce4",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913272.784,
+      "test": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+      "attachment_name": "Design-AX-Mode-Editor-Draft-With-Keyboard",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/17E10732-5FAE-422B-B7B2-8BE6B6A67BCA.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/settings-ax-dark.png",
+      "sha256": "bfc004cc85f537f3d2e54b67ea6272e26185335f2637c14c908727cde9917f3e",
+      "appearance": "dark",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789913279.923,
+      "test": "DesignLanguageUITests/testLargestTextKeepsNavigationAndModeEditingComfortable()",
+      "attachment_name": "Design-AX-Settings",
+      "source_attachment": ".build/reimagine/SmallDark-attachments/694747A0-064A-4D66-B646-A6B66DF576ED.png",
+      "source_result": ".build/reimagine/SmallDark.xcresult",
+      "source_build": ".build/reimagine/FinalVerificationBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/result-ax-light.png",
+      "sha256": "e492638ad644deff11914db07c907a7504106c4398a96e8881704d91e8b87f47",
+      "appearance": "light",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789912680.494,
+      "test": "ReimaginedAppUITests/testLargestTextRecordingToRecentThoughtKeepsControlsReachable()",
+      "attachment_name": "Reimagined-Accessibility-XXXL-04-Result",
+      "source_attachment": ".build/reimagine/SmallFocused-attachments/C2557281-CF58-468F-9F00-60594FE57A4F.png",
+      "source_result": ".build/reimagine/SmallFocused.xcresult",
+      "source_build": ".build/reimagine/ReadingPriorityBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/history-ax-light.png",
+      "sha256": "c7580d52cb02cd4b8d2aa6486b81665930a6eee78d6e8f44e91115839dcc1986",
+      "appearance": "light",
+      "device": "Sayso Small UI QA",
+      "device_id": "958368F5-0537-47CD-B6A4-6A93C7AAA7A9",
+      "timestamp": 1789912630.647,
+      "test": "DesignLanguageUITests/testLargestTextKeepsSavedOriginalAndRewriteReachable()",
+      "attachment_name": "Design-AX-History-Revealed",
+      "source_attachment": ".build/reimagine/SmallFocused-attachments/A566E79D-F9D5-4456-8B65-8C0E8398F982.png",
+      "source_result": ".build/reimagine/SmallFocused.xcresult",
+      "source_build": ".build/reimagine/ReadingPriorityBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/history-detail-large-light.png",
+      "sha256": "da35e2d808203afd140e965041fef9a1d2cf58ff937b4cb2cd44d06a9bad5571",
+      "appearance": "light",
+      "device": "iPhone 18 Pro",
+      "device_id": "4289ACFC-68CE-4A42-9DD0-41CF430AC402",
+      "timestamp": 1789914350.066,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-10-Verified-In-History",
+      "source_attachment": ".build/reimagine/LargeLightFinal-attachments/121C4ADB-3A55-4E89-ADAE-3ABB3E56C026.png",
+      "source_result": ".build/reimagine/LargeLightFinal.xcresult",
+      "source_build": ".build/reimagine/FinalGeometryBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/result-large-light.png",
+      "sha256": "228e261a14f5818f6add93dc41ca54903857720208a17d52072c9c65af3a71e1",
+      "appearance": "light",
+      "device": "iPhone 18 Pro",
+      "device_id": "4289ACFC-68CE-4A42-9DD0-41CF430AC402",
+      "timestamp": 1789914267.598,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-04-Result",
+      "source_attachment": ".build/reimagine/LargeLightFinal-attachments/C7C24CCA-05E5-4967-B764-C3683FC2C7D5.png",
+      "source_result": ".build/reimagine/LargeLightFinal.xcresult",
+      "source_build": ".build/reimagine/FinalGeometryBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    },
+    {
+      "path": "docs/screenshots/reimagined-2026-09-20/home-large-light.png",
+      "sha256": "73c4afd8d8e8eee75255d48f2fc3ce4af00f49db8fb30dc96451eec3d3632c8d",
+      "appearance": "light",
+      "device": "iPhone 18 Pro",
+      "device_id": "4289ACFC-68CE-4A42-9DD0-41CF430AC402",
+      "timestamp": 1789914253.638,
+      "test": "ReimaginedAppUITests/testPortraitRecordingToRecentThoughtPreservesEditsAndOriginal()",
+      "attachment_name": "Reimagined-Portrait-01-Empty-Workspace",
+      "source_attachment": ".build/reimagine/LargeLightFinal-attachments/637D3BE4-9C5A-44F7-B2F9-C8EE367DAB47.png",
+      "source_result": ".build/reimagine/LargeLightFinal.xcresult",
+      "source_build": ".build/reimagine/FinalGeometryBuild.xcresult",
+      "capture": "Native XCTest screenshot, unedited",
+      "visual_review": "Inspected; no unresolved defect found."
+    }
+  ],
+  "scope_limits": [
+    "Simulator journeys use DEBUG scripted speech; they do not prove real microphone recognition or model quality.",
+    "Physical Bluetooth routes, interruptions, haptics, performance and human VoiceOver acceptance were not tested in this redesign pass.",
+    "This pass verifies an arm64 Debug simulator build; it is not a signed release or App Store submission."
+  ]
+}

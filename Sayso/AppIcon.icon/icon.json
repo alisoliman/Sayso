@@ -1,6 +1,6 @@
 {
   "fill": {
-    "solid": "extended-srgb:0.96500,0.95500,0.94000,1.00000"
+    "solid": "extended-srgb:0.960784,0.952941,0.925490,1.00000"
   },
   "groups": [
     {
@@ -10,7 +10,7 @@
             {
               "appearance": "dark",
               "value": {
-                "solid": "extended-srgb:0.81000,0.72000,0.95000,1.00000"
+                "solid": "extended-srgb:0.615686,0.854902,0.776471,1.00000"
               }
             },
             {

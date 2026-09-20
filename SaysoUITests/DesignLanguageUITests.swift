@@ -42,11 +42,25 @@ final class DesignLanguageUITests: XCTestCase {
         assertComfortableTarget(cleanEditor, in: app)
         capture("Design-AX-Modes", app: app)
         cleanEditor.tap()
-        XCTAssertTrue(app.textViews["rewritePromptEditor"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Clean prompt"].waitForExistence(timeout: 5))
+        capture("Design-AX-Mode-Editor-Before-Reveal", app: app)
+        let promptEditor = app.textViews["rewritePromptEditor"]
+        reveal(promptEditor, in: app, container: "writingStyleEditorForm", requireCompleteFrame: false)
+        XCTAssertTrue(promptEditor.waitForExistence(timeout: 5))
+        let savedPrompt = promptEditor.value as? String
+        XCTAssertNotNil(savedPrompt)
         for identifier in ["saveModeButton", "cancelModeButton"] {
             assertNativeAction(app.buttons[identifier], in: app)
         }
         capture("Design-AX-Mode-Editor", app: app)
+        promptEditor.tap()
+        promptEditor.typeText(" Keep it brief.")
+        XCTAssertTrue((promptEditor.value as? String)?.contains("Keep it brief.") == true)
+        XCTAssertNotEqual(promptEditor.value as? String, savedPrompt)
+        for identifier in ["saveModeButton", "cancelModeButton"] {
+            assertNativeAction(app.buttons[identifier], in: app)
+        }
+        capture("Design-AX-Mode-Editor-Draft-With-Keyboard", app: app)
         app.buttons["cancelModeButton"].tap()
         app.navigationBars["Modes"].buttons["Done"].tap()
 
@@ -109,7 +123,13 @@ final class DesignLanguageUITests: XCTestCase {
         assertComfortableTarget(cleanEditor, in: app)
         capture("Design-AX-Settings-Modes", app: app)
         cleanEditor.tap()
-        XCTAssertTrue(app.textViews["rewritePromptEditor"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Clean prompt"].waitForExistence(timeout: 5))
+        capture("Design-AX-Settings-Mode-Editor-Before-Reveal", app: app)
+        reveal(promptEditor, in: app, container: "writingStyleEditorForm", requireCompleteFrame: false)
+        XCTAssertTrue(promptEditor.waitForExistence(timeout: 5))
+        XCTAssertEqual(promptEditor.value as? String, savedPrompt,
+                       "Cancelling the Home editor must preserve the saved prompt reached through Settings.")
+        capture("Design-AX-Settings-Mode-Editor-Revealed", app: app)
         XCTAssertTrue(app.buttons["saveModeButton"].isEnabled,
                       "A saved prompt must remain usable when reached through Settings at large text.")
     }
@@ -134,8 +154,10 @@ final class DesignLanguageUITests: XCTestCase {
         // resolve the saved writing inside History rather than a global label.
         let historyList = app.descendants(matching: .any)["historyList"].firstMatch
         let saved = historyList.staticTexts.matching(NSPredicate(format: "label == %@", savedText)).firstMatch
-        XCTAssertTrue(saved.waitForExistence(timeout: 5))
+        capture("Design-AX-History-Before-Reveal", app: app)
         reveal(saved, in: app, container: "historyList", requireCompleteFrame: false)
+        XCTAssertTrue(saved.waitForExistence(timeout: 5))
+        capture("Design-AX-History-Revealed", app: app)
         saved.tap()
         let detail = app.staticTexts["historyDetailText"]
         XCTAssertTrue(detail.waitForExistence(timeout: 5))

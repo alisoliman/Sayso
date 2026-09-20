@@ -46,7 +46,7 @@ final class SaysoUITests: XCTestCase {
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 10))
         XCTAssertTrue(app.buttons["recordButton"].isEnabled)
         XCTAssertFalse(app.buttons["importButton"].exists)
-        XCTAssertTrue(app.staticTexts["Speak freely."].isHittable)
+        XCTAssertTrue(app.staticTexts["From thought\nto text."].isHittable)
         XCTAssertFalse(app.buttons["speechModelButton"].exists)
         XCTAssertFalse(app.staticTexts["Dictation mode"].exists)
         XCTAssertFalse(app.staticTexts["A thought, a message, a whole idea."].exists)
@@ -81,7 +81,7 @@ final class SaysoUITests: XCTestCase {
 
         app.buttons["historyButton"].tap()
         XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["A place for your words"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["emptyHistory"].firstMatch.exists)
         capture("04-Empty-History", app: app)
         app.navigationBars.buttons["Done"].tap()
         XCTAssertTrue(app.buttons["recordButton"].waitForExistence(timeout: 5))
@@ -384,7 +384,7 @@ final class SaysoUITests: XCTestCase {
                 // the old portrait stack left only a sliver in landscape.
                 XCTAssertGreaterThanOrEqual(scroll.frame.height, 180, "Landscape must retain space for multiple lines of writing.")
                 let viewport = scroll.frame.intersection(window.frame).insetBy(dx: 2, dy: 2)
-                assertFullyVisible(app.staticTexts["Speak freely."], in: viewport, enabled: false)
+                assertFullyVisible(app.staticTexts["homeHeadline"], in: viewport, enabled: false)
                 XCTAssertFalse(app.buttons["importButton"].exists)
                 let mode = app.buttons["modeButton"]
                 for control in [mode, record] {
@@ -681,7 +681,7 @@ final class SaysoUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 5), .completed)
         XCTAssertTrue(result.label.hasSuffix("next project."))
         app.buttons["historyButton"].tap()
-        XCTAssertFalse(app.staticTexts["A place for your words"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["emptyHistory"].firstMatch.exists)
         XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", "next project.")).firstMatch.exists)
     }
 
@@ -712,10 +712,10 @@ final class SaysoUITests: XCTestCase {
         app.buttons["Discard recording"].tap()
         XCTAssertTrue(app.sheets.buttons["Discard recording"].waitForExistence(timeout: 5))
         app.sheets.buttons["Discard recording"].tap()
-        XCTAssertTrue(app.staticTexts["Speak freely."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["homeHeadline"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["recordButton"].isEnabled)
         app.buttons["historyButton"].tap()
-        XCTAssertTrue(app.staticTexts["A place for your words"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["emptyHistory"].firstMatch.waitForExistence(timeout: 5))
     }
 
 }
