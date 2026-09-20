@@ -21,7 +21,26 @@ final class SpeechPipelineTests: XCTestCase {
 
         XCTAssertEqual(received.frameLength, 128)
         XCTAssertEqual(received.floatChannelData![0][0], 0.25)
-        XCTAssertGreaterThan(SpeechAudioConverter.normalizedLevel(received), 0)
+        XCTAssertGreaterThan(received.normalizedSpeechLevel, 0)
+    }
+
+    func testSharedMeterPreservesLevelAcrossMicrophoneChannelLayouts() throws {
+        for interleaved in [false, true] {
+            let format = try XCTUnwrap(AVAudioFormat(commonFormat: .pcmFormatFloat32,
+                sampleRate: 48_000, channels: 2, interleaved: interleaved))
+            let buffer = try XCTUnwrap(AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 128))
+            XCTAssertEqual(buffer.normalizedSpeechLevel, 0)
+            buffer.frameLength = 128
+            let channels = try XCTUnwrap(buffer.floatChannelData)
+            for channel in 0..<2 {
+                let samples = interleaved ? channels[0].advanced(by: channel) : channels[channel]
+                for frame in 0..<128 { samples[frame * (interleaved ? 2 : 1)] = 0.1 }
+            }
+            // A -20 dB signal should retain the same visible level in either layout.
+            XCTAssertEqual(buffer.normalizedSpeechLevel, 35.0 / 45.0, accuracy: 0.000_001)
+            channels[0][0] = .nan
+            XCTAssertEqual(buffer.normalizedSpeechLevel, 0)
+        }
     }
 
     func testConversionPreservesDurationAndContinuousTimestampsThroughFlush() throws {

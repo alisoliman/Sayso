@@ -35,7 +35,6 @@ struct ContentView: View {
         let provider: String
         let locale: String
         let vocabulary: String
-        let mode: String
         let modelInstalled: Bool
         let modelInstalling: Bool
         let modelRevision: UUID
@@ -44,7 +43,7 @@ struct ContentView: View {
     private var preparationKey: PreparationKey {
         PreparationKey(isActive: scenePhase == .active, isIdle: !model.isBusy,
                        provider: providerRaw, locale: locale, vocabulary: vocabulary,
-                       mode: mode.mode.rawValue, modelInstalled: model.speechModels.isInstalled,
+                       modelInstalled: model.speechModels.isInstalled,
                        modelInstalling: model.speechModels.isWorking, modelRevision: model.speechModels.installationRevision)
     }
 
@@ -130,24 +129,16 @@ struct ContentView: View {
                 else { controls }
             }
             .foregroundStyle(SaysoTheme.ink)
-            .background { QuietBackground() }
+            .background(SaysoTheme.canvas.ignoresSafeArea())
         }
         .sheet(item: $sheet) { active in
             switch active {
             case .history:
-                HistoryView(store: model.store, styles: styles) { id, selected in
-                    showOriginal = false
-                    sheet = nil
-                    model.reworkSaved(id, mode: selected.mode, instructions: selected.prompt, vocabulary: vocabulary, writingStyle: selected)
-                }
+                HistoryView(store: model.store, styles: styles, onRewrite: reworkSaved)
             case .recent:
                 if let entry = model.store.entries.first {
                     NavigationStack {
-                        HistoryDetailView(entry: entry, store: model.store, styles: styles) { id, selected in
-                            showOriginal = false
-                            sheet = nil
-                            model.reworkSaved(id, mode: selected.mode, instructions: selected.prompt, vocabulary: vocabulary, writingStyle: selected)
-                        }
+                        HistoryDetailView(entry: entry, store: model.store, styles: styles, onRewrite: reworkSaved)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) { Button("Done") { sheet = nil } }
                         }
@@ -208,7 +199,7 @@ struct ContentView: View {
         }
         .task(id: preparationKey) {
             guard scenePhase == .active, !model.isBusy else { return }
-            model.prepareForRecording(locale: locale, vocabulary: vocabulary, mode: mode.mode)
+            model.prepareForRecording(locale: locale, vocabulary: vocabulary)
         }
     }
 
@@ -303,22 +294,11 @@ struct ContentView: View {
                 .transaction { $0.animation = nil }
             if let note = model.resultNote { information(note, symbol: "info.circle") }
             actions {
-                Button { model.copy(showOriginal ? entry.original : entry.text) } label: {
-                    ZStack {
-                        Label("Copied", systemImage: "document.on.document")
-                            .hidden().accessibilityHidden(true)
-                        Label {
-                            Text(model.copied ? "Copied" : "Copy")
-                                .contentTransition(reduceMotion ? .identity : .opacity)
-                        } icon: {
-                            Image(systemName: model.copied ? "checkmark" : "document.on.document")
-                                .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
-                        }
-                    }
+                Button { model.copy(displayedText) } label: {
+                    CopyLabel(copied: model.copied)
                     .font(.subheadline.weight(.medium)).fixedSize(horizontal: false, vertical: true)
-                    .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.copied)
                 }.buttonStyle(SaysoPrimaryButtonStyle()).accessibilityIdentifier("copyButton")
-                ShareLink(item: showOriginal ? entry.original : entry.text) {
+                ShareLink(item: displayedText) {
                     Image(systemName: "square.and.arrow.up").font(.system(size: 18)).frame(width: 44, height: 44)
                 }.buttonStyle(SaysoQuietButtonStyle()).accessibilityLabel("Share text")
                 Button { editText = entry.text; sheet = .edit } label: {
@@ -340,7 +320,7 @@ struct ContentView: View {
                 if !dynamicTypeSize.isAccessibilitySize { Spacer() }
                 Menu {
                     ForEach(styles.styles) { option in
-                        Button { showOriginal = false; model.rework(mode: option.mode, instructions: option.prompt, vocabulary: vocabulary, writingStyle: option) } label: {
+                        Button { showOriginal = false; model.rework(style: option, vocabulary: vocabulary) } label: {
                             Label(option.title, systemImage: option.symbol)
                         }
                         .disabled(option.mode != .transcript && option.prompt.isEmpty)
@@ -380,7 +360,7 @@ struct ContentView: View {
                         .fixedSize(horizontal: false, vertical: true)
                     Button("Cancel") { model.cancel() }
                         .font(.subheadline.weight(.medium)).frame(minHeight: 44)
-                        .disabled(!model.canCancel)
+                        .disabled(!model.isBusy)
                 }
             }
             if !model.isBusy { modeControl }
@@ -429,7 +409,7 @@ struct ContentView: View {
                 } else if model.isBusy {
                     Button("Cancel") { model.cancel() }
                         .font(.subheadline.weight(.medium)).frame(minHeight: 44)
-                        .disabled(!model.canCancel)
+                        .disabled(!model.isBusy)
                 }
                 recordControl
             }
@@ -513,7 +493,12 @@ struct ContentView: View {
     }
     private func startRecording() {
         showOriginal = false
-        model.start(mode: mode.mode, locale: locale, instructions: mode.prompt, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: mode)
+        model.start(style: mode, locale: locale, vocabulary: vocabulary, saveHistory: saveHistory)
+    }
+    private func reworkSaved(_ id: UUID, style: WritingStyle) {
+        showOriginal = false
+        sheet = nil
+        model.reworkSaved(id, style: style, vocabulary: vocabulary)
     }
     private func consumeRoute() {
         guard scenePhase == .active, AppRoute.shared.recordRequest != nil else { return }

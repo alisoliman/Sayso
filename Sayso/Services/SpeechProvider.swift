@@ -66,9 +66,6 @@ final class SpeechProviderService: SpeechTranscribing {
             switch provider {
             case .apple: return SpeechService()
             case .parakeet:
-                guard !models.isWorking else { throw ParakeetModelStore.ModelError.installInProgress }
-                guard models.isInstalled else { throw ParakeetModelStore.ModelError.notInstalled }
-                try ParakeetModelFiles.validate(at: models.directory)
                 return ParakeetSpeechService(runtime: ParakeetRuntime(directory: models.directory))
             }
         })

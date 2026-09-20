@@ -29,11 +29,8 @@ final class DictationController {
     @ObservationIgnored private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     @ObservationIgnored private var backgroundGeneration: UUID?
     private var generation = UUID()
-    private var activeMode = WritingMode.transcript
-    private var activeTransformationMode = WritingMode.transcript
-    private var activeWritingStyle: WritingStyle?
+    private var activeStyle = WritingStyle.defaults[0]
     private var activeLocale = "en-US"
-    private var activeInstructions = ""
     private var activeVocabulary: [String] = []
     private var activeDictationID = UUID()
     private var activeCreatedAt = Date()
@@ -44,8 +41,9 @@ final class DictationController {
     private var finishedDuration: TimeInterval?
     private var isCancelling = false
     var isBusy: Bool { phase != .idle }
-    var canCancel: Bool { isBusy }
-    var elapsedRecordingTime: TimeInterval { recordingDuration }
+    var elapsedRecordingTime: TimeInterval {
+        finishedDuration ?? max(0, Date().timeIntervalSince(startedAt ?? Date()))
+    }
 
     init(store: DictationStore, speech: (any SpeechTranscribing)? = nil,
          intelligence: IntelligenceService? = nil,
@@ -79,7 +77,7 @@ final class DictationController {
 
     /// Prepare only model resources. Permission prompts and microphone activation
     /// still belong to the person's Record action.
-    func prepareForRecording(locale: String, vocabulary: String, mode: WritingMode = .transcript) {
+    func prepareForRecording(locale: String, vocabulary: String) {
         if isInBackground { preparationSuppressedForMemoryPressure = false }
         isInBackground = false
         guard phase == .idle, !preparationSuppressedForMemoryPressure else { return }
@@ -119,10 +117,19 @@ final class DictationController {
         }
     }
 
-    func start(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle? = nil) {
+    func start(style: WritingStyle, locale: String, vocabulary: String, saveHistory: Bool) {
         guard phase == .idle else { return }
         resourceReleaseTask?.cancel()
-        configure(mode: mode, locale: locale, instructions: instructions, vocabulary: vocabulary, saveHistory: saveHistory, writingStyle: writingStyle)
+        // Reset before yielding so a previous private result cannot become this
+        // recording's background checkpoint. Keep the selected style as a value snapshot.
+        speech.resetTranscript()
+        activeStyle = style
+        activeLocale = locale
+        activeVocabulary = vocabulary.split(separator: "\n").map(String.init)
+        activeKeepsHistory = saveHistory
+        finishedDuration = nil
+        isCancelling = false
+        activeDictationID = UUID()
         phase = .preparing
         notice = nil
         resultNote = nil
@@ -135,11 +142,11 @@ final class DictationController {
                 // Cancellation owns its own cleanup. A stale completion must never
                 // cancel a subsequent service session or mutate the current screen.
                 guard generation == token, !Task.isCancelled else { return }
-                startedAt = Date()
+                activeCreatedAt = Date()
+                startedAt = activeCreatedAt
                 current = nil
-                activeCreatedAt = startedAt ?? Date()
                 phase = .recording
-                if usesSystemWritingModel, activeMode != .transcript { intelligence.prewarm() }
+                if usesSystemWritingModel, !activeStyle.isOriginal { intelligence.prewarm() }
                 operation = nil
                 feedback(.medium)
             } catch {
@@ -155,7 +162,7 @@ final class DictationController {
     func finish() {
         guard phase == .recording else { return }
         phase = .finishing
-        let duration = recordingDuration
+        let duration = elapsedRecordingTime
         finishedDuration = duration
         let token = generation
         feedback(.light)
@@ -176,9 +183,8 @@ final class DictationController {
 
     func cancel() {
         guard isBusy else { return }
-        let previousOperation = operation
         let token = UUID(); generation = token
-        previousOperation?.cancel()
+        operation?.cancel()
         isCancelling = true
         phase = .finishing
         endBackgroundFinalization()
@@ -190,9 +196,9 @@ final class DictationController {
         }
     }
 
-    func rework(mode: WritingMode, instructions: String, vocabulary: String, writingStyle: WritingStyle? = nil) {
+    func rework(style: WritingStyle, vocabulary: String) {
         guard phase == .idle, let original = current else { return }
-        configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
+        activeStyle = style
         activeVocabulary = vocabulary.split(separator: "\n").map(String.init)
         phase = .refining
         notice = nil
@@ -206,12 +212,12 @@ final class DictationController {
 
     /// Reuse the latest saved version, even if new recordings are currently private.
     /// A stale History screen must not resurrect an entry that has been deleted.
-    func reworkSaved(_ id: UUID, mode: WritingMode, instructions: String, vocabulary: String, writingStyle: WritingStyle? = nil) {
+    func reworkSaved(_ id: UUID, style: WritingStyle, vocabulary: String) {
         guard phase == .idle, let saved = store.entries.first(where: { $0.id == id }) else { return }
         current = saved
         currentKeepsHistory = true
-        copied = false
-        rework(mode: mode, instructions: instructions, vocabulary: vocabulary, writingStyle: writingStyle)
+        resetCopyFeedback()
+        rework(style: style, vocabulary: vocabulary)
     }
 
     func updateText(_ text: String) {
@@ -243,12 +249,12 @@ final class DictationController {
         preparationTask = nil
         switch phase {
         case .recording:
-            checkpointPartial(duration: recordingDuration)
+            checkpointPartial(duration: elapsedRecordingTime)
             beginBackgroundFinalization()
             finish()
         case .finishing:
             if !isCancelling {
-                checkpointPartial(duration: recordingDuration)
+                checkpointPartial(duration: elapsedRecordingTime)
                 beginBackgroundFinalization()
             }
         case .preparing:
@@ -259,33 +265,6 @@ final class DictationController {
         case .idle:
             scheduleResourceRelease()
         }
-    }
-
-    private var recordingDuration: TimeInterval {
-        finishedDuration ?? max(0, Date().timeIntervalSince(startedAt ?? Date()))
-    }
-
-    private func configure(mode: WritingMode, locale: String, instructions: String, vocabulary: String, saveHistory: Bool, writingStyle: WritingStyle?) {
-        // Reset synchronously before the task can yield to an app-background
-        // callback. A previous transcript must never become a new recording's checkpoint.
-        speech.resetTranscript()
-        configureWriting(mode: mode, instructions: instructions, writingStyle: writingStyle)
-        activeLocale = locale
-        activeVocabulary = vocabulary.split(separator: "\n").map(String.init)
-        activeKeepsHistory = saveHistory
-        finishedDuration = nil
-        isCancelling = false
-        activeDictationID = UUID()
-        activeCreatedAt = Date()
-    }
-
-    private func configureWriting(mode: WritingMode, instructions: String, writingStyle: WritingStyle?) {
-        // Copy the complete style before recording or rewriting can yield.
-        // Changes to the mode library apply only to the next operation.
-        activeWritingStyle = writingStyle
-        activeMode = writingStyle?.mode ?? mode
-        activeTransformationMode = writingStyle?.transformationMode ?? mode
-        activeInstructions = writingStyle?.prompt ?? instructions
     }
 
     private func completeOperation(token: UUID) {
@@ -308,8 +287,7 @@ final class DictationController {
         guard saved != previousSaved, saved != entry else { return }
         current = saved
         resultNote = nil
-        copied = false
-        copyFeedbackTask?.cancel()
+        resetCopyFeedback()
     }
 
     private func accept(_ raw: String, duration: TimeInterval, token: UUID) async {
@@ -322,7 +300,7 @@ final class DictationController {
         // Commit the source before any model request, including when writing is
         // unavailable or the app subsequently suspends.
         saveOriginal(text, duration: duration)
-        guard let entry = current, activeMode != .transcript else { return }
+        guard let entry = current, !activeStyle.isOriginal else { return }
         guard backgroundTask == .invalid && UIApplication.shared.applicationState != .background else {
             resultNote = "Your transcript is here. Choose a writing mode to refine it."
             return
@@ -361,24 +339,20 @@ final class DictationController {
 
     private func refine(_ entry: Dictation, token: UUID) async {
         guard generation == token, !Task.isCancelled else { return }
-        let mode = activeMode
-        let transformationMode = activeTransformationMode
-        let writingStyle = activeWritingStyle
-        let instructions = activeInstructions
-        let vocabulary = activeVocabulary
+        let style = activeStyle
         do {
             // Rewriting should honor corrections made in Home or History. The
             // original remains archival; selecting Original explicitly restores it.
             let text: String
-            if mode == .transcript {
+            if style.isOriginal {
                 text = entry.original
             } else {
-                text = try await transformation(entry.text, transformationMode, instructions, vocabulary)
+                text = try await transformation(entry.text, style.transformationMode, style.prompt, activeVocabulary)
             }
             guard generation == token, !Task.isCancelled else { return }
             var refined = entry
-            refined.text = text; refined.mode = mode
-            refined.writingStyle = mode == .transcript ? nil : writingStyle
+            refined.text = text; refined.mode = style.mode
+            refined.writingStyle = style.isOriginal ? nil : style
             current = refined
             resetCopyFeedback()
             if currentKeepsHistory { store.save(refined) }
@@ -406,7 +380,7 @@ final class DictationController {
         // time. The microphone was stopped at the start of finalization.
         let partial = speech.partialText.trimmingCharacters(in: .whitespacesAndNewlines)
         if !partial.isEmpty {
-            saveOriginal(partial, duration: recordingDuration)
+            saveOriginal(partial, duration: elapsedRecordingTime)
             resultNote = "Recording stopped when Sayso moved to the background. The text captured so far is here."
         }
         cancel()

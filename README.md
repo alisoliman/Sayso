@@ -78,6 +78,8 @@ Sayso does not send audio or text to a server or persist microphone recordings. 
 
 Production code is in `Sayso/`. Unit and UI checks live in `SaysoTests/` and `SaysoUITests/`.
 
+The checked-in Xcode project and shared scheme define the app and test targets. Edit those directly; no project-generation step is needed. Source folders are synchronized with Xcode, so new Swift files are included automatically. [Codebase simplification and checks](docs/SIMPLIFICATION.md).
+
 DEBUG-only preview and scripted speech fixtures isolate test data. Their captures verify presentation and lifecycle, not recognition, real background audio or model quality. The verification record retains source hashes and the boundary for every reported result. [Apple API research](docs/PLATFORM_RESEARCH.md), [speech validation](docs/SPEECH_VALIDATION.md).
 
 Source, documentation and selected screenshots are included in Git. Links into `.build/` in the detailed verification records refer to **local generated evidence excluded from Git**, including logs, result bundles and inspection reports; they are not downloadable repository artifacts. Run the documented checks to generate evidence for your own environment.

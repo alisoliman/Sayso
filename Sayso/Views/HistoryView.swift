@@ -14,11 +14,8 @@ struct HistoryView: View {
         guard !search.isEmpty else { return store.entries }
         return store.entries.filter { $0.text.localizedStandardContains(search) || $0.original.localizedStandardContains(search) }
     }
-    private var days: [Date] {
-        Set(filtered.map { Calendar.current.startOfDay(for: $0.createdAt) }).sorted(by: >)
-    }
-
     var body: some View {
+        let grouped = Dictionary(grouping: filtered) { Calendar.current.startOfDay(for: $0.createdAt) }
         NavigationStack {
             Group {
                 if store.entries.isEmpty {
@@ -77,12 +74,12 @@ struct HistoryView: View {
                             Text(error).font(.footnote).foregroundStyle(SaysoTheme.secondaryInk)
                                 .listRowBackground(Color.clear)
                         }
-                        if filtered.isEmpty {
+                        if grouped.isEmpty {
                             ContentUnavailableView.search(text: search).listRowBackground(Color.clear)
                         }
-                        ForEach(days, id: \.self) { day in
+                        ForEach(grouped.keys.sorted(by: >), id: \.self) { day in
                             Section {
-                                ForEach(filtered.filter { Calendar.current.isDate($0.createdAt, inSameDayAs: day) }) { entry in
+                                ForEach(grouped[day] ?? []) { entry in
                                     NavigationLink {
                                         HistoryDetailView(entry: entry, store: store, styles: styles, onRewrite: onRewrite)
                                     } label: {
@@ -202,25 +199,14 @@ struct HistoryDetailView: View {
                 .overlay { RoundedRectangle(cornerRadius: 24).strokeBorder(SaysoTheme.hairline, lineWidth: 1).accessibilityHidden(true) }
                 actionsLayout {
                     Button {
-                        UIPasteboard.general.setItems([[UIPasteboard.typeAutomatic: showOriginal ? saved.original : saved.text]], options: [.localOnly: true])
+                        UIPasteboard.general.setItems([[UIPasteboard.typeAutomatic: displayedText]], options: [.localOnly: true])
                         copied = true
                     } label: {
-                        ZStack {
-                            Label("Copied", systemImage: "document.on.document")
-                                .hidden().accessibilityHidden(true)
-                            Label {
-                                Text(copied ? "Copied" : "Copy")
-                                    .contentTransition(reduceMotion ? .identity : .opacity)
-                            } icon: {
-                                Image(systemName: copied ? "checkmark" : "document.on.document")
-                                    .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
-                            }
-                            .animation(reduceMotion ? nil : SaysoMotion.feedback, value: copied)
-                        }
+                        CopyLabel(copied: copied)
                     }
                     .buttonStyle(SaysoPrimaryButtonStyle())
                     HStack(spacing: 12) {
-                        ShareLink(item: showOriginal ? saved.original : saved.text) {
+                        ShareLink(item: displayedText) {
                             Label("Share text", systemImage: "square.and.arrow.up").labelStyle(.iconOnly)
                         }
                         .buttonStyle(SaysoQuietButtonStyle()).accessibilityLabel("Share text")

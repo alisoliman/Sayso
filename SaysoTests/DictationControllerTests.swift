@@ -17,8 +17,12 @@ final class DictationControllerTests: XCTestCase {
         XCTFail(description, file: file, line: line)
     }
 
+    private func style(_ mode: WritingMode) -> WritingStyle {
+        WritingStyle.defaults.first { $0.mode == mode }!
+    }
+
     private func start(_ controller: DictationController, mode: WritingMode = .transcript, history: Bool = true) {
-        controller.start(mode: mode, locale: "en-US", instructions: "", vocabulary: "", saveHistory: history)
+        controller.start(style: style(mode), locale: "en-US", vocabulary: "", saveHistory: history)
     }
 
     func testPassivePreparationKeepsResultAndNeverStartsRecordingOrShowsFailure() async {
@@ -126,9 +130,8 @@ final class DictationControllerTests: XCTestCase {
         let speech = StubSpeech()
         speech.stopOverride = { throw StubFailure.interrupted }
         let controller = DictationController(store: DictationStore(fileURL: url), speech: speech)
-        controller.start(mode: .clean, locale: "en-US",
-                               instructions: "", vocabulary: "", saveHistory: true,
-                               writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
+        controller.start(style: WritingStyle(title: "Brief", prompt: "Write a brief update."),
+                         locale: "en-US", vocabulary: "", saveHistory: true)
         await waitUntil("Recording starts") { controller.phase == .recording }
         speech.partialText = "  Recover these words.\n"
         controller.finish()
@@ -237,7 +240,7 @@ final class DictationControllerTests: XCTestCase {
         XCTAssertTrue(store.save(original))
         controller.current = original
         controller.updateText("My deliberate manual changes.")
-        controller.rework(mode: .notes, instructions: "", vocabulary: "")
+        controller.rework(style: style(.notes), vocabulary: "")
         await waitUntil("Rewrite should finish") { controller.phase == .idle }
         XCTAssertEqual(sources, ["My deliberate manual changes."])
         XCTAssertEqual(controller.current?.text, "A rewrite of the latest edits.")
@@ -254,8 +257,7 @@ final class DictationControllerTests: XCTestCase {
         })
         controller.current = Dictation(text: "A manual edit", original: "um original words", mode: .custom, duration: 2, localeIdentifier: "en-US",
                                        writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
-        controller.rework(mode: .transcript, instructions: "", vocabulary: "",
-                          writingStyle: WritingStyle(id: WritingMode.transcript.rawValue, title: "Original", prompt: WritingMode.transcript.instructions))
+        controller.rework(style: style(.transcript), vocabulary: "")
         await waitUntil("Original restoration should finish") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.text, "um original words")
         XCTAssertEqual(controller.current?.original, "um original words")
@@ -273,8 +275,7 @@ final class DictationControllerTests: XCTestCase {
                                writingStyle: WritingStyle(title: "Friendly", prompt: "Use a friendly tone."))
         XCTAssertTrue(controller.store.save(edited))
         controller.current = edited
-        controller.rework(mode: .notes, instructions: "", vocabulary: "",
-                          writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
+        controller.rework(style: WritingStyle(title: "Brief", prompt: "Write a brief update."), vocabulary: "")
         await waitUntil("Failed rewrite should settle") { controller.phase == .idle }
         XCTAssertEqual(controller.current, edited)
         XCTAssertEqual(controller.store.entries, [edited])
@@ -298,7 +299,7 @@ final class DictationControllerTests: XCTestCase {
         })
         let saved = Dictation(text: "My corrected update.", original: "um my update", mode: .clean, duration: 2, localeIdentifier: "en-US")
         XCTAssertTrue(controller.store.save(saved))
-        controller.reworkSaved(saved.id, mode: .clean, instructions: "Old custom instructions", vocabulary: "Sayso\nAlex", writingStyle: style)
+        controller.reworkSaved(saved.id, style: style, vocabulary: "Sayso\nAlex")
         style.title = "Renamed mode"
         style.prompt = "A different prompt."
         await waitUntil("Custom rewrite should finish") { controller.phase == .idle }
@@ -326,7 +327,7 @@ final class DictationControllerTests: XCTestCase {
             return "1. A complete thought."
         })
         controller.current = Dictation(text: "A complete thought.", original: "um a complete thought", mode: .clean, duration: 2, localeIdentifier: "en-US")
-        controller.rework(mode: .notes, instructions: "", vocabulary: "", writingStyle: style)
+        controller.rework(style: style, vocabulary: "")
         await waitUntil("Edited built-in rewrite should finish") { controller.phase == .idle }
 
         XCTAssertEqual(receivedMode, .custom)
@@ -348,8 +349,7 @@ final class DictationControllerTests: XCTestCase {
                                   writingStyle: WritingStyle(title: "Friendly", prompt: "Use a friendly tone."))
         XCTAssertTrue(controller.store.save(previous))
         controller.current = previous
-        controller.rework(mode: .custom, instructions: "", vocabulary: "",
-                          writingStyle: WritingStyle(title: "Brief", prompt: "Write a brief update."))
+        controller.rework(style: WritingStyle(title: "Brief", prompt: "Write a brief update."), vocabulary: "")
         await waitUntil("Rewrite should suspend") { suspended.isWaiting }
         controller.cancel()
         await waitUntil("Cancellation should finish") { controller.phase == .idle }
@@ -373,7 +373,7 @@ final class DictationControllerTests: XCTestCase {
             XCTAssertEqual(prompt, selectedStyle.prompt)
             return "A brief recording."
         })
-        controller.start(mode: .custom, locale: "en-US", instructions: "Old preferences", vocabulary: "", saveHistory: true, writingStyle: style)
+        controller.start(style: style, locale: "en-US", vocabulary: "", saveHistory: true)
         await waitUntil("Recording should start") { controller.phase == .recording }
         style.title = "Changed during recording"
         style.prompt = "Use a different format."
@@ -402,7 +402,7 @@ final class DictationControllerTests: XCTestCase {
         await waitUntil("Cancellation finishes") { controller.phase == .idle }
         let saved = Dictation(text: "Corrected from history.", original: "um from history", mode: .clean, duration: 2, localeIdentifier: "en-US")
         XCTAssertTrue(store.save(saved))
-        controller.reworkSaved(saved.id, mode: .message, instructions: "", vocabulary: "")
+        controller.reworkSaved(saved.id, style: style(.message), vocabulary: "")
         await waitUntil("History rewrite finishes") { controller.phase == .idle }
         XCTAssertEqual(sources, [saved.text])
         XCTAssertEqual(store.entries.count, 1)
@@ -419,7 +419,7 @@ final class DictationControllerTests: XCTestCase {
         let saved = Dictation(text: "Deleted thought", original: "Deleted thought", mode: .transcript, duration: 1, localeIdentifier: "en-US")
         XCTAssertTrue(controller.store.save(saved))
         XCTAssertTrue(controller.store.delete(saved.id))
-        controller.reworkSaved(saved.id, mode: .clean, instructions: "", vocabulary: "")
+        controller.reworkSaved(saved.id, style: style(.clean), vocabulary: "")
         XCTAssertEqual(controller.phase, .idle)
         XCTAssertNil(controller.current)
         XCTAssertTrue(controller.store.entries.isEmpty)
@@ -456,7 +456,7 @@ final class DictationControllerTests: XCTestCase {
         await waitUntil("Failed new attempt settles") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.id, originalID)
         controller.updateText("An edit to the previous thought.")
-        controller.rework(mode: .clean, instructions: "", vocabulary: "")
+        controller.rework(style: style(.clean), vocabulary: "")
         await waitUntil("Rewrite settles") { controller.phase == .idle }
         XCTAssertEqual(controller.current?.text, "An edit to the previous thought. Rewritten.")
         XCTAssertEqual(controller.store.entries.count, previousHistory ? 1 : 0)
@@ -533,7 +533,7 @@ final class DictationControllerTests: XCTestCase {
         let previousID = controller.current?.id
         // Speech retains its most recent transcript after finalization, as the real service does.
         speech.partialText = speech.stopText
-        controller.start(mode: .clean, locale: "en-US", instructions: "", vocabulary: "", saveHistory: true)
+        start(controller, mode: .clean)
         // Deliberately background before the newly created recording Task has run.
         controller.appDidEnterBackground()
         await waitUntil("Preparation cancellation settles") { controller.phase == .idle }

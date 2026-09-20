@@ -33,15 +33,18 @@ nonisolated final class SpeechAudioConverter: @unchecked Sendable {
     func flush() throws -> [AnalyzerInput] {
         try converter.flush()
     }
+}
 
-    static func normalizedLevel(_ buffer: AVAudioPCMBuffer) -> Double {
-        guard let channels = buffer.floatChannelData, buffer.frameLength > 0 else { return 0 }
-        let sampleCount = Int(buffer.frameLength)
-        let channelCount = Int(buffer.format.channelCount)
-        let stride = buffer.format.isInterleaved ? channelCount : 1
+nonisolated extension AVAudioPCMBuffer {
+    /// Both speech providers use the same meter for captured microphone audio.
+    var normalizedSpeechLevel: Double {
+        guard let channels = floatChannelData, frameLength > 0 else { return 0 }
+        let sampleCount = Int(frameLength)
+        let channelCount = Int(format.channelCount)
+        let stride = format.isInterleaved ? channelCount : 1
         var sum = 0.0
         for channel in 0..<channelCount {
-            let samples = buffer.format.isInterleaved ? channels[0].advanced(by: channel) : channels[channel]
+            let samples = format.isInterleaved ? channels[0].advanced(by: channel) : channels[channel]
             for index in 0..<sampleCount {
                 let sample = Double(samples[index * stride])
                 sum += sample * sample

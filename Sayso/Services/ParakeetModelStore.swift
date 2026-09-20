@@ -69,7 +69,6 @@ final class ParakeetModelStore {
                 try Task.checkCancellation()
                 try await populate(staging)
                 try Task.checkCancellation()
-                try ParakeetModelFiles.validate(at: staging)
                 try Self.commit(staging: staging, destination: destination)
             }
             do {

@@ -122,7 +122,7 @@ final class ParakeetSpeechService: SpeechTranscribing {
                         // Stop exactly at the limit; a final tap can cross it.
                         if Int(buffer.frameLength) > remaining { buffer.frameLength = AVAudioFrameCount(remaining) }
                         inputFrames += Int(buffer.frameLength)
-                        let amplitude = ParakeetAudioConverter.normalizedLevel(buffer)
+                        let amplitude = buffer.normalizedSpeechLevel
                         await self?.observeCapture(frames: Int(buffer.frameLength), amplitude: amplitude, for: sessionID)
                         let converted = try converter.convert(buffer)
                         try samples.append(converted)
@@ -541,17 +541,12 @@ nonisolated final class ParakeetAudioConverter: @unchecked Sendable {
                     return nil
                 }
                 slice.frameLength = AVAudioFrameCount(count)
-                let sourceBuffers = UnsafeMutableAudioBufferListPointer(input.mutableAudioBufferList)
-                let targetBuffers = UnsafeMutableAudioBufferListPointer(slice.mutableAudioBufferList)
-                let bytesPerFrame = Int(self.monoFormat.streamDescription.pointee.mBytesPerFrame)
-                for index in 0..<sourceBuffers.count {
-                    guard let from = sourceBuffers[index].mData, let to = targetBuffers[index].mData else {
-                        inputFailure = SpeechServiceError.incompatibleAudio
-                        status.pointee = .noDataNow
-                        return nil
-                    }
-                    to.copyMemory(from: from.advanced(by: cursor * bytesPerFrame), byteCount: count * bytesPerFrame)
+                guard let from = input.floatChannelData?[0], let to = slice.floatChannelData?[0] else {
+                    inputFailure = SpeechServiceError.incompatibleAudio
+                    status.pointee = .noDataNow
+                    return nil
                 }
+                to.update(from: from.advanced(by: cursor), count: count)
                 cursor += count
                 status.pointee = .haveData
                 return slice
@@ -573,23 +568,5 @@ nonisolated final class ParakeetAudioConverter: @unchecked Sendable {
             @unknown default: throw SpeechServiceError.incompatibleAudio
             }
         }
-    }
-
-    static func normalizedLevel(_ buffer: AVAudioPCMBuffer) -> Double {
-        guard let channels = buffer.floatChannelData, buffer.frameLength > 0 else { return 0 }
-        let count = Int(buffer.frameLength)
-        let channelCount = Int(buffer.format.channelCount)
-        let stride = buffer.format.isInterleaved ? channelCount : 1
-        var sum = 0.0
-        for channel in 0..<channelCount {
-            let samples = buffer.format.isInterleaved ? channels[0].advanced(by: channel) : channels[channel]
-            for index in 0..<count {
-                let sample = Double(samples[index * stride])
-                sum += sample * sample
-            }
-        }
-        let rms = sqrt(sum / Double(count * channelCount))
-        guard rms.isFinite, rms > 0 else { return 0 }
-        return min(1, max(0, (20 * log10(rms) + 55) / 45))
     }
 }
