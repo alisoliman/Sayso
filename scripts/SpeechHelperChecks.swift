@@ -26,7 +26,7 @@ nonisolated enum SpeechServiceError: Error { case incompatibleAudio, audioOverru
       let buffer = AVAudioPCMBuffer(pcmFormat: source, frameCapacity: AVAudioFrameCount(count))!
       buffer.frameLength = AVAudioFrameCount(count)
       for i in 0..<count { buffer.floatChannelData![0][i] = sin(Float(i + totalInput) * 0.05) * 0.25 }
-      precondition(SpeechAudioConverter.normalizedLevel(buffer) > 0)
+      precondition(buffer.normalizedSpeechLevel > 0)
       let captured = AVReadOnlyAudioPCMBuffer(copying: buffer)
       let first = buffer.floatChannelData![0][0]
       buffer.floatChannelData![0][0] = 0.875

@@ -124,7 +124,7 @@ final class SpeechService: SpeechTranscribing {
                     for try await chunk in captureStream {
                         try Task.checkCancellation()
                         let buffer = AVAudioPCMBuffer(copying: chunk)
-                        let amplitude = SpeechAudioConverter.normalizedLevel(buffer)
+                        let amplitude = buffer.normalizedSpeechLevel
                         // Capture and generated output are separate stages. A
                         // converter or enqueue failure must not erase evidence
                         // that the microphone delivered this buffer.
@@ -208,7 +208,6 @@ final class SpeechService: SpeechTranscribing {
             }
             try await session.resultsTask?.value
             try checkActive(session)
-            if let failure = session.failure { throw failure }
             let transcript = partialText.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !transcript.isEmpty else {
                 throw SpeechServiceError.noWordsRecognized(session.diagnostics.localeIdentifier)
@@ -268,7 +267,6 @@ final class SpeechService: SpeechTranscribing {
         try checkActive(session)
         session.diagnostics.localeIdentifier = resources.locale.identifier
         let transcriber = SpeechTranscriber(locale: resources.locale, preset: .timeIndexedProgressiveTranscription)
-        session.transcriber = transcriber
         // Each recording gets a new result stream. The idle analyzer retains the
         // shared speech resources, so finalizing this stream does not reload models.
         let analyzer = SpeechAnalyzer(modules: [transcriber],
@@ -382,17 +380,13 @@ final class SpeechService: SpeechTranscribing {
         }
     }
 
-    private func updateLevel(_ amplitude: Double, for sessionID: UUID) {
-        guard session?.id == sessionID, isRecording else { return }
+    private func observeCapture(frames: Int, level amplitude: Double, for sessionID: UUID) {
+        guard let session, session.id == sessionID else { return }
+        session.diagnostics.observeCapture(frames: frames, level: amplitude)
+        guard isRecording else { return }
         // A quick attack and gentle release avoids a flickering waveform.
         let weight = amplitude > level ? 0.65 : 0.25
-        level = (level * (1 - weight) + amplitude * weight).clamped(to: 0...1)
-    }
-
-    private func observeCapture(frames: Int, level: Double, for sessionID: UUID) {
-        guard let session, session.id == sessionID else { return }
-        session.diagnostics.observeCapture(frames: frames, level: level)
-        updateLevel(level, for: sessionID)
+        level = min(1, max(0, level * (1 - weight) + amplitude * weight))
     }
 
     private func observeConverted(_ durations: [Double], for sessionID: UUID) {
@@ -506,7 +500,6 @@ final class SpeechService: SpeechTranscribing {
             await session.analyzer?.cancelAndFinishNow()
             session.engine = nil
             session.analyzer = nil
-            session.transcriber = nil
             if self?.session === session { self?.session = nil }
         }
         session.cleanupTask = cleanup
@@ -556,7 +549,6 @@ private final class SpeechSession {
     let id = UUID()
     var engine: AVAudioEngine?
     var analyzer: SpeechAnalyzer?
-    var transcriber: SpeechTranscriber?
     var captureContinuation: AsyncThrowingStream<AVReadOnlyAudioPCMBuffer, Error>.Continuation?
     var analyzerContinuation: AsyncThrowingStream<AnalyzerInput, Error>.Continuation?
     var conversionTask: Task<Void, Error>?
@@ -655,11 +647,5 @@ nonisolated enum SpeechServiceError: LocalizedError {
         case .notRecording:
             "There isn’t an active recording to finish."
         }
-    }
-}
-
-nonisolated private extension Double {
-    func clamped(to range: ClosedRange<Double>) -> Double {
-        min(range.upperBound, max(range.lowerBound, self))
     }
 }

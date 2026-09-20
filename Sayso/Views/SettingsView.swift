@@ -15,8 +15,7 @@ struct SettingsView: View {
     @AppStorage("saveHistory") private var saveHistory = true
     @AppStorage("haptics") private var haptics = true
     @AppStorage("vocabulary") private var vocabulary = ""
-    @State private var supportedLocales: Set<String> = []
-    @State private var loadedLanguages = false
+    @State private var supportedLocales: Set<String>?
     @State private var confirmingDelete = false
     @State private var importingModel = false
     @State private var confirmingModelRemoval = false
@@ -236,7 +235,6 @@ struct SettingsView: View {
                 speechModels.refresh()
                 intelligence.refreshAvailability()
                 supportedLocales = Set(await SpeechTranscriber.supportedLocales.map { $0.identifier.replacingOccurrences(of: "_", with: "-") })
-                loadedLanguages = true
             }
         }
     }
@@ -267,17 +265,16 @@ struct SettingsView: View {
 
     private var selectedLanguageName: String {
         let name = SpeechLanguage.choices.first { $0.id == locale }?.name ?? locale
-        return name + (loadedLanguages && !isSupported(locale) ? " · unavailable" : "")
+        return name + (supportedLocales?.contains(locale) == false ? " · unavailable" : "")
     }
 
     private var languagePicker: some View {
         Picker("Language", selection: $locale) {
             ForEach(SpeechLanguage.choices, id: \.id) { choice in
-                Text(choice.name + (loadedLanguages && !isSupported(choice.id) ? " · unavailable" : "")).tag(choice.id)
+                Text(choice.name + (supportedLocales?.contains(choice.id) == false ? " · unavailable" : "")).tag(choice.id)
             }
         }
         .accessibilityIdentifier("languagePicker")
     }
 
-    private func isSupported(_ id: String) -> Bool { supportedLocales.contains(id) }
 }

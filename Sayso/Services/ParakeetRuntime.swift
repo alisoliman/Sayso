@@ -15,7 +15,8 @@ nonisolated enum ParakeetModelFiles {
         "parakeet_vocab.json",
     ]
 
-    static func validate(at directory: URL) throws {
+    @discardableResult
+    static func validate(at directory: URL) throws -> [Int: String] {
         guard let values = try? directory.resourceValues(forKeys: [.isDirectoryKey, .isSymbolicLinkKey]),
               values.isDirectory == true, values.isSymbolicLink != true else {
             throw ParakeetRuntimeError.invalidModelFolder
@@ -38,7 +39,7 @@ nonisolated enum ParakeetModelFiles {
                 try validateFile(bundle.appendingPathComponent(component), name: "\(name)/\(component)")
             }
         }
-        _ = try vocabulary(at: directory)
+        return try vocabulary(at: directory)
     }
 
     /// Downloads into an isolated repository folder, then installs into exactly `directory`.
@@ -64,7 +65,7 @@ nonisolated enum ParakeetModelFiles {
         try fileManager.moveItem(at: downloaded, to: directory)
     }
 
-    fileprivate static func vocabulary(at directory: URL) throws -> [Int: String] {
+    private static func vocabulary(at directory: URL) throws -> [Int: String] {
         let url = directory.appendingPathComponent("parakeet_vocab.json")
         try validateFile(url, name: "parakeet_vocab.json")
         let data = try Data(contentsOf: url)
@@ -162,8 +163,7 @@ actor ParakeetRuntime: ParakeetRecognizing {
 
     private static func loadManager(at directory: URL) async throws -> AsrManager {
         try Task.checkCancellation()
-        try ParakeetModelFiles.validate(at: directory)
-        let vocabulary = try ParakeetModelFiles.vocabulary(at: directory)
+        let vocabulary = try ParakeetModelFiles.validate(at: directory)
         let configuration = MLModelConfiguration()
         #if targetEnvironment(simulator)
         configuration.computeUnits = .cpuOnly

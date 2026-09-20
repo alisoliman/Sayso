@@ -133,19 +133,6 @@ final class WritingStyleStore {
         return true
     }
 
-    @discardableResult
-    func reset(_ style: WritingStyle) -> Bool {
-        validationError = nil
-        guard canWrite else { return false }
-        guard !style.isOriginal else { return invalid("Original always keeps your words untouched.") }
-        guard let original = WritingStyle.defaults.first(where: { $0.id == style.id }),
-              let index = styles.firstIndex(where: { $0.id == style.id })
-        else { return invalid("Only default modes can be reset.") }
-        var updated = styles
-        updated[index] = original
-        return persist(updated)
-    }
-
     private func persist(_ updated: [WritingStyle]) -> Bool {
         guard canWrite else { return false }
         do {

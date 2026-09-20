@@ -22,7 +22,6 @@ enum SaysoTheme {
     static let ink = adaptive(0x20352D, 0xF0F4ED)
     static let secondaryInk = adaptive(0x5C6961, 0xB0BFB5)
     static let hairline = adaptive(0xD4DBD1, 0x46594E)
-    static let muted = secondaryInk
 }
 
 /// Motion follows a change of intent, never a clock. Keep it brief enough that
@@ -40,10 +39,6 @@ enum SaysoMotion {
                 .animation(.easeOut(duration: 0.22).delay(0.10)),
             removal: .opacity.animation(.easeOut(duration: 0.09)))
     }
-}
-
-struct QuietBackground: View {
-    var body: some View { SaysoTheme.canvas.ignoresSafeArea() }
 }
 
 struct SaysoPrimaryButtonStyle: ButtonStyle {

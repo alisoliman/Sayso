@@ -29,7 +29,7 @@ final class WritingStyleStoreTests: XCTestCase {
         }
     }
 
-    func testLegacyCustomInstructionsMigrateOnceAndResetDoesNotReimport() {
+    func testLegacyCustomInstructionsMigrateOnceAndSavedCatalogTakesPrecedence() {
         defaults.set("  Write in short paragraphs.\n", forKey: "customInstructions")
         defaults.set("custom", forKey: "writingMode")
 
@@ -38,7 +38,8 @@ final class WritingStyleStoreTests: XCTestCase {
         XCTAssertEqual(defaults.string(forKey: "writingMode"), "custom")
         XCTAssertEqual(WritingStyleStore(defaults: defaults).styles, store.styles)
 
-        XCTAssertTrue(store.reset(store.style(for: "custom")))
+        // A previously saved empty override catalog must not reimport old preferences.
+        defaults.set(Data("[]".utf8), forKey: "writingStyles")
         XCTAssertEqual(WritingStyleStore(defaults: defaults).style(for: "custom").prompt, "")
         XCTAssertEqual(defaults.string(forKey: "customInstructions"), "  Write in short paragraphs.\n")
     }
@@ -68,7 +69,7 @@ final class WritingStyleStoreTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode([WritingStyle].self, from: encoded).count, 3)
     }
 
-    func testEditedBuiltinsUseCustomLayoutAndResetRestoresDefaultRouting() {
+    func testEditedBuiltinsUseCustomLayoutAndSavingDefaultPromptRestoresRouting() {
         let store = WritingStyleStore(defaults: defaults)
         for mode in [WritingMode.email, .notes, .clean, .message] {
             var style = store.style(for: mode.rawValue)
@@ -77,7 +78,8 @@ final class WritingStyleStoreTests: XCTestCase {
             XCTAssertEqual(store.style(for: style.id).mode, mode)
             XCTAssertEqual(store.style(for: style.id).transformationMode, .custom)
             XCTAssertTrue(store.style(for: style.id).isCustomized)
-            XCTAssertTrue(store.reset(style))
+            style.prompt = mode.instructions
+            XCTAssertTrue(store.save(style))
             XCTAssertEqual(store.style(for: style.id).prompt, mode.instructions)
             XCTAssertEqual(store.style(for: style.id).transformationMode, mode)
         }
@@ -126,8 +128,6 @@ final class WritingStyleStoreTests: XCTestCase {
         for mode in WritingMode.allCases {
             XCTAssertFalse(store.delete(store.style(for: mode.rawValue)))
         }
-        XCTAssertFalse(store.reset(valid))
-        XCTAssertFalse(store.reset(store.style(for: "transcript")))
     }
 
     func testCorruptStorageIsPreservedAndRejectsEveryMutation() {
@@ -139,7 +139,7 @@ final class WritingStyleStoreTests: XCTestCase {
         XCTAssertEqual(store.styles, WritingStyle.defaults)
         XCTAssertFalse(store.save(WritingStyle(title: "New", prompt: "Write clearly.")))
         XCTAssertFalse(store.delete(WritingStyle(title: "New", prompt: "Write clearly.")))
-        XCTAssertFalse(store.reset(store.style(for: "email")))
+        XCTAssertFalse(store.save(store.style(for: "email")))
         XCTAssertEqual(defaults.data(forKey: "writingStyles"), unreadable)
     }
 
