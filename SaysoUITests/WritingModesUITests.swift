@@ -146,12 +146,24 @@ final class WritingModesUITests: XCTestCase {
         expectLabel(refined, on: result)
 
         app.buttons["historyButton"].tap()
-        let saved = app.staticTexts.matching(NSPredicate(format: "label == %@", refined)).firstMatch
+        XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5))
+        // The current result remains beneath the History sheet. Select the
+        // persisted row within the list, never a same-text Home element.
+        let history = app.descendants(matching: .any)["historyList"].firstMatch
+        let saved = history.staticTexts.matching(NSPredicate(format: "label == %@", refined)).firstMatch
+        capture("Writing-Mode-History-Before-Reveal", app: app)
+        reveal(saved, in: app, container: "historyList")
         XCTAssertTrue(saved.waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 5), "The saved mode name must reflect the named rewrite selected on Home.")
+        XCTAssertTrue(history.staticTexts[title].waitForExistence(timeout: 5), "The saved mode name must reflect the named rewrite selected on Home.")
+        capture("Writing-Mode-History-Revealed", app: app)
         saved.tap()
+        let detail = app.staticTexts["historyDetailText"]
+        XCTAssertTrue(detail.waitForExistence(timeout: 5))
+        XCTAssertEqual(detail.label, refined, "History must open the writing saved by the Home rewrite.")
         let historyRewrite = app.buttons["historyRewriteButton"]
-        reveal(historyRewrite, in: app)
+        capture("Writing-Mode-History-Detail-Before-Reveal", app: app)
+        reveal(historyRewrite, in: app, container: "historyDetailScrollView")
+        capture("Writing-Mode-History-Detail-Revealed", app: app)
         historyRewrite.tap()
         let namedRewrite = app.buttons["history-rewrite-\(id)"]
         XCTAssertTrue(namedRewrite.waitForExistence(timeout: 5))
@@ -164,7 +176,11 @@ final class WritingModesUITests: XCTestCase {
         waitForRewrite(in: app)
         expectLabel(refined, on: result)
         app.buttons["historyButton"].tap()
-        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 5), "A saved-history rewrite must retain the selected named mode.")
+        XCTAssertTrue(app.navigationBars["History"].waitForExistence(timeout: 5))
+        capture("Writing-Mode-Rewritten-History-Before-Reveal", app: app)
+        reveal(saved, in: app, container: "historyList")
+        XCTAssertTrue(history.staticTexts[title].waitForExistence(timeout: 5), "A saved-history rewrite must retain the selected named mode.")
+        capture("Writing-Mode-Rewritten-History-Revealed", app: app)
     }
 
     private func launch(previewResult: Bool = false) -> XCUIApplication {
@@ -221,18 +237,24 @@ final class WritingModesUITests: XCTestCase {
         XCTAssertTrue(app.textViews["rewritePromptEditor"].waitForExistence(timeout: 5))
     }
 
-    private func reveal(_ element: XCUIElement, in app: XCUIApplication) {
+    private func reveal(_ element: XCUIElement, in app: XCUIApplication, container identifier: String? = nil) {
+        let identifiedScroll = identifier.map { app.descendants(matching: .any)[$0].firstMatch }
+        if let identifiedScroll {
+            XCTAssertTrue(identifiedScroll.waitForExistence(timeout: 5))
+        }
         for _ in 0..<10 {
             if element.exists && element.isHittable { return }
             // The active Form/List may be a collection view on newer iOS.
-            // Prefer the foreground scroll surface when a nested sheet is open.
+            // An explicit surface avoids retained underlying lists when a
+            // detail or nested editor is the active navigation destination.
             let surfaces = app.scrollViews.allElementsBoundByIndex
                 + app.collectionViews.allElementsBoundByIndex
                 + app.tables.allElementsBoundByIndex
-            let scroll = surfaces.last(where: { $0.exists && $0.isHittable }) ?? app
+            let scroll = identifiedScroll ?? surfaces.last(where: { $0.exists && $0.isHittable }) ?? app
             scroll.swipeUp()
         }
-        XCTAssertTrue(element.exists && element.isHittable, "Unreachable control: \(element.identifier)\n\(app.debugDescription)")
+        XCTAssertTrue(element.exists, "Control not found in \(identifier ?? "the active scroll view")\n\(app.debugDescription)")
+        XCTAssertTrue(element.isHittable, "Control remains unreachable in \(identifier ?? "the active scroll view")\n\(app.debugDescription)")
     }
 
     private func replaceText(in field: XCUIElement, with text: String, app: XCUIApplication) {

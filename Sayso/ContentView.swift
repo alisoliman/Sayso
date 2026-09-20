@@ -12,7 +12,6 @@ struct ContentView: View {
     @AppStorage(SpeechProvider.preferenceKey) private var providerRaw = SpeechProvider.defaultProvider.rawValue
     @AppStorage("vocabulary") private var vocabulary = ""
     @AppStorage("saveHistory") private var saveHistory = true
-    @ScaledMetric(relativeTo: .largeTitle) private var idleTitleSize = 44.0
     @ScaledMetric(relativeTo: .title) private var writingSize = 23.0
     @State private var sheet: HomeSheet?
     @State private var showOriginal = false
@@ -58,12 +57,12 @@ struct ContentView: View {
     }
 
     enum HomeSheet: String, Identifiable {
-        case history, settings, modes, edit
+        case history, recent, settings, modes, edit
         var id: String { rawValue }
     }
 
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             VStack(spacing: 0) {
                 header
                 ScrollViewReader { reader in
@@ -77,14 +76,16 @@ struct ContentView: View {
                                 liveContent
                                     .transition(SaysoMotion.content(reduceMotion: reduceMotion))
                             } else {
-                                idleContent
-                                    .frame(minHeight: compactHeight ? 0 : (dynamicTypeSize.isAccessibilitySize ? 260 : max(260, geometry.size.height - 345)))
+                                WritingHomeView(recentEntry: model.store.entries.first,
+                                                onHistory: { sheet = .history }, onRecent: { sheet = .recent })
+                                    .disabled(model.isBusy)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     .transition(SaysoMotion.content(reduceMotion: reduceMotion))
                             }
                         }
                         .id("transcriptContent")
-                        .padding(.horizontal, 28)
-                        .padding(.top, model.current != nil || recording || model.phase == .finishing ? (compactHeight ? 12 : 34) : 0)
+                        .padding(.horizontal, 24)
+                        .padding(.top, compactHeight ? 12 : 24)
                         .padding(.bottom, compactHeight ? 12 : 28)
                         .frame(maxWidth: 640)
                         .frame(maxWidth: .infinity)
@@ -139,6 +140,19 @@ struct ContentView: View {
                     sheet = nil
                     model.reworkSaved(id, mode: selected.mode, instructions: selected.prompt, vocabulary: vocabulary, writingStyle: selected)
                 }
+            case .recent:
+                if let entry = model.store.entries.first {
+                    NavigationStack {
+                        HistoryDetailView(entry: entry, store: model.store, styles: styles) { id, selected in
+                            showOriginal = false
+                            sheet = nil
+                            model.reworkSaved(id, mode: selected.mode, instructions: selected.prompt, vocabulary: vocabulary, writingStyle: selected)
+                        }
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) { Button("Done") { sheet = nil } }
+                        }
+                    }
+                }
             case .settings: SettingsView(intelligence: model.intelligence, store: model.store, styles: styles,
                                          speechModels: model.speechModels, isDictationBusy: model.isBusy)
             case .modes:
@@ -147,6 +161,7 @@ struct ContentView: View {
             case .edit:
                 DictationTextEditor(text: $editText, onCancel: { sheet = nil }) { editedText in
                     model.updateText(editedText)
+                    showOriginal = false
                     sheet = nil
                 }
             }
@@ -211,30 +226,11 @@ struct ContentView: View {
         }.padding(.horizontal, 26).padding(.top, compactHeight ? 4 : 12).padding(.bottom, compactHeight ? 4 : 12)
     }
 
-    private var idleContent: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: compactHeight || dynamicTypeSize.isAccessibilitySize ? 8 : 28)
-            if !dynamicTypeSize.isAccessibilitySize {
-                VoiceEmblem()
-                    .frame(width: compactHeight ? 78 : 150, height: compactHeight ? 44 : 116)
-                    .padding(.bottom, compactHeight ? 12 : 36)
-            }
-            Text("Speak freely.")
-                .font(.system(size: idleTitleSize, weight: .regular, design: .serif))
-                .tracking(-1.6)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityAddTraits(.isHeader)
-            Spacer(minLength: compactHeight || dynamicTypeSize.isAccessibilitySize ? 12 : 32)
-        }
-        .frame(maxWidth: .infinity)
-    }
-
     private var liveContent: some View {
         VStack(alignment: .leading, spacing: compactHeight ? 12 : 26) {
             HStack {
                 HStack(spacing: 8) {
-                    Circle().fill(SaysoTheme.accent).frame(width: 6, height: 6)
+                    Circle().fill(SaysoTheme.recording).frame(width: 8, height: 8)
                     Eyebrow(text: model.phase == .finishing ? "Finishing" : "Listening")
                         .contentTransition(reduceMotion ? .identity : .opacity)
                         .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.phase)
@@ -265,6 +261,8 @@ struct ContentView: View {
             WaveformView(recording: recording, level: model.speech.level)
                 .frame(height: compactHeight ? 20 : 60).padding(.top, compactHeight ? 6 : 24)
         }
+        .padding(compactHeight ? 18 : 24)
+        .background(SaysoTheme.paper, in: .rect(cornerRadius: 28))
         // Following new words animates the scroll position, not the internal
         // layout. A newly wrapped line and the meter must move together.
         // The status and meter retain their own explicit local animations.
@@ -272,16 +270,30 @@ struct ContentView: View {
     }
 
     private func resultContent(_ entry: Dictation) -> some View {
+        let displayedText = showOriginal ? entry.original : entry.text
+        let displayedWordCount = displayedText.split(whereSeparator: \.isWhitespace).count
         let actions = dynamicTypeSize >= .xLarge ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12)) : AnyLayout(HStackLayout(spacing: 12))
         return VStack(alignment: .leading, spacing: compactHeight ? 16 : 25) {
-            HStack {
-                Eyebrow(text: model.phase == .refining ? "Refining your words" : "Ready to use")
-                    .contentTransition(reduceMotion ? .identity : .opacity)
-                    .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.phase)
-                Spacer()
-                Text("\(entry.wordCount) words").font(.caption).foregroundStyle(SaysoTheme.secondaryInk)
+            if !dynamicTypeSize.isAccessibilitySize {
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        Label(entry.modeTitle, systemImage: entry.modeSymbol)
+                        Spacer()
+                        Text(entry.createdAt, format: .dateTime.month(.abbreviated).day())
+                    }
+                    Label(entry.modeTitle, systemImage: entry.modeSymbol)
+                }
+                .font(.subheadline.weight(.medium)).foregroundStyle(SaysoTheme.accent)
+                Rectangle().fill(SaysoTheme.hairline).frame(height: 1).accessibilityHidden(true)
+                HStack {
+                    Eyebrow(text: model.phase == .refining ? "Refining your words" : "Your words, ready")
+                        .contentTransition(reduceMotion ? .identity : .opacity)
+                        .animation(reduceMotion ? nil : SaysoMotion.feedback, value: model.phase)
+                    Spacer()
+                    Text("\(displayedWordCount) words").font(.caption).foregroundStyle(SaysoTheme.secondaryInk)
+                }
             }
-            Text(showOriginal ? entry.original : entry.text)
+            Text(displayedText)
                 .font(.system(size: writingSize, weight: .regular)).lineSpacing(9)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -316,7 +328,7 @@ struct ContentView: View {
             }.disabled(model.isBusy)
             actions {
                 if entry.original != entry.text {
-                    Button { showOriginal.toggle() } label: {
+                    Button { showOriginal.toggle(); model.copied = false } label: {
                         Text(showOriginal ? "Show refined" : "Show original")
                             .contentTransition(reduceMotion ? .identity : .opacity)
                             .animation(reduceMotion ? nil : SaysoMotion.feedback, value: showOriginal)
@@ -342,11 +354,24 @@ struct ContentView: View {
                 }
                     .accessibilityIdentifier("rewriteButton")
             }.font(.subheadline.weight(.medium)).foregroundStyle(SaysoTheme.accent).frame(minHeight: 44).disabled(model.isBusy)
+            if dynamicTypeSize.isAccessibilitySize {
+                // At large reading sizes, the writing and its actions take
+                // priority over context that would fill the first viewport.
+                VStack(alignment: .leading, spacing: 8) {
+                    Label(entry.modeTitle, systemImage: entry.modeSymbol)
+                        .foregroundStyle(SaysoTheme.accent)
+                    Text("\(displayedWordCount) words")
+                    Text(entry.createdAt, format: .dateTime.month(.abbreviated).day())
+                }
+                .font(.subheadline).foregroundStyle(SaysoTheme.secondaryInk)
+            }
         }
+        .padding(compactHeight ? 18 : 24)
+        .background(SaysoTheme.paper, in: .rect(cornerRadius: 28))
     }
 
     private var controls: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             if model.phase == .preparing || model.phase == .finishing || model.phase == .refining {
                 HStack(spacing: 10) {
                     ProgressView().controlSize(.small)
@@ -358,9 +383,11 @@ struct ContentView: View {
                         .disabled(!model.canCancel)
                 }
             }
-            modeControl
-                .padding(.horizontal, 12)
-                .background(SaysoTheme.surface, in: .rect(cornerRadius: 20))
+            if !model.isBusy { modeControl }
+            if recording && !dynamicTypeSize.isAccessibilitySize {
+                Text("Keep Sayso open while you speak.")
+                    .font(.footnote).foregroundStyle(SaysoTheme.secondaryInk)
+            }
             recordControl
                 .padding(.top, 4)
             if recording {
@@ -370,8 +397,8 @@ struct ContentView: View {
                     .accessibilityIdentifier("discardRecordingButton")
             }
         }
-        .frame(maxWidth: 410)
-        .padding(.horizontal, 28).padding(.top, 12).padding(.bottom, 8)
+        .frame(maxWidth: 560)
+        .padding(.horizontal, 24).padding(.top, 16).padding(.bottom, 8)
         .frame(maxWidth: .infinity)
         .background(SaysoTheme.canvas)
         .animation(reduceMotion ? nil : SaysoMotion.settle, value: model.phase)
@@ -389,7 +416,8 @@ struct ContentView: View {
                 }
             }
             HStack(spacing: 12) {
-                modeControl
+                if !model.isBusy { modeControl }
+                else { Spacer(minLength: 0) }
                 if recording {
                     Button { discardRecording = true } label: {
                         Image(systemName: "xmark").font(.system(size: 17, weight: .medium))
@@ -422,20 +450,28 @@ struct ContentView: View {
                     .frame(width: 28)
                     .contentTransition(reduceMotion ? .identity : .symbolEffect(.replace))
                 VStack(alignment: .leading, spacing: 3) {
+                    if !compactHeight && !dynamicTypeSize.isAccessibilitySize {
+                        Text("WRITING MODE").font(.caption2.weight(.semibold)).tracking(1.2)
+                            .foregroundStyle(SaysoTheme.secondaryInk)
+                    }
                     Text(mode.title)
                         .font(dynamicTypeSize.isAccessibilitySize ? .headline : .subheadline.weight(.semibold))
+                        .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .contentTransition(reduceMotion ? .identity : .opacity)
                 }
                 Spacer(minLength: 4)
                 Image(systemName: "chevron.up.chevron.down").font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
             }
-            .foregroundStyle(SaysoTheme.ink).padding(.leading, compactHeight ? 9 : 0)
+            .foregroundStyle(SaysoTheme.ink)
+            .padding(.horizontal, 16).padding(.vertical, compactHeight ? 0 : 8)
             .frame(maxWidth: .infinity, minHeight: compactHeight ? 44 : 56)
+            .background(SaysoTheme.accentSoft, in: .rect(cornerRadius: 20))
             .contentShape(.rect)
             .animation(reduceMotion ? nil : SaysoMotion.feedback, value: mode.id)
         }
         .buttonStyle(SaysoPressButtonStyle()).disabled(model.isBusy).accessibilityIdentifier("modeButton")
+        .accessibilityLabel("Writing mode, \(mode.title)")
         .accessibilityHint("Choose a dictation mode")
     }
 

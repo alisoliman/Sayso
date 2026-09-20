@@ -1,6 +1,6 @@
 # Custom rewrite prompts and modes
 
-Open **Modes** from Home. Tap the pencil beside a rewrite mode to edit its prompt, or **Add mode** to save a name and prompt together. The same editors are available in **Settings → Writing modes** and through **Edit prompts & modes** in the Rewrite menus.
+Open **Modes** from Home. Tap **Edit prompt** beneath a rewrite mode, or **Add mode** to save a name and prompt together. The same editors are available in **Settings → Writing modes** and through **Edit prompts & modes** in the Rewrite menus.
 
 Changes are drafts until Save. Cancel or dismiss the editor to discard them. Built-in rewrite modes offer **Restore default prompt**, which also requires Save. Named modes can be renamed or deleted; deleting the selected mode switches the next recording to Original. Names must be unique, and both a name and prompt are required.
 

@@ -4,14 +4,15 @@ A quiet native iPhone app for turning speech into useful text. Record, choose a 
 
 **iOS 27.0 or later · SwiftUI · Parakeet / Apple Speech · Foundation Models**
 
-[Design reference](docs/DESIGN_LANGUAGE.md) · [Design verification](docs/DESIGN_VERIFICATION.md) · [Motion design](docs/MOTION_DESIGN.md)
+[Current design system](design-system/sayso/MASTER.md) · [Redesign verification](docs/REIMAGINED_APP.md) · [Earlier design](docs/DESIGN_VERIFICATION.md) · [Motion design](docs/MOTION_DESIGN.md)
 
 ## What it does
 
 - **Apple Speech**, the default, provides live transcription with a waveform, timer and explicit Start, Stop and Discard controls. Long transcripts follow the newest words; scrolling back lets you review without losing your place.
 - **Parakeet TDT v3** is an optional local speech model in Settings. Download it once (about 500 MB) or import its Core ML model folder. It detects 25 European languages, including English and Dutch, automatically and transcribes after Stop. Parakeet recordings are limited to ten minutes.
 - **Original**, the default, keeps your words. **Clean, Message, Email, Notes and Custom** optionally refine them with Apple Intelligence. The original remains available when rewriting is cancelled or fails.
-- Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap the pencil or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
+- Customize the rewrite prompt for Clean, Message, Email, Notes or Custom, and add named modes with their own instructions. Open **Modes** and tap **Edit prompt** or **Add mode**, or go to **Settings → Writing modes**. Saved modes are available for recording and rewrites from Home or History. Built-in prompts can be restored; your existing Custom instructions migrate automatically. [Writing modes and verification](docs/WRITING_MODES.md).
+- A writing workspace with a recent-thought shortcut, grouped History, and matching paper-and-teal reading surfaces.
 - Editable results, original/refined comparison, local searchable history, vocabulary spellings and a choice of supported speech languages. Saving history is optional.
 - Record live, then copy or use native Share.
 - A Start Dictation shortcut, suitable for Siri or the Action button.
