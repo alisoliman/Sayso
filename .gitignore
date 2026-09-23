@@ -5,3 +5,8 @@ xcuserdata/
 .DS_Store
 *.xcresult/
 __pycache__/
+
+# Local AI-assistant skills (not part of the app)
+.agents/
+.claude/skills/
+skills-lock.json

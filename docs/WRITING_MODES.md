@@ -1,29 +1,36 @@
-# Custom rewrite prompts and modes
+# Writing modes
 
-Open **Modes** from Home. Tap **Edit prompt** beneath a rewrite mode, or **Add mode** to save a name and prompt together. The same editors are available in **Settings → Writing modes** and through **Edit prompts & modes** in the Rewrite menus.
+A writing mode decides what happens to your words after you speak. Pick one on the Home screen before you start.
 
-Changes are drafts until Save. Cancel or dismiss the editor to discard them. Built-in rewrite modes offer **Restore default prompt**, which also requires Save. Named modes can be renamed or deleted; deleting the selected mode switches the next recording to Original. Names must be unique, and both a name and prompt are required.
+| Mode | What it does |
+| --- | --- |
+| **Original** | Your words, exactly as spoken |
+| **Clean** | Removes filler words like "um" and fixes grammar, but keeps your voice |
+| **Message** | A short, natural message, ready to send |
+| **Email** | A clear email body in short paragraphs |
+| **Notes** | A bullet list, one thought or task per bullet |
+| **Custom** | Follows your own instructions |
 
-The saved library is shared by new recordings, Home rewrites and History rewrites. Existing Custom instructions migrate automatically. Original remains an exact transcription mode. Editing an Email or Notes prompt uses the custom rewrite path so the original mode’s fixed layout cannot override the new instructions. Restoring its default prompt restores the original processing path.
+Every mode except Original uses Apple Intelligence on your iPhone. Your original words are always kept, so you can switch back to them at any time.
 
-Each operation captures its mode and prompt when it starts. Saved results retain that name and prompt even if the mode is later renamed or deleted. Existing history without this metadata continues to load. Rewrite failures or cancellation retain the prior result, and selecting Original restores its archival transcript.
+## Rewrite something you already said
 
-## Verification — 8 September 2026
+Open a result on Home or in History and tap **Rewrite** to try another mode. Rewriting updates the same saved entry, and the original stays available.
 
-- Xcode 27 beta 6 (`27A5252f`) built the app, extensions and test targets for iOS 27 Simulator successfully. The unsigned iPhone Release build also passed.
-- **15 host XCTest tests passed, with zero failures:** eight `WritingStyleStoreTests` and seven `DictationStoreTests`. These ran the actual production model/store source and existing tests in a temporary macOS Swift package, with the unchanged `WritingMode` enum extracted from `IntelligenceService.swift`. They verify storage, migration, validation, routing selection and backward-compatible history; they do not execute the iOS controller, UI or Apple Intelligence.
-- Additional controller tests and three native `WritingModesUITests` compile. Simulator runs were interrupted before any test case executed after startup stalled. A shared simulator was also being used by another development task; a separate simulator then stalled while the host ran critically low on disk space. No native UI pass or visual acceptance is claimed. The separate simulator and temporary build caches were cleaned up.
-- Local generated logs (excluded from Git) are `.build/writing-modes-build.log`, `.build/writing-modes-release.log`, `.build/writing-modes-host-tests.log`, and the `writing-modes-tests`, `writing-modes-retry` and `writing-modes-isolated` logs/result bundles.
+## Edit a prompt
 
-To run the iOS checks when the simulator is available, use the Xcode 27 toolchain and a separate simulator as described in the [build instructions](../README.md#build-and-run):
+Each mode is driven by a prompt: the instructions Apple Intelligence follows.
 
-```sh
-xcodebuild test -project Sayso.xcodeproj -scheme Sayso \
-  -destination "platform=iOS Simulator,id=$SAYSO_SIMULATOR_ID" \
-  -parallel-testing-enabled NO -jobs 2 \
-  -only-testing:SaysoTests \
-  -only-testing:SaysoUITests/WritingModesUITests \
-  -only-testing:SaysoUITests/SaysoUITests/testCustomModeCommitsOnlyValidDoneAndSwipeDismissPreservesSavedStyle \
-  -only-testing:SaysoUITests/SaysoUITests/testHomeModesSettingsAndEmptyHistoryAreReachable \
-  CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=-
-```
+1. Open **Modes** from Home, or go to **Settings → Writing modes**.
+2. Tap **Edit prompt** under the mode you want to change.
+3. Change the instructions and tap **Save**. Cancel to throw away your changes.
+
+To undo your changes to a built-in mode, open its editor, tap **Restore default prompt**, then **Save**.
+
+## Create your own mode
+
+In **Modes**, tap **Add mode**, give it a name and write its instructions. Your modes appear alongside the built-in ones. You can rename or delete them later.
+
+- Each mode needs a unique name and a prompt.
+- If you delete the mode you're using, Sayso switches back to Original.
+- Past dictations keep the name and prompt they were made with, even if you later change or delete that mode.
